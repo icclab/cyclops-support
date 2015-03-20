@@ -1,0 +1,19 @@
+<div class="panel panel-default">
+    <div class="panel-heading">Disk Read (kB)</div>
+    <div class="panel-body">
+
+        <div
+            class="alert alert-danger"
+            data-ng-show="diskReadCtrl.dataError">
+            Error loading chart data</div>
+
+        <canvas
+            id="lineDiskRead"
+            data-ng-hide="diskReadCtrl.dataError"
+            class="chart chart-line"
+            data="diskReadCtrl.data"
+            labels="diskReadCtrl.labels"
+            legend="false"
+            series="diskReadCtrl.series"></canvas>
+    </div>
+</div>

@@ -1,0 +1,19 @@
+<div class="panel panel-default">
+    <div class="panel-heading">CPU Utilisation</div>
+    <div class="panel-body">
+
+        <div
+            class="alert alert-danger"
+            data-ng-show="cpuUtilCtrl.dataError">
+            Error loading chart data</div>
+
+        <canvas
+            id="lineCpuUtil"
+            data-ng-hide="cpuUtilCtrl.dataError"
+            class="chart chart-line"
+            data="cpuUtilCtrl.data"
+            labels="cpuUtilCtrl.labels"
+            legend="false"
+            series="cpuUtilCtrl.series"></canvas>
+    </div>
+</div>

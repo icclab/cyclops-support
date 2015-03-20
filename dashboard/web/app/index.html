@@ -1,0 +1,71 @@
+<!doctype html>
+<html data-ng-app="dashboard" lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>RCB Dashboard</title>
+    <link rel="stylesheet" type="text/css" href="css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="css/dashboard.css">
+    <link rel="stylesheet" type="text/css" href="css/angular-chart.css">
+    <link rel="stylesheet" type="text/css" href="css/font-awesome.min.css">
+    <link rel="stylesheet" type="text/css" href="css/metisMenu.min.css">
+    <link rel="stylesheet" type="text/css" href="css/sb-admin-2.css">
+    <link rel="stylesheet" type="text/css" href="css/timeline.css">
+</head>
+<body>
+
+    <div id="wrapper">
+
+        <!-- NAVIGATION RENDERING TARGET -->
+        <div ui-view="navigation"></div>
+
+        <!-- Page Content -->
+        <div id="page-wrapper">
+            <div class="container-fluid">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div class="dashboard-content-container">
+
+                            <!-- CONTENT RENDERING TARGET -->
+                            <div ui-view="content"></div>
+
+                        </div>
+                    </div>
+                    <!-- /.col-lg-12 -->
+                </div>
+                <!-- /.row -->
+            </div>
+            <!-- /.container-fluid -->
+        </div>
+        <!-- /#page-wrapper -->
+    </div>
+
+    <script src="libs/jquery.min.js"></script>
+    <script src="libs/date.js"></script>
+    <script src="libs/bootstrap.min.js"></script>
+    <script src="libs/metisMenu.min.js"></script>
+    <script src="libs/sb-admin-2.js"></script>
+    <script src="libs/angular.min.js"></script>
+    <script src="libs/angular-ui-router.min.js"></script>
+    <script src="libs/Chart.min.js"></script>
+    <script src="libs/angular-chart.js"></script>
+    <script src="app.js"></script>
+    <script src="services/session-service.js"></script>
+    <script src="services/rest-service.js"></script>
+    <script src="services/chart-data-service.js"></script>
+    <script src="utils/date-util.js"></script>
+    <script src="utils/response-parser.js"></script>
+    <script src="navigation/navigation.js"></script>
+    <script src="login/login.js"></script>
+    <script src="overview/overview.js"></script>
+    <script src="keystone/keystone.js"></script>
+    <script src="bills/bills.js"></script>
+    <script src="cloud-services/cloud-services.js"></script>
+    <script src="admin/meters/meters.js"></script>
+    <script src="admin/users/users.js"></script>
+    <script src="charts/cpu-util/cpu-util.js"></script>
+    <script src="charts/disk-read/disk-read.js"></script>
+    <script src="charts/net-out-bytes/net-out-bytes.js"></script>
+    <script src="charts/net-in-bytes/net-in-bytes.js"></script>
+</body>
+</html>

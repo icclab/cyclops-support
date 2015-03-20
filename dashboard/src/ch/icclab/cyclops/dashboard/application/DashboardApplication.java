@@ -1,0 +1,74 @@
+/*
+ * Copyright (c) 2015. Zuercher Hochschule fuer Angewandte Wissenschaften
+ *  All Rights Reserved.
+ *
+ *     Licensed under the Apache License, Version 2.0 (the "License"); you may
+ *     not use this file except in compliance with the License. You may obtain
+ *     a copy of the License at
+ *
+ *          http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *     Unless required by applicable law or agreed to in writing, software
+ *     distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ *     WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ *     License for the specific language governing permissions and limitations
+ *     under the License.
+ */
+
+package ch.icclab.cyclops.dashboard.application;
+
+import ch.icclab.cyclops.dashboard.keystone.KeystoneAssociation;
+import ch.icclab.cyclops.dashboard.keystone.KeystoneMeter;
+import ch.icclab.cyclops.dashboard.login.Login;
+import ch.icclab.cyclops.dashboard.login.Session;
+import ch.icclab.cyclops.dashboard.token.TokenInfo;
+import ch.icclab.cyclops.dashboard.udr.UdrMeter;
+import ch.icclab.cyclops.dashboard.udr.Usage;
+import ch.icclab.cyclops.dashboard.users.Admin;
+import ch.icclab.cyclops.dashboard.users.User;
+import ch.icclab.cyclops.dashboard.util.LoadConfiguration;
+import org.restlet.Application;
+import org.restlet.Context;
+import org.restlet.Restlet;
+import org.restlet.routing.Router;
+
+import java.io.IOException;
+
+public class DashboardApplication extends Application {
+    @Override
+    public Restlet createInboundRoot() {
+        loadConfiguration(getContext());
+
+        Router router = new Router(getContext());
+        router.attach("/login", Login.class);
+        router.attach("/tokeninfo", TokenInfo.class);
+        router.attach("/usage", Usage.class);
+        router.attach("/keystonemeters", KeystoneMeter.class);
+        router.attach("/udrmeters", UdrMeter.class);
+        router.attach("/keystone", KeystoneAssociation.class);
+        router.attach("/session", Session.class);
+        router.attach("/users", User.class);
+        router.attach("/admins", Admin.class);
+        return router;
+    }
+
+    /**
+     * Loads the configuration file at the beginning of the application startup
+     *
+     * Pseudo Code
+     * 1. Create the LoadConfiguration class
+     * 2. Load the file if the the existing instance of the class is empty
+     *
+     * @param context
+     */
+    private void loadConfiguration(Context context){
+        LoadConfiguration loadConfig = new LoadConfiguration();
+        if(LoadConfiguration.configuration == null){
+            try {
+                loadConfig.run(context);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+}

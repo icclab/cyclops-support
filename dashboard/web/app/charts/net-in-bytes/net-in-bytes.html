@@ -1,0 +1,19 @@
+<div class="panel panel-primary">
+    <div class="panel-heading">
+
+        <div
+            class="alert alert-danger"
+            data-ng-show="netInBytesCtrl.dataError">
+            Error loading chart data
+        </div>
+
+        <div
+            class="row huge text-center"
+            data-ng-hide="netInBytesCtrl.dataError">
+            {{netInBytesCtrl.data}}
+        </div>
+    </div>
+    <div class="panel-body text-center">
+        Incoming Network Traffic
+    </div>
+</div>

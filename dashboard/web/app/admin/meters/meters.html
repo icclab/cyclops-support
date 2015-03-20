@@ -1,0 +1,20 @@
+<div class="row">
+    <div
+        class="col-lg-4"
+        data-ng-repeat="meter in adminMeterCtrl.uniqueMeterMap">
+
+        <label>
+            <input
+                type="checkbox"
+                data-ng-checked="meter.selected"
+                data-ng-click="adminMeterCtrl.toggleMeter(meter.name)">
+
+                {{meter.name}}
+        </label>
+    </div>
+</div>
+
+<button
+    type="button"
+    class="btn btn-success btn-lg btn-block"
+    data-ng-click="adminMeterCtrl.updateUdrMeters()">Save</button>

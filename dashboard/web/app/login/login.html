@@ -1,0 +1,34 @@
+<div class="row">
+    <div class="col-md-4 col-md-offset-2">
+        <div class="login-panel panel panel-default">
+            <div class="panel-heading">
+                <h3 class="panel-title">Please Sign In</h3>
+            </div>
+            <div class="panel-body">
+
+                <div class="alert alert-danger" data-ng-show="loginCtrl.loginError">
+                    Username or password is invalid. Please try again.
+                </div>
+
+                <form role="form">
+                    <fieldset>
+                        <div class="form-group">
+                            <input data-ng-model="loginCtrl.user" class="form-control" placeholder="Username" name="username" type="text" autofocus>
+                        </div>
+                        <div class="form-group">
+                            <input data-ng-model="loginCtrl.pwd" class="form-control" placeholder="Password" name="password" type="password" value="">
+                        </div>
+                        <div class="checkbox">
+                            <label>
+                                <input name="remember" type="checkbox" value="Remember Me">Remember Me
+                            </label>
+                        </div>
+                        <a data-ng-click="loginCtrl.login()" class="btn btn-lg btn-success btn-block">Login</a>
+                    </fieldset>
+                </form>
+                <a href="http://cyclops-ui.cloudcomplab.ch:8080/openam/XUI/#register/">Register a new account</a>
+                <img src="img/icclab_logo.png" width="100%" />
+            </div>
+        </div>
+    </div>
+</div>
