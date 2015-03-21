@@ -8,3 +8,11 @@ For more in-depth documentation, see:
 * [Installing OpenAM](https://github.com/icclab/cyclops-support/wiki/OpenAM-Installation)
 * [Configuring OpenAM](https://github.com/icclab/cyclops-support/wiki/OpenAM-Configuration)
 * [Communication Flow](https://github.com/icclab/cyclops-support/wiki/Communication-Flow)
+
+Currently, the following features are implemented:
+* [User] Authentication / Authorisation via OpenAM
+* [User] Linking an account to OpenStack
+* [User] Displaying some usage data
+* [Admin] Listing users and admins
+* [Admin] Displaying list of all available meters
+* [Admin] Configuring UDR Microservice to use different set of meters
