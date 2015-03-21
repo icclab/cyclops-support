@@ -1,6 +1,8 @@
 # cyclops-support
 
-The **Cyclops Dashboard** is the place for users to check their usage data, connect to cloud providers and manage bills. Admins can use it to configure the different microservices and maintain user accounts.
+The **Cyclops Dashboard** is one of the support services as part of CYCLOPS - A Rating, Charging  & Billing solution for cloud being developed by <a href="http://blog.zhaw.ch/icclab/">InIT Cloud Computing Lab</a> at <a href="http://www.zhaw.ch">ZHAW</a>
+
+It is the place for users to check their usage data, connect to cloud providers and manage bills. Admins can use it to configure the different microservices and maintain user accounts.
 
 ![](https://github.com/icclab/cyclops-support/blob/master/dashboard/doc/images/dashboard_menu.png)
 
@@ -8,6 +10,7 @@ For more in-depth documentation, see:
 * [Installing OpenAM](https://github.com/icclab/cyclops-support/wiki/OpenAM-Installation)
 * [Configuring OpenAM](https://github.com/icclab/cyclops-support/wiki/OpenAM-Configuration)
 * [Communication Flow](https://github.com/icclab/cyclops-support/wiki/Communication-Flow)
+* [Javadoc](https://icclab.github.io/cyclops/javadoc/udrservice/)
 
 Currently, the following features are implemented:
 * [User] Authentication / Authorisation via OpenAM
@@ -16,6 +19,15 @@ Currently, the following features are implemented:
 * [Admin] Listing users and admins
 * [Admin] Displaying list of all available meters
 * [Admin] Configuring UDR Microservice to use different set of meters
+
+### Components & Libraries
+  * <a href="https://angularjs.org">AngularJS</a>
+  * <a href="https://github.com/angular-ui/ui-router">AngularJS ui-router</a>
+  * <a href="https://jasmine.github.io">Jasmine</a>
+  * <a href="http://getbootstrap.com">Bootstrap</a>
+  * <a href="http://startbootstrap.com/template-overviews/sb-admin-2">SB Admin 2 (Bootstrap Theme)</a>
+  * <a href="https://tomcat.apache.org">Tomcat7</a>
+  * <a href="https://restlet.com">RESTLET</a> 
 
 ### Communication
   * Issues/Ideas/Suggestions : <a href="https://github.com/icclab/cyclops-support/issues">GitHub Issue</a>
