@@ -1,0 +1,1 @@
+define("org/forgerock/commons/ui/common/components/popup/PopupCtrl",["org/forgerock/commons/ui/common/components/popup/PopupView"],function(e){var t={};return t.view=e,t.init=function(){e.init()},t.showBy=function(t,n){e.setContent(t),e.show(),e.setPositionBy(n)},t.hide=function(){e.hide()},t})

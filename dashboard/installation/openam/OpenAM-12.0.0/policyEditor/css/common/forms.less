@@ -1,0 +1,494 @@
+/* FORMS */
+input[type="text"], input[type="password"], input[type="tel"], input[type="email"], textarea, select {
+    border: 1px solid @input-border-basic;
+    border-top-color: darken(@input-border-basic, 14%);
+    border-left-color: darken(@input-border-basic, 14%);
+    .rounded-corners(5px);
+    font-size: 15px;
+    color: @font-color;
+    padding: 5px 10px;
+    background-color: @input-background-color;
+    width: 230px;
+            box-shadow:1px 1px 1px 0 rgba(0,0,0,0.1) inset;
+       -moz-box-shadow:1px 1px 1px 0 rgba(0,0,0,0.1) inset;
+    -webkit-box-shadow:1px 1px 1px 0 rgba(0,0,0,0.1) inset;
+    .transition(background, 0.3s, 0.25s,  ease-in-out);
+}
+
+input{
+    margin:0;
+}
+
+.select-static-medium {
+    width: 130px;
+}
+
+:focus{
+    outline: none;
+    .box-shadow(0, 0, 1px, 1px, @color-active);
+}
+
+input:not([type=submit]):invalid:required, input:not([type=submit]).invalid, select.invalid, select:invalid{
+    background-color: @input-background-invalid-color;
+    border-color: @input-border-invalid-color;
+    border-top-color: mix(@input-border-invalid-color, #000000, 80%);
+    border-left-color: mix(@input-border-invalid-color, #000000, 80%);
+}
+
+
+input[type="text"]:focus, input[type="password"]:focus, input[type="tel"]:focus, input[type="email"]:focus, textarea:focus, select:focus, button.button:focus, a.button:focus, input.button:focus{
+    border: 1px solid @color-active;
+    outline: none;
+    .box-shadow(0, 0, 1px, 1px, @color-active);
+}
+
+button.button:focus, a.button:focus, input.button:focus{
+    .box-shadow(0, 0, 1px, 2px, saturate(@color-active, 30%));
+}
+
+input[type="text"]:focus:invalid:required, input[type="password"]:focus:invalid:required,
+input[type="tel"]:focus:invalid:required, input[type="email"]:focus:invalid:required:required,
+textarea:focus:invalid:required, select:focus:invalid:required,
+input[type="text"].invalid:focus, input[type="password"].invalid:focus, input[type="tel"].invalid:focus,
+input[type="email"].invalid:focus, textarea.invalid:focus,
+select.invalid:focus  {
+    border: 1px solid @input-border-invalid-color;
+    .box-shadow(0, 0, 1px, 1px, @input-border-invalid-color);
+}
+
+
+input.read-only, input:read-only, input[type="text"]:focus:read-only, input[type="email"]:focus:read-only{
+    background: transparent;
+    box-shadow:none;
+    border:1px solid @input-border-basic;
+}
+
+.content-bg h1, .container-shadow h1{
+    padding: 0 0 30px;
+    line-height: 22px;
+}
+
+
+form.form {
+
+    &.large {
+        width: 750px;
+        label {
+            width: 210px;
+        }
+        div.field-checkbox {
+            margin-left: 220px;
+        }
+        div.field-submit {
+            margin-left: 220px;
+        }
+        fieldset {
+            margin-top: 20px;
+        }
+
+    }
+    &.two-columns {
+        label {
+            width: 165px;
+        }
+        div.validation-message {
+            padding-top: 3px;
+            margin-left: 180px;
+        }
+        div.field {
+            height: 70px;
+            margin-bottom: 0;
+        }
+    }
+    &.small {
+        label {
+            width: 110px;
+        }
+        div.field-checkbox {
+            margin-left: 111px;
+        }
+        div.field-submit {
+            margin-left: 111px;
+        }
+    }
+
+
+    div.field-checkbox.float-left {
+            margin-left: 0;
+    }
+    &.center , .center{
+        margin: 0 auto;
+    }
+
+    &.no-margin {
+        fieldset {
+            margin-top: 0;
+        }
+    }
+    label {
+        float: left;
+        text-align: right;
+        font-size: 17px;
+        font-weight: bold;
+        padding: 7px 10px 7px 0;
+    }
+    label.short, .group-field-row label.short, .group-field-block label.short {
+        width: 100px;
+    }
+
+
+
+    label.light {
+        font-weight: normal;
+    }
+    .input{
+        float: left;
+        padding-top: 7px;
+    }
+    ul {
+        clear: left;
+    }
+    ul label {
+        float: none;
+        display: inline-block;
+        min-width: 150px;
+        width: auto !important;
+    }
+    div.field-checkbox {
+        margin-left: @column-padding;
+        label {
+            font-weight: normal;
+            width: auto;
+            font-size: 14px;
+            float: none;
+            text-align: left;
+        }
+        input {
+            float: left;
+            margin: 3px 6px 3px 0;
+        }
+    }
+
+    div.field-submit {
+        margin: 20px 0 0 @column-padding;
+    }
+
+    div.field {
+        clear: both;
+        margin-bottom: 15px;
+        div.input-fake {
+            padding-top: 8px;
+            height: 25px;
+        }
+    }
+
+    div.input-icon {
+        span.icon {
+           height: 28px;
+           width: 36px;
+           display: inline-block;
+           vertical-align: top;
+           margin-right: -1px;
+           border: 1px solid @input-border-basic;
+           .rounded-left-corners;
+           .linear-gradient;
+        }
+        span.icon-user {
+           .linear-gradient-with-image("../../images/icon-user.png");
+        }
+        span.icon-key {
+           .linear-gradient-with-image("../../images/icon-key.png");
+        }
+        input {
+            position: relative;
+            margin-bottom: 0;
+            vertical-align: top;
+            height: 18px;
+            .rounded-left-corners(0);
+        }
+    }
+
+    div.field-text {
+       padding-top: 20px;
+    }
+    select {
+        width: 252px;
+        height: 30px;
+        font-size:13px;
+    }
+
+    .field-rule span{
+         padding: 2px 0 0 0;
+         font-size: 12px;
+    }
+
+    span.error, span.ok {
+        padding:0;
+        font-weight: bold;
+        font-size: 14px;
+        text-align: center;
+        vertical-align: middle;
+        width: 20px;
+        display: inline-block;
+    }
+    span.error {
+        color: @color-error;
+    }
+    span.ok {
+        color: @color-success;
+    }
+
+    div.validation-message, div.input-validation-message {
+        color: @color-error;
+        display: inline-block;
+        float: right;
+        font-size: 12px;
+        text-align:right;
+        line-height: 12px;
+        padding-top: 5px;
+        &.noFloat {
+            float:none;
+            text-align: left;
+        }
+    }
+    div.group-field-inputs {
+        float: left;
+    }
+    div.group-field-errors {
+        padding: 1px 7px 5px 5px;
+        width: 240px;
+        margin-left: 5px;
+        border: 1px solid @input-border-basic;
+        background-color:darken(@content-background, 1%);
+        float: left;
+        .rounded-corners(5px);
+        span {
+            font-weight: bold;
+            font-size: 12px;
+            &.ok {
+                width:15px;
+            }
+            &.error {
+                width:15px;
+            }
+        }
+        p {
+            font-size:12px;
+            padding:4px;
+        }
+    }
+
+    div.field-checkbox div.validation-message {
+        padding:5px 0 0 21px;
+        text-align:left;
+            float:left;
+        .label{
+            float:left;
+        }
+    }
+
+    div.group-field-errors.float-right {
+        float:right;
+    }
+
+    div.group-field-message {
+        margin-left: 15px;
+        float: left;
+        width: 210px;
+    }
+
+
+    .group-field-row{
+        clear:both;
+    }
+
+    .group-actions-block{
+        clear:both;
+        margin: 30px 0 0;
+    }
+
+    .group-field-row, .group-field-block{
+
+        display: table;
+        padding: 5px 0 0;
+
+        label, input{
+            float:left;
+        }
+
+        label{
+            width:160px;
+            text-align:left;
+        }
+
+        .group-input-span{
+            float:left;
+
+        }
+
+        .group-input-span label{
+            float:none;
+        }
+
+        .group-input-span{
+            display:table;
+            float: left;
+        }
+        .group-input-span span.error,.group-input-span span.ok{
+            display:table-cell;
+            vertical-align: middle;
+
+        }
+
+        div.validation-message{
+            margin: 0 20px 0 0;
+            width: auto;
+            clear: both;
+            transition: max-height 0.5s ease-in, opacity 0.4s ease-in, min-height 0.3s ease-out;
+            overflow:hidden;
+            max-height:0;
+            min-height:0;
+            opacity:0;
+        }
+
+        .invalid div.validation-message{
+            max-height:100px;
+            min-height:1em;
+            opacity:1;
+        }
+
+        span{
+            display: table-cell;
+            vertical-align: middle;
+        }
+
+    }
+
+    .center label, .center .group-field-block label{
+        width:auto;
+    }
+
+
+
+    .checkboxList {
+        .rounded-corners;
+        .border-gray;
+        .content;
+        float: left;
+        max-height: 80px;
+        width: 230px;
+        overflow: auto;
+        margin-bottom: 15px;
+
+        ol {
+            list-style-type:none;
+            li{
+                input{
+                    float: none;
+                }
+                label {
+                    width: auto;
+                    float: none;
+                    text-align: left;
+                    display: inline;
+                    font-weight: normal;
+                    font-size:12px;
+                    padding:1px 0 0 5px;
+                }
+            }
+        }
+    }
+
+    .align-label{
+        padding-left:170px;
+    }
+
+    .group-field-row  span.ok, .group-field-row span.error{
+        display:table-cell;
+        vertical-align: middle;
+    }
+
+    .field-rule{
+        padding:2px 0 0;
+        clear: left;
+    }
+
+    .group-field-row.group-field-short label{
+        width:auto;
+    }
+
+    div.group-field-errors{
+        margin: 5px 0 0 7px;
+    }
+
+    div.col2b{
+        margin-left:170px;
+    }
+
+    .col0, .fieldset.col0{
+        max-width: 460px;
+        margin-left:auto;
+        margin-right:auto;
+    }
+
+    .group-field-row label.right,
+    .group-field-block label.align-right,
+    align.right{
+        text-align:right;
+    }
+
+    .group-field-block{
+       min-height: 35px;
+    }
+
+    .fieldset{
+        padding: 10px 10px;
+        clear: both;
+        border-radius: 5px;
+        border: 1px solid rgba(0,0,0,0.05);
+        margin: 0 0 10px;
+    }
+
+}
+
+.fieldset{
+    padding: 10px 10px;
+    clear: both;
+    border-radius: 5px;
+    border: 1px solid rgba(0,0,0,0.05);
+    margin: 0 0 10px;
+}
+
+.fieldset p.last {
+    padding-bottom:0;
+}
+
+ul.link-box{
+    display:block;
+    clear:none;
+    padding:10px 10px 5px;
+    font-size:0; /*removes spaces between */
+    li{
+        display:inline-block;
+        border-left:1px solid @font-color;
+        margin:0 0 0 10px;
+        padding:0 0 0 10px;
+        font-size:14px;
+        line-height:14px;
+    }
+
+}
+
+nav ul.link-box li{
+    border-left:2px solid @font-color;
+}
+
+nav ul.link-box li:first-of-type, ul.link-box li:first-of-type{
+    border:none;
+    margin:0;
+    padding:0;
+}
+
+.form ul.link-box.float-right{
+    padding-right:38px;
+}
