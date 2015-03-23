@@ -1,0 +1,416 @@
+/* MENU & SUBMENU */
+
+.menubar {
+    
+    margin-bottom: 10px;
+
+    .menu {
+        .rounded-corners(5px);     
+        background-color: @inactive-menu-color;
+        .linear-gradient(top, lighten(@inactive-menu-color, 10%), @inactive-menu-color );
+        height: 38px;
+        overflow:hidden;
+
+        .box-shadow(0, 1px, 2px, 0, rgba(0,0,0,0.2));
+
+        li {
+            float: left;
+            height: 38px;
+
+            a {
+                display: block;
+                color: @inactive-menu-font-color;
+                font-size: 16px;
+                padding: 10px 20px 10px 15px;
+                text-decoration: none;
+            }
+
+            .transition(background, 0.3s, ease-out);
+        }
+
+        li:hover {
+            background-color: mix(@active-menu-color, @inactive-menu-color, 50%);
+        }
+
+        li.active, li.active:hover  {
+            background-color: @active-menu-color;
+            a{
+                color: @active-menu-font-color;
+            }
+        }
+
+        li:not(:first-child) a{
+            border-left:1px solid rgba(0,0,0,0.1);
+        }
+    }
+}
+
+.submenubar {
+    height: 31px;
+    clear: both;
+    border-left: 1px solid #D5D5D5;
+    border-right: 1px solid #D5D5D5;
+    border-bottom: 1px solid #D5D5D5;
+    margin-left: 3px;
+    margin-right: 3px;
+
+    li {
+        float: left;
+        height: 30px;
+
+        a {
+            display: block;
+            color: @color-active;
+            padding: 3px 8px 4px 8px;
+            margin: 3px 5px 0 5px;
+        }
+    }
+
+    a:hover, .active a {
+        .rounded-corners(5px);
+        background-color: @color-active;
+        color: #F9F9F9;
+    }
+    
+    a:hover {
+        background-color: mix(@active-menu-color, @inactive-menu-color, 70%);
+    }
+}
+
+/* HEADER */
+#header {
+    padding-top: 15px;
+    margin-bottom: 10px;
+}
+
+#logo {
+    margin-left: 10px;
+}
+
+#user-nav {
+    margin: 5px 10px 0 0;
+}
+
+/* MAIN CONTENT */
+
+#wrapper {
+    min-height: 100%;
+}
+
+#content {
+    color:@font-color;
+    overflow: auto;
+    height: 100%;
+    padding-bottom: @footer-height+10;
+}
+
+
+/* FOOTER */
+#footer {
+    position: relative;
+    clear: both;
+    background: @footer-background-color;
+    font-size: 11px;
+    height: @footer-height;
+    margin-top: -@footer-height;
+    text-align: center;
+    display: table;
+    width: 100%;
+    .container {
+        width: auto;
+        display: table-cell;
+        vertical-align: middle;
+        padding:10px 0 0;
+    }
+
+}
+
+
+/* DIALOGS */
+
+#dialog-background {
+    position: fixed;
+    z-index: 60000; /* needs to be higher than contentflows z-indexes*/
+    top: 0;
+    bottom: 0;
+    width: 100%;
+    background-color: #000;
+
+    display: block;
+    opacity: 0; 
+    height: 0;
+    overflow: hidden;
+
+    .transition(opacity, 0.4s, ease-out);
+}
+
+#dialog-background.show {
+    opacity: 0.8;
+    height: auto;
+}
+
+#dialogs{
+    top: 0; 
+    display: none;
+    position: fixed; 
+    z-index: 60001; 
+    height: 100%;
+    width: 100%;
+}
+
+#dialogs.show{
+    display: table;
+}
+
+.dialogContainer {
+
+    display: table-cell;
+    vertical-align: middle;
+
+    .dialogInner {
+ 
+        display: table;
+        min-width: 300px; 
+        max-width: 900px;
+        margin: 0 auto;
+        background: @content-background;
+        border: 1px solid @font-color;
+        padding: 15px;
+        .rounded-corners(5px);
+    }
+
+    
+
+    h1 {
+        line-height: 20px;
+    }
+
+    .dialogCloseCross {
+        width: 16px;
+        height: 16px;
+        position: relative;
+        float: right;
+        a {
+            padding-top: 3px;
+        }
+    }
+
+    .dialogContent {
+        form {
+            padding: 15px;
+        }
+
+        p {
+            padding: 8px 0 8px 0;
+            font-size: 14px;
+        }
+        
+    }
+
+    .dialogActions {
+        margin-top: 12px;
+        text-align: right;
+    }
+
+}
+
+
+/* MESSAGES*/
+
+#messages {
+
+    position: fixed;
+    top: 50px;
+    left: 10px;
+    right: 10px;
+    z-index:60002;
+
+    div {
+        
+        font-size: 14px;
+        line-height: 14px;  
+    }
+
+    span.error-outter{
+        position: absolute;
+        text-align: center;
+        width: 100%;
+    }
+
+    span.error-inner {
+        margin: 0 auto;
+        display: inline-block;
+        max-width: @login-container-width;
+        line-height: 16px;
+        font-size: 13px;
+        text-align: left;
+    }
+
+    span.error-inner span {
+        padding: 10px 8px 10px 30px;
+        border: 1px solid darken(@input-border-basic, 20%);
+        background: @message-background-color no-repeat 10px center;
+        display:inline-block;
+        .rounded-corners(5px);
+        margin: 0 auto;
+    }
+
+    .confirmMessage { 
+        display:none;
+        color: @color-success;
+        span.error-inner span{
+            background-image: url('../images/span_ok.png');
+        }
+    }
+
+    .errorMessage {
+        display:none;
+        color: @color-error;
+        span.error-inner span{
+            background-image: url('../images/span_error.png');
+        }
+    }
+
+}
+
+/* POPUP */
+#popup {
+    display: none;
+    position: absolute;
+}
+
+#popup-content {
+    background: #fff;
+    border: 1px solid @font-color;
+    padding: 10px;
+}
+
+/* BUTTONS */
+button.button, a.button, input.button {
+    display: inline-block;
+    vertical-align: middle;
+    
+    font-size: 12px;
+    line-height: 16px;
+    color: white;
+    font-weight: normal;
+    padding: 0 10px 1px;
+    cursor: pointer;
+    .rounded-corners(5px);
+    padding: 7px 10px 7px 10px;
+    margin-left: 5px;
+    .box-shadow(1px, 1px, 2px, 0, rgba(0,0,0,0.1));
+    border: 1px solid darken(@color-active, 10%);
+    .linear-gradient(top, @color-active, darken(@color-active, 10%));
+    &:hover {
+        .linear-gradient(top, lighten(@color-active, @button-hover-lightness), @color-active);
+        .box-shadow(0, 0, 0, 0); 
+    }
+    
+    &.active {
+        background-color: @color-active;
+        &:hover {
+            .linear-gradient(top, @color-active, darken(@color-active, 10%));  
+            border-color: lighten(@color-active, @button-hover-lightness);
+        }
+        &.gray {
+            .linear-gradient;
+            border: 1px solid #C2C2C2;
+            color: #636D76;
+            &:hover {
+                .linear-gradient-reverse; 
+            }
+        }
+    }
+
+    &:disabled, &.inactive {
+        background: @color-inactive;
+        border:  1px solid @color-inactive;
+        cursor:default;
+        .box-shadow(0, 0, 0, 0);
+    }
+
+    &.choosable {
+        color: inherit;
+        font-weight: normal;
+        margin-right: 5px;
+        background: transparent;
+        padding: 9px 4px;
+        &.choosen-decision {
+            border: 1px solid #288ED7;
+            padding: 3px; 
+            .linear-gradient;
+        }
+        &.choosable-static {
+            border: 1px solid lightBlue;
+            padding: 3px;
+            .linear-gradient; 
+        }
+    }
+}
+
+input[type="button"].link, button.link {
+    background: transparent;
+    border: 0;
+    cursor: pointer;
+    color: @href-color;
+    &:hover {
+        text-decoration: underline;
+    }
+    font-size: @font-size;
+}
+
+span.hr-vertical {
+    padding: 0 5px;
+}
+
+h3.black {
+    a {
+       display: block;
+       font-size: 15px;
+    }
+}
+
+#content{
+    clear:both;
+}
+
+.base-wrapper{
+    margin: 0 auto;
+}
+
+#header{
+    margin: 0 auto 10px;
+}
+
+#default-base{
+    width:@site-width+20;
+}
+
+#medium-base{
+    width:@medium-container-width+20;
+}
+
+#login-base{
+    width:@medium-container-width+20;
+
+    #content{
+        margin-left:(@medium-container-width - @login-container-width)/2;
+        margin-right:(@medium-container-width - @login-container-width)/2;
+    }
+
+    #header{
+        width:@login-container-width+20;
+    }
+}
+
+#login-container{
+    padding-top:50px;
+}
+
+#login-message{
+    padding-top:50px 30px;
+}
+
+
+

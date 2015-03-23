@@ -1,0 +1,18 @@
+<ul class="menu">
+    {{#each topNav}}
+    <li {{#if isActive}} class="active"{{/if}}>
+        <a href="{{hashurl}}" title="{{title}}" {{#if isInactive}} class="inactive" {{/if}}><span class="glyph-icon glyph-icon-active {{icon}}"></span><span class="glyph-title">{{title}}</span></a>
+    </li>
+    {{/each}}
+</ul>
+{{#if subNav.length}}
+    <div id="submenu" class="submenubar">
+        <ul>
+            {{#each subNav}}
+            <li {{#if isActive}} class="active"{{/if}}>
+                <a href="{{hashurl}}" title="{{title}}" {{#if isInactive}} class="inactive" {{/if}}><span class="glyph-icon glyph-icon-active {{icon}}"></span><span class="glyph-title">{{title}}</span></a>
+            </li>
+            {{/each}}
+        </ul>
+    </div>
+{{/if}}
