@@ -1,1 +1,0 @@
-define("org/forgerock/openam/ui/user/main",["./profile/ChangeSecurityDataDialog","./delegates/TokenDelegate","./delegates/SessionDelegate","./delegates/AuthNDelegate","./login/RESTLoginHelper","./login/RESTLoginView","./login/RESTConfirmLoginView","./login/RESTLoginDialog","./profile/ForgotPasswordView","./profile/RegisterView","./logout/RESTLogoutView"])
