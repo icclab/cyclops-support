@@ -1,1 +1,0 @@
-define("org/forgerock/commons/ui/common/main",["./main/main","./util/main","./components/main","./NotFoundView","./EnableCookiesView","./LoginView","./LoginDialog","./LoggedUserBarView","./SiteConfigurator"])

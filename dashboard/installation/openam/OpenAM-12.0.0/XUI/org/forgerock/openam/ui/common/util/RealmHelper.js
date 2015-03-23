@@ -1,1 +1,0 @@
-define("org/forgerock/openam/ui/common/util/RealmHelper",[],function(){var e={};return e.cleanRealm=function(e){typeof e=="string"&&e.charAt(0)!=="/"&&(e="/"+e);if(typeof e!="string"||e==="/")e="";return e},e})

@@ -1,1 +1,0 @@
-define("org/forgerock/commons/ui/common/components/ElementTable",["org/forgerock/commons/ui/common/util/Constants","org/forgerock/commons/ui/common/main/ServiceInvoker"],function(e,t){var n=function(){};return n.prototype.serviceCall=function(e){e.url=this.serviceUrl+e.url,t.restCall(e)},n})

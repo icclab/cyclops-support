@@ -1,1 +1,0 @@
-define("org/forgerock/commons/ui/common/main/EventManager",["jquery","org/forgerock/commons/ui/common/util/Constants"],function(e,t){var n={},r=[];return n.sendEvent=function(t,n){e(document).trigger(t,n)},n.registerListener=function(t,n){var i=function(e,t){n(t)};r[n]=i,e(document).on(t,i)},n.unregisterListener=function(t,n){e(document).off(t)},n})
