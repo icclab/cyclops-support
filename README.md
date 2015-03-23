@@ -10,7 +10,7 @@ For more in-depth documentation, see:
 * [Installing OpenAM](https://github.com/icclab/cyclops-support/wiki/OpenAM-Installation)
 * [Configuring OpenAM](https://github.com/icclab/cyclops-support/wiki/OpenAM-Configuration)
 * [Communication Flow](https://github.com/icclab/cyclops-support/wiki/Communication-Flow)
-* [Javadoc](https://icclab.github.io/cyclops/javadoc/udrservice/)
+* [Javadoc](https://icclab.github.io/cyclops/javadoc/dashboard/)
 
 Currently, the following features are implemented:
 * [User] Authentication / Authorisation via OpenAM
