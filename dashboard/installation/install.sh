@@ -79,7 +79,7 @@ echo "--------------------------------------------------------------------------
 echo "| Deploying Dashboard"
 echo "---------------------------------------------------------------------------"
 mv out/dashboard.war /var/lib/tomcat7/webapps/dashboard.war
-cd ${cwd}
+cd ${cwd}/openam
 
 echo "---------------------------------------------------------------------------"
 echo "| Starting Tomcat"
