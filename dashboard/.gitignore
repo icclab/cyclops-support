@@ -11,4 +11,4 @@
 # IntelliJ Project Files #
 .idea
 out/
-web/static/
+web/WEB-INF/configuration.txt
