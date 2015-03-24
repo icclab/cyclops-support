@@ -3,17 +3,17 @@
 
         <div
             class="alert alert-danger"
-            data-ng-show="netInBytesCtrl.dataError">
+            data-ng-show="cumulativeChartCtrl.dataError">
             Error loading chart data
         </div>
 
         <div
             class="row huge text-center"
-            data-ng-hide="netInBytesCtrl.dataError">
-            {{netInBytesCtrl.data}}
+            data-ng-hide="cumulativeChartCtrl.dataError">
+            {{cumulativeChartCtrl.chartData}}
         </div>
     </div>
     <div class="panel-body text-center">
-        Incoming Network Traffic
+        {{cumulativeChartCtrl.chartName}}
     </div>
 </div>
