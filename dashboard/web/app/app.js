@@ -14,6 +14,7 @@
       'dashboard.cloudservices',
       'dashboard.admin.meters',
       'dashboard.admin.users',
+      'dashboard.admin.rate',
       'dashboard.charts'
     ]).config([
         '$urlRouterProvider',
@@ -163,7 +164,6 @@
         }
     ]);
 
-
     /*
         Admin Meter Configuration Module Setup
     */
@@ -192,7 +192,6 @@
         }
     ]);
 
-
     /*
         Admin User Management Module Setup
     */
@@ -215,6 +214,33 @@
                         templateUrl: 'admin/users/users.html',
                         controller: 'AdminUserController',
                         controllerAs: 'adminUserCtrl'
+                    }
+                }
+            });
+        }
+    ]);
+    /*
+        Admin Rate Configuration Module Setup
+    */
+    angular.module('dashboard.admin.rate', [
+        'ui.router'
+    ]).config([
+        '$stateProvider',
+        function($stateProvider) {
+            $stateProvider.state('admin-rate', {
+                url: "/admin/rate",
+                authenticate: true,
+                adminOnly: true,
+                views: {
+                    "navigation": {
+                        templateUrl: 'navigation/navigation.html',
+                        controller: 'NavigationController',
+                        controllerAs: 'navigationCtrl'
+                    },
+                    "content": {
+                        templateUrl: 'admin/rate/rate.html',
+                        controller: 'AdminRateController',
+                        controllerAs: 'adminRateCtrl'
                     }
                 }
             });
