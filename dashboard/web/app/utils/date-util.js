@@ -19,7 +19,7 @@
         };
 
         this.fromTimestamp = function(timestamp) {
-            return new Date(timestamp).toString("d-MMM-yy HH:mm");
+            return new Date(timestamp).toString("d/MM/yy HH:mm");
         };
 
         this.getFormattedDateToday = function() {

@@ -21,12 +21,17 @@
     GaugeChartController.$inject = ['$scope', 'chartDataService'];
     function GaugeChartController($scope, chartDataService) {
         var me = this;
+        this.dataError = false;
         this.chartName = undefined;
         this.chartData = undefined;
         this.chartLabels = undefined;
         this.chartSeries = undefined;
-        this.chartOptions = { pointDot: false };
-        this.dataError = false;
+        this.chartOptions = {
+            pointDot: false,
+            bezierCurve : true,
+            bezierCurveTension : 0.4,
+            pointHitDetectionRadius: 0
+        };
 
         this.updateGraph = function() {
             var result = chartDataService.getGaugeMeterData(me.chartName);
