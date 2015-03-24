@@ -1,0 +1,19 @@
+<div class="panel panel-default">
+    <div class="panel-heading">{{gaugeChartCtrl.chartName}}</div>
+    <div class="panel-body">
+
+        <div
+            class="alert alert-danger"
+            data-ng-show="gaugeChartCtrl.dataError">
+            Error loading chart data</div>
+
+        <canvas
+            data-ng-hide="gaugeChartCtrl.dataError"
+            class="chart chart-line"
+            data="gaugeChartCtrl.chartData"
+            labels="gaugeChartCtrl.chartLabels"
+            options="gaugeChartCtrl.chartOptions"
+            legend="false"
+            series="gaugeChartCtrl.chartSeries"></canvas>
+    </div>
+</div>

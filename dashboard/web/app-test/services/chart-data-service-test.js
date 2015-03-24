@@ -6,69 +6,37 @@ describe('ChartDataService', function() {
         Fake Data
      */
     var fakeLabel = "testLabel";
+    var fakeCumulativeName = "cumulativeChart";
+    var fakeGaugeName = "gaugeChart";
     var fakeNumPoints = 800;
     var fakePointIndex = 80;
     var fakeNumLabels = 10;
     var fakeError = { 'error': true };
-    var fakeNetInBytesResult = { 'data':'2 MB' };
-    var fakeNetOutBytesResult = { 'data':'3 MB' };
-    var fakeCpuUtilRateResult = {
-        'labels': ['12-Jan-15 13:33', '12-Jan-15 13:33'],
-        'data': [ [0.4, 0.5] ]
-    };
-    var fakeDiskReadRateResult = {
-        'labels': ['12-Jan-15 13:33', '12-Jan-15 13:33'],
-        'data': [ [6, 7] ]
-    };
     var fakeChartData = {
         'usage': {
             'openstack': [
-                { //0: NET IN BYTES
-                    'points': [
-                        [ //points[0]
-                            null, //points[0][0]
-                            2 * 1000 * 1000 //points[0][1]
-                        ]
-                    ]
+                {
+                    'name': fakeCumulativeName,
+                    'points': [ [null, 2000] ]
                 },
-                { //1: NET OUT BYTES
+                {
+                    'name': fakeGaugeName,
                     'points': [
-                        [ //points[0]
-                            null, //points[0][0]
-                            3 * 1000 * 1000 //points[0][1]
-                        ]
-                    ]
-                },
-                { //2: CPU UTIL RATE
-                    'points': [
-                        [ //points[0]
-                            123123123, //points[0][0]
-                            null, //points[0][1]
-                            0.4 //points[0][2]
-                        ],
-                        [ //points[1]
-                            123123123, //points[1][0]
-                            null, //points[1][1]
-                            0.5 //points[1][2]
-                        ]
-                    ]
-                },
-                { //3: DISK READ RATE
-                    'points': [
-                        [ //points[0]
-                            123123123, //points[0][0]
-                            null, //points[0][1]
-                            6 * 1000 //points[0][2]
-                        ],
-                        [ //points[1]
-                            123123123, //points[1][0]
-                            null, //points[1][1]
-                            7 * 1000 //points[1][2]
-                        ]
+                        [ 123123123,null, 0.4 ],
+                        [ 123123123, null, 0.5 ]
                     ]
                 }
             ]
         }
+    };
+    var fakeFormattedChartData = {
+        cumulativeChart: fakeChartData.usage.openstack[0],
+        gaugeChart: fakeChartData.usage.openstack[1],
+    };
+    var fakeCumulativeMeterResult = { data: 2000 };
+    var fakeGaugeMeterResult = {
+        labels: [ '12-Jan-15 13:33', '12-Jan-15 13:33' ],
+        data: [ [ 0.4, 0.5 ] ]
     };
 
     /*
@@ -110,67 +78,39 @@ describe('ChartDataService', function() {
         it('stores correctly formatted data', function() {
             chartDataService.setRawData(fakeChartData);
             expect(chartDataService.getRawData())
-                .toEqual(fakeChartData.usage.openstack);
+                .toEqual(fakeFormattedChartData);
         });
 
         it('ignores incorrectly formatted data', function() {
             chartDataService.setRawData(fakeChartData.usage);
-            expect(chartDataService.getRawData()).toBe(undefined);
+            expect(chartDataService.getRawData()).toEqual({});
         });
     });
 
-    describe('getIncomingNetworkBytes', function() {
+    describe('getCumulativeMeterData', function() {
         it('returns the correct data if available', function() {
             chartDataService.setRawData(fakeChartData);
-            expect(chartDataService.getIncomingNetworkBytes())
-                .toEqual(fakeNetInBytesResult);
+            expect(chartDataService.getCumulativeMeterData(fakeCumulativeName))
+                .toEqual(fakeCumulativeMeterResult);
         });
 
         it('returns an error if no data available', function() {
             chartDataService.setRawData(undefined);
-            expect(chartDataService.getIncomingNetworkBytes())
+            expect(chartDataService.getCumulativeMeterData())
                 .toEqual(fakeError);
         });
     });
 
-    describe('getOutgoingNetworkBytes', function() {
+    describe('getGaugeMeterData', function() {
         it('returns the correct data if available', function() {
             chartDataService.setRawData(fakeChartData);
-            expect(chartDataService.getOutgoingNetworkBytes())
-                .toEqual(fakeNetOutBytesResult);
+            expect(chartDataService.getGaugeMeterData(fakeGaugeName))
+                .toEqual(fakeGaugeMeterResult);
         });
 
         it('returns an error if no data available', function() {
             chartDataService.setRawData(undefined);
-            expect(chartDataService.getOutgoingNetworkBytes())
-                .toEqual(fakeError);
-        });
-    });
-
-    describe('getCpuUtilRate', function() {
-        it('returns the correct data if available', function() {
-            chartDataService.setRawData(fakeChartData);
-            expect(chartDataService.getCpuUtilRate())
-                .toEqual(fakeCpuUtilRateResult);
-        });
-
-        it('returns an error if no data available', function() {
-            chartDataService.setRawData(undefined);
-            expect(chartDataService.getCpuUtilRate())
-                .toEqual(fakeError);
-        });
-    });
-
-    describe('getDiskReadRate', function() {
-        it('returns the correct data if available', function() {
-            chartDataService.setRawData(fakeChartData);
-            expect(chartDataService.getDiskReadRate())
-                .toEqual(fakeDiskReadRateResult);
-        });
-
-        it('returns an error if no data available', function() {
-            chartDataService.setRawData(undefined);
-            expect(chartDataService.getDiskReadRate())
+            expect(chartDataService.getGaugeMeterData())
                 .toEqual(fakeError);
         });
     });
