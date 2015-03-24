@@ -1,14 +1,3 @@
-*.sublime-*
-
-# Mobile Tools for Java (J2ME)
-.mtj.tmp/
-
-# Package Files #
-*.war
-*.ear
-
-
-# IntelliJ Project Files #
-.idea
+# Project Specific #
 out/
 web/WEB-INF/configuration.txt

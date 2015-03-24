@@ -1,0 +1,11 @@
+# Mobile Tools for Java (J2ME)
+.mtj.tmp/
+
+# Package Files #
+*.war
+*.ear
+
+
+# IDE Project Files #
+.idea
+*.sublime-*
