@@ -9,3 +9,4 @@
 # IDE Project Files #
 .idea
 *.sublime-*
+out/
