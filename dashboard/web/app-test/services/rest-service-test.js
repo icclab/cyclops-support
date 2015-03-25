@@ -11,10 +11,12 @@ describe('RestService', function() {
     var fakeSessionId = "abc123";
     var fakeAccessToken = "5s5s5s";
     var fakeUdrMeters = { meter: "bla" };
-    var fakeAccessQuery = "?access_token=" + fakeAccessToken;
-    var fakeSessionQuery = "?session_id=" + fakeSessionId;
+    var fakeMeterName = "net";
     var fakeFrom = "2015-01-01 12:00:00";
     var fakeTo = "2015-01-02 12:00:00";
+    var fakeRateQuery = "?resourcename="+fakeMeterName+"&from="+fakeFrom+"&to="+fakeTo;
+    var fakeAccessQuery = "?access_token=" + fakeAccessToken;
+    var fakeSessionQuery = "?session_id=" + fakeSessionId;
 
     /*
         Test setup
@@ -35,6 +37,7 @@ describe('RestService', function() {
         });
 
         $httpBackend.whenPOST("/dashboard/rest/usage").respond(200);
+        $httpBackend.whenGET("/dashboard/rest/rate" + fakeRateQuery).respond(200);
         $httpBackend.whenPOST("/dashboard/rest/keystone").respond(200);
         $httpBackend.whenPOST("/dashboard/rest/login").respond(200);
         $httpBackend.whenPOST("/dashboard/rest/session").respond(200);
@@ -154,10 +157,19 @@ describe('RestService', function() {
             $httpBackend.flush();
         });
     });
+
     describe('updateUdrMeters', function() {
         it('should send complete POST request', function() {
             $httpBackend.expectPOST("/dashboard/rest/udrmeters", fakeUdrMeters);
             restService.updateUdrMeters(fakeUdrMeters);
+            $httpBackend.flush();
+        });
+    });
+
+    describe('getRateForMeter', function() {
+        it('should send complete GET request', function() {
+            $httpBackend.expectGET("/dashboard/rest/rate" + fakeRateQuery);
+            restService.getRateForMeter(fakeMeterName, fakeFrom, fakeTo);
             $httpBackend.flush();
         });
     });

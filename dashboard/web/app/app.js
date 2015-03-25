@@ -9,6 +9,7 @@
       'dashboard.navigation',
       'dashboard.login',
       'dashboard.overview',
+      'dashboard.rate',
       'dashboard.keystone',
       'dashboard.bills',
       'dashboard.cloudservices',
@@ -102,6 +103,34 @@
                         templateUrl: 'overview/overview.html',
                         controller: 'OverviewController',
                         controllerAs: 'overviewCtrl'
+                    }
+                }
+            });
+        }
+    ]);
+
+    /*
+        Rate Module Setup
+    */
+    angular.module('dashboard.rate', [
+        'ui.router'
+    ]).config([
+        '$stateProvider',
+        function($stateProvider) {
+            $stateProvider.state('rate', {
+                url: "/rate",
+                authenticate: true,
+                adminOnly: false,
+                views: {
+                    "navigation": {
+                        templateUrl: 'navigation/navigation.html',
+                        controller: 'NavigationController',
+                        controllerAs: 'navigationCtrl'
+                    },
+                    "content": {
+                        templateUrl: 'rate/rate.html',
+                        controller: 'RateController',
+                        controllerAs: 'rateCtrl'
                     }
                 }
             });

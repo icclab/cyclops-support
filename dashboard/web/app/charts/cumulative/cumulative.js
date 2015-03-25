@@ -22,7 +22,6 @@
     CumulativeChartController.$inject = ['$scope', 'chartDataService'];
     function CumulativeChartController($scope, chartDataService) {
         var me = this;
-        this.dataError = false;
         this.chartName = undefined;
         this.chartDataType = undefined;
         this.chartData = undefined;
@@ -33,16 +32,11 @@
                 me.chartName
             );
 
-            if(result.error) {
-                me.dataError = true;
-            }
-            else {
-                me.chartData = result.data;
-            }
+            me.chartData = result.error ? 0 : result.data;
         };
 
-        $scope.$on('UDR_DATA_READY', function() {
-            console.log("UDR DATA READY");
+        $scope.$on('CHART_DATA_READY', function() {
+            console.log("CHART_DATA_READY");
             me.updateGraph();
         });
     }

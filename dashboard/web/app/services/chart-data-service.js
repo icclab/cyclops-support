@@ -8,8 +8,8 @@
     /*
         Controllers, Factories, Services, Directives
     */
-   ChartDataService.$inject = ['dateUtil', 'usageDataService'/*, rateDataService, chargeDataService */ ];
-    function ChartDataService(dateUtil, usageDataService) {
+   ChartDataService.$inject = ['dateUtil', 'usageDataService', 'rateDataService'/*, chargeDataService */ ];
+    function ChartDataService(dateUtil, usageDataService, rateDataService) {
         var me = this;
         var NUM_LABELS = 10;
         var ERROR = { 'error': true };
@@ -19,11 +19,11 @@
             if(type == "usage") {
                 return usageDataService;
             }
+            else if(type == "rate") {
+                return rateDataService;
+            }
             else if(type == "charge") {
                 //return chargeDataService;
-            }
-            else if(type == "rate") {
-                //return rateDataService;
             }
         };
 

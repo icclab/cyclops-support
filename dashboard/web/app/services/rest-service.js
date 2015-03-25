@@ -169,6 +169,19 @@
             var queryString = "?session_id=" + sessionId;
             return $http.get('/dashboard/rest/users' + queryString);
         };
+
+        /**
+         * This method gets the rate for a meter in a desired time frame
+         * from the dashboard backend
+         * @param  {String} meter Name of the desired meter
+         * @param  {String} from Timestamp in the format "YYYY-MM-DD HH:MM:SS"
+         * @param  {String} to Timestamp in the format "YYYY-MM-DD HH:MM:SS"
+         * @return {Promise}
+         */
+        this.getRateForMeter = function(meter, from, to) {
+            var query = "?resourcename=" + meter + "&from=" + from + "&to=" + to;
+            return $http.get('/dashboard/rest/rate' + query);
+        };
     }
 
 })();

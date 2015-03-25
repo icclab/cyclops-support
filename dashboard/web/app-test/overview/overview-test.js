@@ -7,8 +7,8 @@ describe('OverviewController', function() {
     var sessionServiceMock;
     var usageDataServiceMock;
     var dateUtilMock;
-    var deferred;
-    var promise;
+    var udrDeferred;
+    var udrPromise;
 
     /*
         Fake Data
@@ -72,11 +72,11 @@ describe('OverviewController', function() {
             $log = _$log_;
             $location = _$location_;
             $scope = $rootScope.$new();
-            deferred = $q.defer();
-            promise = deferred.promise;
+            udrDeferred = $q.defer();
+            udrPromise = udrDeferred.promise;
 
             sessionServiceMock.getKeystoneId.and.returnValue(fakeKeystoneId);
-            restServiceMock.getUdrData.and.returnValue(promise);
+            restServiceMock.getUdrData.and.returnValue(udrPromise);
             dateUtilMock.getFormattedDateToday.and.returnValue(fakeDateToday);
             dateUtilMock.getFormattedDateYesterday.and.returnValue(fakeDateYesterday);
             dateUtilMock.getFormattedDateLast3Days.and.returnValue(fakeDateLast3days);
@@ -99,58 +99,58 @@ describe('OverviewController', function() {
         Tests
      */
     describe('updateCharts', function() {
-        it('should call requestMeter if Keystone ID available', function() {
+        it('should call requestUsage if Keystone ID available', function() {
             spyOn(controller, 'hasKeystoneId').and.returnValue(true);
-            spyOn(controller, 'requestMeter');
+            spyOn(controller, 'requestUsage');
 
             controller.updateCharts(fakeDateYesterday, fakeDateToday);
 
             expect(controller.hasKeystoneId).toHaveBeenCalled();
-            expect(controller.requestMeter)
+            expect(controller.requestUsage)
                 .toHaveBeenCalledWith(fakeKeystoneId, fakeFrom, fakeTo);
         });
 
         it('should do nothing if no Keystone ID available', function() {
             spyOn(controller, 'hasKeystoneId').and.returnValue(false);
-            spyOn(controller, 'requestMeter');
+            spyOn(controller, 'requestUsage');
 
             controller.updateCharts(fakeDateYesterday, fakeDateToday);
 
             expect(controller.hasKeystoneId).toHaveBeenCalled();
-            expect(controller.requestMeter).not.toHaveBeenCalled();
+            expect(controller.requestUsage).not.toHaveBeenCalled();
         });
     });
 
-    describe('requestMeter', function() {
+    describe('requestUsage', function() {
         it('should correctly call restService.getUdrData', function() {
-            controller.requestMeter(fakeKeystoneId, fakeFrom, fakeTo);
-            deferred.resolve(fakeResponse);
+            controller.requestUsage(fakeKeystoneId, fakeFrom, fakeTo);
+            udrDeferred.resolve(fakeResponse);
             $scope.$digest();
 
             expect(restServiceMock.getUdrData)
                 .toHaveBeenCalledWith(fakeKeystoneId, fakeFrom, fakeTo);
         });
 
-        it('should execute loadUdrDataSuccess on deferred.resolve', function() {
-            controller.requestMeter(fakeKeystoneId, fakeFrom, fakeTo);
-            deferred.resolve(fakeResponse);
+        it('should execute loadUdrDataSuccess on udrDeferred.resolve', function() {
+            controller.requestUsage(fakeKeystoneId, fakeFrom, fakeTo);
+            udrDeferred.resolve(fakeResponse);
             $scope.$digest();
 
             expect(usageDataServiceMock.setRawData)
                 .toHaveBeenCalledWith(fakeResponse.data);
         });
 
-        it('should broadcast UDR_DATA_READY on deferred.resolve', function() {
-            controller.requestMeter(fakeKeystoneId, fakeFrom, fakeTo);
-            deferred.resolve(fakeResponse);
+        it('should broadcast CHART_DATA_READY on udrDeferred.resolve', function() {
+            controller.requestUsage(fakeKeystoneId, fakeFrom, fakeTo);
+            udrDeferred.resolve(fakeResponse);
             $scope.$digest();
 
-            expect($scope.$broadcast).toHaveBeenCalledWith('UDR_DATA_READY');
+            expect($scope.$broadcast).toHaveBeenCalledWith('CHART_DATA_READY');
         });
 
-        it('should excute loadUdrDataFailed on deferred.reject', function() {
-            controller.requestMeter(fakeKeystoneId, fakeFrom, fakeTo);
-            deferred.reject();
+        it('should excute loadUdrDataFailed on udrDeferred.reject', function() {
+            controller.requestUsage(fakeKeystoneId, fakeFrom, fakeTo);
+            udrDeferred.reject();
             $scope.$digest();
 
             expect($log.debug.logs)
