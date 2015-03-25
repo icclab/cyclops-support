@@ -10,11 +10,13 @@
     */
     OverviewController.$inject = [
         '$log', '$scope', '$location',
-        'restService', 'sessionService', 'chartDataService', 'dateUtil'
+        'restService', 'sessionService', 'usageDataService',
+        'dateUtil'
     ];
     function OverviewController(
             $log, $scope, $location,
-            restService, sessionService, chartDataService, dateUtil) {
+            restService, sessionService, usageDataService,
+            dateUtil) {
 
         var me = this;
         this.selectedDate;
@@ -28,15 +30,15 @@
         };
 
         var loadUdrDataSuccess = function(response) {
-            chartDataService.setRawData(response.data);
-            $scope.$broadcast('UDR_DATA_READY');
+            usageDataService.setRawData(response.data);
+            $scope.$broadcast('CHART_DATA_READY');
         };
 
         var loadUdrDataFailed = function(response) {
             $log.debug("Requesting meter data failed");
         };
 
-        this.requestMeter = function(keystoneId, from, to) {
+        this.requestUsage = function(keystoneId, from, to) {
             restService.getUdrData(keystoneId, from, to)
                 .then(loadUdrDataSuccess, loadUdrDataFailed);
         };
@@ -62,7 +64,7 @@
                 var keystoneId = sessionService.getKeystoneId();
                 var from = fromDate + " 00:00:00";
                 var to = toDate + " 23:59:59";
-                me.requestMeter(keystoneId, from, to);
+                me.requestUsage(keystoneId, from, to);
             }
         };
 

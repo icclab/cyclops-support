@@ -2,13 +2,13 @@ describe('OverviewController', function() {
     var $log;
     var $scope;
     var $location;
-    var overviewController;
+    var controller;
     var restServiceMock;
     var sessionServiceMock;
-    var chartDataServiceMock;
+    var usageDataServiceMock;
     var dateUtilMock;
-    var deferred;
-    var promise;
+    var udrDeferred;
+    var udrPromise;
 
     /*
         Fake Data
@@ -51,8 +51,8 @@ describe('OverviewController', function() {
             ['getKeystoneId', 'setUserData']
         );
 
-        chartDataServiceMock = jasmine.createSpyObj(
-            'chartDataService',
+        usageDataServiceMock = jasmine.createSpyObj(
+            'usageDataService',
             ['setRawData']
         );
 
@@ -72,11 +72,11 @@ describe('OverviewController', function() {
             $log = _$log_;
             $location = _$location_;
             $scope = $rootScope.$new();
-            deferred = $q.defer();
-            promise = deferred.promise;
+            udrDeferred = $q.defer();
+            udrPromise = udrDeferred.promise;
 
             sessionServiceMock.getKeystoneId.and.returnValue(fakeKeystoneId);
-            restServiceMock.getUdrData.and.returnValue(promise);
+            restServiceMock.getUdrData.and.returnValue(udrPromise);
             dateUtilMock.getFormattedDateToday.and.returnValue(fakeDateToday);
             dateUtilMock.getFormattedDateYesterday.and.returnValue(fakeDateYesterday);
             dateUtilMock.getFormattedDateLast3Days.and.returnValue(fakeDateLast3days);
@@ -85,11 +85,11 @@ describe('OverviewController', function() {
             dateUtilMock.getFormattedDateLastYear.and.returnValue(fakeDateLastYear);
             spyOn($scope, '$broadcast');
 
-            overviewController = $controller('OverviewController', {
+            controller = $controller('OverviewController', {
                 '$scope': $scope,
                 'restService': restServiceMock,
                 'sessionService': sessionServiceMock,
-                'chartDataService': chartDataServiceMock,
+                'usageDataService': usageDataServiceMock,
                 'dateUtil': dateUtilMock
             });
         });
@@ -99,58 +99,58 @@ describe('OverviewController', function() {
         Tests
      */
     describe('updateCharts', function() {
-        it('should call requestMeter if Keystone ID available', function() {
-            spyOn(overviewController, 'hasKeystoneId').and.returnValue(true);
-            spyOn(overviewController, 'requestMeter');
+        it('should call requestUsage if Keystone ID available', function() {
+            spyOn(controller, 'hasKeystoneId').and.returnValue(true);
+            spyOn(controller, 'requestUsage');
 
-            overviewController.updateCharts(fakeDateYesterday, fakeDateToday);
+            controller.updateCharts(fakeDateYesterday, fakeDateToday);
 
-            expect(overviewController.hasKeystoneId).toHaveBeenCalled();
-            expect(overviewController.requestMeter)
+            expect(controller.hasKeystoneId).toHaveBeenCalled();
+            expect(controller.requestUsage)
                 .toHaveBeenCalledWith(fakeKeystoneId, fakeFrom, fakeTo);
         });
 
         it('should do nothing if no Keystone ID available', function() {
-            spyOn(overviewController, 'hasKeystoneId').and.returnValue(false);
-            spyOn(overviewController, 'requestMeter');
+            spyOn(controller, 'hasKeystoneId').and.returnValue(false);
+            spyOn(controller, 'requestUsage');
 
-            overviewController.updateCharts(fakeDateYesterday, fakeDateToday);
+            controller.updateCharts(fakeDateYesterday, fakeDateToday);
 
-            expect(overviewController.hasKeystoneId).toHaveBeenCalled();
-            expect(overviewController.requestMeter).not.toHaveBeenCalled();
+            expect(controller.hasKeystoneId).toHaveBeenCalled();
+            expect(controller.requestUsage).not.toHaveBeenCalled();
         });
     });
 
-    describe('requestMeter', function() {
+    describe('requestUsage', function() {
         it('should correctly call restService.getUdrData', function() {
-            overviewController.requestMeter(fakeKeystoneId, fakeFrom, fakeTo);
-            deferred.resolve(fakeResponse);
+            controller.requestUsage(fakeKeystoneId, fakeFrom, fakeTo);
+            udrDeferred.resolve(fakeResponse);
             $scope.$digest();
 
             expect(restServiceMock.getUdrData)
                 .toHaveBeenCalledWith(fakeKeystoneId, fakeFrom, fakeTo);
         });
 
-        it('should execute loadUdrDataSuccess on deferred.resolve', function() {
-            overviewController.requestMeter(fakeKeystoneId, fakeFrom, fakeTo);
-            deferred.resolve(fakeResponse);
+        it('should execute loadUdrDataSuccess on udrDeferred.resolve', function() {
+            controller.requestUsage(fakeKeystoneId, fakeFrom, fakeTo);
+            udrDeferred.resolve(fakeResponse);
             $scope.$digest();
 
-            expect(chartDataServiceMock.setRawData)
+            expect(usageDataServiceMock.setRawData)
                 .toHaveBeenCalledWith(fakeResponse.data);
         });
 
-        it('should broadcast UDR_DATA_READY on deferred.resolve', function() {
-            overviewController.requestMeter(fakeKeystoneId, fakeFrom, fakeTo);
-            deferred.resolve(fakeResponse);
+        it('should broadcast CHART_DATA_READY on udrDeferred.resolve', function() {
+            controller.requestUsage(fakeKeystoneId, fakeFrom, fakeTo);
+            udrDeferred.resolve(fakeResponse);
             $scope.$digest();
 
-            expect($scope.$broadcast).toHaveBeenCalledWith('UDR_DATA_READY');
+            expect($scope.$broadcast).toHaveBeenCalledWith('CHART_DATA_READY');
         });
 
-        it('should excute loadUdrDataFailed on deferred.reject', function() {
-            overviewController.requestMeter(fakeKeystoneId, fakeFrom, fakeTo);
-            deferred.reject();
+        it('should excute loadUdrDataFailed on udrDeferred.reject', function() {
+            controller.requestUsage(fakeKeystoneId, fakeFrom, fakeTo);
+            udrDeferred.reject();
             $scope.$digest();
 
             expect($log.debug.logs)
@@ -160,50 +160,50 @@ describe('OverviewController', function() {
 
     describe('hasKeystoneId', function() {
         it('should return true if Keystone ID available', function() {
-            expect(overviewController.hasKeystoneId()).toBeTruthy();
+            expect(controller.hasKeystoneId()).toBeTruthy();
         });
 
         it('should return false if no Keystone ID available', function() {
             sessionServiceMock.getKeystoneId.and.returnValue('');
-            expect(overviewController.hasKeystoneId()).toBeFalsy();
+            expect(controller.hasKeystoneId()).toBeFalsy();
         });
     });
 
     describe('showCloudServices', function() {
         it('should redirect to /cloud-services', function() {
-            overviewController.showCloudServices();
+            controller.showCloudServices();
             expect($location.url()).toBe('/cloudservices');
         });
     });
 
     describe('dates-Array', function() {
         it('should be initialised correctly', function() {
-            expect(overviewController.dates.today).toEqual(fakeDateToday);
-            expect(overviewController.dates.yesterday).toEqual(fakeDateYesterday);
-            expect(overviewController.dates.last3days).toEqual(fakeDateLast3days);
-            expect(overviewController.dates.lastWeek).toEqual(fakeDateLastWeek);
-            expect(overviewController.dates.lastMonth).toEqual(fakeDateLastMonth);
-            expect(overviewController.dates.lastYear).toEqual(fakeDateLastYear);
+            expect(controller.dates.today).toEqual(fakeDateToday);
+            expect(controller.dates.yesterday).toEqual(fakeDateYesterday);
+            expect(controller.dates.last3days).toEqual(fakeDateLast3days);
+            expect(controller.dates.lastWeek).toEqual(fakeDateLastWeek);
+            expect(controller.dates.lastMonth).toEqual(fakeDateLastMonth);
+            expect(controller.dates.lastYear).toEqual(fakeDateLastYear);
         });
     });
 
     describe('onDateChanged', function() {
         it('should correctly call updateCharts when no date selected', function() {
-            spyOn(overviewController, 'updateCharts');
+            spyOn(controller, 'updateCharts');
 
-            overviewController.onDateChanged();
+            controller.onDateChanged();
 
-            expect(overviewController.updateCharts)
+            expect(controller.updateCharts)
                 .toHaveBeenCalledWith(fakeDateToday, fakeDateToday);
         });
 
         it('should correctly call updateCharts when a date was selected', function() {
-            spyOn(overviewController, 'updateCharts');
-            overviewController.selectedDate = "yesterday";
+            spyOn(controller, 'updateCharts');
+            controller.selectedDate = "yesterday";
 
-            overviewController.onDateChanged();
+            controller.onDateChanged();
 
-            expect(overviewController.updateCharts)
+            expect(controller.updateCharts)
                 .toHaveBeenCalledWith(fakeDateYesterday, fakeDateToday);
         });
     });
