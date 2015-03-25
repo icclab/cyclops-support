@@ -10,11 +10,11 @@
     */
     OverviewController.$inject = [
         '$log', '$scope', '$location',
-        'restService', 'sessionService', 'chartDataService', 'dateUtil'
+        'restService', 'sessionService', 'usageDataService', 'dateUtil'
     ];
     function OverviewController(
             $log, $scope, $location,
-            restService, sessionService, chartDataService, dateUtil) {
+            restService, sessionService, usageDataService, dateUtil) {
 
         var me = this;
         this.selectedDate;
@@ -28,7 +28,7 @@
         };
 
         var loadUdrDataSuccess = function(response) {
-            chartDataService.setRawData(response.data);
+            usageDataService.setRawData(response.data);
             $scope.$broadcast('UDR_DATA_READY');
         };
 
