@@ -1,19 +1,11 @@
 <div class="panel panel-primary">
     <div class="panel-heading">
-
         <div
-            class="alert alert-danger"
-            data-ng-show="cumulativeChartCtrl.dataError">
-            Error loading chart data
-        </div>
-
-        <div
-            class="row huge text-center"
-            data-ng-hide="cumulativeChartCtrl.dataError">
+            class="row huge text-center">
             {{cumulativeChartCtrl.chartData}}
         </div>
     </div>
     <div class="panel-body text-center">
-        {{cumulativeChartCtrl.chartName}}
+        {{cumulativeChartCtrl.chartName}} ({{cumulativeChartCtrl.chartDataType}})
     </div>
 </div>
