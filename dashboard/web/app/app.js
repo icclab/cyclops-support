@@ -3,6 +3,8 @@
         Main Module Setup
     */
     angular.module('dashboard', [
+      'ngAnimate',
+      'angular-loading-bar',
       'ui.router',
       'dashboard.services',
       'dashboard.utils',
