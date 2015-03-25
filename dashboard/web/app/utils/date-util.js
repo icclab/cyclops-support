@@ -15,7 +15,7 @@
         };
 
         var formatDateTime = function(dateObject) {
-            return dateObject.toString("yyyy-MM-dd HH:mm")
+            return dateObject.toString("yyyy-MM-dd HH:mm:ss")
         };
 
         this.getTimestamp = function() {
@@ -23,7 +23,7 @@
         };
 
         this.fromTimestamp = function(timestamp) {
-            return new Date(timestamp).toString("d/MM/yy HH:mm:ss");
+            return new Date(timestamp).toString("d/MM/yy HH:mm");
         };
 
         this.getFormattedDateTimeNow = function() {

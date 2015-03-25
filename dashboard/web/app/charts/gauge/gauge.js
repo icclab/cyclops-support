@@ -22,7 +22,6 @@
     GaugeChartController.$inject = ['$scope', 'chartDataService'];
     function GaugeChartController($scope, chartDataService) {
         var me = this;
-        this.dataError = false;
         this.chartName = undefined;
         this.chartData = undefined;
         this.chartDataType = undefined;
@@ -42,7 +41,8 @@
             );
 
             if(result.error) {
-                me.dataError = true;
+                me.chartData = [[0]];
+                me.chartLabels = [''];
             }
             else {
                 me.chartData = result.data;
@@ -50,8 +50,8 @@
             }
         };
 
-        $scope.$on('UDR_DATA_READY', function() {
-            console.log("UDR DATA READY");
+        $scope.$on('CHART_DATA_READY', function() {
+            console.log("CHART_DATA_READY");
             me.updateGraph();
         });
     }
