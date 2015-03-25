@@ -14,12 +14,20 @@
             return dateObject.toString("yyyy-MM-dd");
         };
 
+        var formatDateTime = function(dateObject) {
+            return dateObject.toString("yyyy-MM-dd HH:mm")
+        };
+
         this.getTimestamp = function() {
             return new Date().getTime();
         };
 
         this.fromTimestamp = function(timestamp) {
-            return new Date(timestamp).toString("d/MM/yy HH:mm");
+            return new Date(timestamp).toString("d/MM/yy HH:mm:ss");
+        };
+
+        this.getFormattedDateTimeNow = function() {
+            return formatDateTime(Date.now());
         };
 
         this.getFormattedDateToday = function() {

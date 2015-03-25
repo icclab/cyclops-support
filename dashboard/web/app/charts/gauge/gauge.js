@@ -16,6 +16,7 @@
 
     function onLink(scope, el, attr, controller) {
         controller.chartName = attr.name;
+        controller.chartDataType = attr.type;
     }
 
     GaugeChartController.$inject = ['$scope', 'chartDataService'];
@@ -24,6 +25,7 @@
         this.dataError = false;
         this.chartName = undefined;
         this.chartData = undefined;
+        this.chartDataType = undefined;
         this.chartLabels = undefined;
         this.chartSeries = undefined;
         this.chartOptions = {
@@ -34,7 +36,10 @@
         };
 
         this.updateGraph = function() {
-            var result = chartDataService.getGaugeMeterData(me.chartName);
+            var result = chartDataService.getGaugeMeterData(
+                me.chartDataType,
+                me.chartName
+            );
 
             if(result.error) {
                 me.dataError = true;

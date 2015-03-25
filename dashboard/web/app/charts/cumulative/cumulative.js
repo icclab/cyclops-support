@@ -16,6 +16,7 @@
 
     function onLink(scope, el, attr, controller) {
         controller.chartName = attr.name;
+        controller.chartDataType = attr.type;
     }
 
     CumulativeChartController.$inject = ['$scope', 'chartDataService'];
@@ -23,10 +24,14 @@
         var me = this;
         this.dataError = false;
         this.chartName = undefined;
+        this.chartDataType = undefined;
         this.chartData = undefined;
 
         this.updateGraph = function() {
-            var result = chartDataService.getCumulativeMeterData(me.chartName);
+            var result = chartDataService.getCumulativeMeterData(
+                me.chartDataType,
+                me.chartName
+            );
 
             if(result.error) {
                 me.dataError = true;

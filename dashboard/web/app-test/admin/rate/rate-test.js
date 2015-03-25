@@ -11,6 +11,26 @@ describe('controller', function() {
     var enabledClass = "";
     var statusStringOn = "on";
     var statusStringOff = "off";
+    var fakeDateTime = "2015-03-21 15:14:13";
+    var fakeMeters = [
+        { name: "meter.name1", rate: 3 },
+        { name: "meter.name2", rate: 4 }
+    ];
+    var fakeStaticRateConfig = {
+        "source" : "dashboard",
+        "time" : fakeDateTime,
+        "rating" : "static",
+        "rate" : {
+            "meter.name1": 3,
+            "meter.name2": 4
+        }
+    };
+    var fakeDynamicRateConfig = {
+        "source" : "dashboard",
+        "time" : fakeDateTime,
+        "rating" : "dynamic",
+        "rate" : null
+    };
 
     /*
         Test setup
@@ -30,6 +50,11 @@ describe('controller', function() {
             ['']
         );
 
+        dateUtilMock = jasmine.createSpyObj(
+            'dateUtil',
+            ['getFormattedDateTimeNow']
+        );
+
         /*
             Inject dependencies and configure mocks
          */
@@ -37,9 +62,12 @@ describe('controller', function() {
             $scope = $rootScope.$new();
             $log = _$log_;
 
+            dateUtilMock.getFormattedDateTimeNow.and.returnValue(fakeDateTime);
+
             controller = $controller('AdminRateController', {
                 '$scope': $scope,
-                'restService': restServiceMock
+                'restService': restServiceMock,
+                'dateUtil': dateUtilMock
             });
         });
     });
@@ -74,6 +102,21 @@ describe('controller', function() {
             controller.setStaticRateEnabled(false);
             expect(controller.enabledButtonClass).toEqual(enabledClass);
             expect(controller.disabledButtonClass).toEqual(disabledClass);
+        });
+    });
+
+    describe('buildStaticRateConfig', function() {
+        it('should build a correct config object', function() {
+            controller.meters = fakeMeters;
+            var res = controller.buildStaticRateConfig();
+            expect(res).toEqual(fakeStaticRateConfig);
+        });
+    });
+
+    describe('buildDynamicRateConfig', function() {
+        it('should build a correct config object', function() {
+            var res = controller.buildDynamicRateConfig();
+            expect(res).toEqual(fakeDynamicRateConfig);
         });
     });
 });

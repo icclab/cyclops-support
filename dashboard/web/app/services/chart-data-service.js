@@ -8,13 +8,24 @@
     /*
         Controllers, Factories, Services, Directives
     */
-   ChartDataService.$inject = ['dateUtil'];
-    function ChartDataService(dateUtil) {
+   ChartDataService.$inject = ['dateUtil', 'usageDataService'/*, rateDataService, chargeDataService */ ];
+    function ChartDataService(dateUtil, usageDataService) {
+        var me = this;
         var NUM_LABELS = 10;
         var ERROR = { 'error': true };
 
-        var me = this;
-        var rawData = {};
+
+        this.getServiceDelegate = function(type) {
+            if(type == "usage") {
+                return usageDataService;
+            }
+            else if(type == "charge") {
+                //return chargeDataService;
+            }
+            else if(type == "rate") {
+                //return rateDataService;
+            }
+        };
 
         this.setLabelIfSpaceAvailable = function(
                 numPoints, pointIndex, numLabels, label) {
@@ -24,24 +35,11 @@
             return pointIndex % modulus == 0 ? label : "";
         };
 
-        this.setRawData = function(data) {
-            if(data && data.usage && data.usage.openstack) {
-                dataArray = data.usage.openstack;
-
-                for(var i = 0; i < dataArray.length; i++) {
-                    currentData = dataArray[i];
-                    rawData[currentData.name] = currentData;
-                }
-            }
-        };
-
-        this.getRawData = function() {
-            return rawData;
-        };
-
-        this.getCumulativeMeterData = function(meterName) {
+        this.getCumulativeMeterData = function(type, meterName) {
             try {
-                var value = rawData[meterName].points[0][1];
+                var service = me.getServiceDelegate(type);
+                var serviceData = service.getRawData();
+                var value = serviceData[meterName].points[0][1];
                 return { "data": value };
             }
             catch(err) {
@@ -49,9 +47,11 @@
             }
         };
 
-        this.getGaugeMeterData = function(meterName) {
+        this.getGaugeMeterData = function(type, meterName) {
             try {
-                var dataPoints = rawData[meterName].points;
+                var service = me.getServiceDelegate(type);
+                var serviceData = service.getRawData();
+                var dataPoints = serviceData[meterName].points;
                 var numPoints = dataPoints.length;
                 var dataX = [];
                 var dataY = [];
