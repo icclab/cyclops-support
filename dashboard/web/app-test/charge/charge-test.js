@@ -5,10 +5,10 @@ describe('RateController', function() {
     var controller;
     var restServiceMock;
     var sessionServiceMock;
-    var rateDataServiceMock;
+    var chargeDataServiceMock;
     var dateUtilMock;
-    var rateDeferred;
-    var ratePromise;
+    var chargeDeferred;
+    var chargePromise;
 
     /*
         Fake Data
@@ -21,7 +21,7 @@ describe('RateController', function() {
     var fakeDateLastYear = "2014-03-05";
     var fakeFrom = "2015-03-03 00:00:00";
     var fakeTo = "2015-03-04 23:59:59";
-    var fakeMeter = "network.incoming.bytes";
+    var fakeUser = "192asdk";
     var fakeResponse = {
         data: {
             'test': 'abc'
@@ -36,14 +36,14 @@ describe('RateController', function() {
         /*
             Load module
          */
-        module('dashboard.rate');
+        module('dashboard.charge');
 
         /*
             Mocks
          */
         restServiceMock = jasmine.createSpyObj(
             'restService',
-            ['getRateForMeter']
+            ['getChargeForUser']
         );
 
         sessionServiceMock = jasmine.createSpyObj(
@@ -51,8 +51,8 @@ describe('RateController', function() {
             ['getKeystoneId', 'setUserData']
         );
 
-        rateDataServiceMock = jasmine.createSpyObj(
-            'rateDataService',
+        chargeDataServiceMock = jasmine.createSpyObj(
+            'chargeDataService',
             ['setRawData']
         );
 
@@ -72,10 +72,10 @@ describe('RateController', function() {
             $log = _$log_;
             $location = _$location_;
             $scope = $rootScope.$new();
-            rateDeferred = $q.defer();
-            ratePromise = rateDeferred.promise;
+            chargeDeferred = $q.defer();
+            chargePromise = chargeDeferred.promise;
 
-            restServiceMock.getRateForMeter.and.returnValue(ratePromise);
+            restServiceMock.getChargeForUser.and.returnValue(chargePromise);
             dateUtilMock.getFormattedDateToday.and.returnValue(fakeDateToday);
             dateUtilMock.getFormattedDateYesterday.and.returnValue(fakeDateYesterday);
             dateUtilMock.getFormattedDateLast3Days.and.returnValue(fakeDateLast3days);
@@ -84,11 +84,11 @@ describe('RateController', function() {
             dateUtilMock.getFormattedDateLastYear.and.returnValue(fakeDateLastYear);
             spyOn($scope, '$broadcast');
 
-            controller = $controller('RateController', {
+            controller = $controller('ChargeController', {
                 '$scope': $scope,
                 'restService': restServiceMock,
                 'sessionService': sessionServiceMock,
-                'rateDataService': rateDataServiceMock,
+                'chargeDataService': chargeDataServiceMock,
                 'dateUtil': dateUtilMock
             });
         });
@@ -97,40 +97,40 @@ describe('RateController', function() {
     /*
         Tests
      */
-    describe('requestRate', function() {
-        it('should correctly call restService.getRateForMeter', function() {
-            controller.requestRate(fakeMeter, fakeFrom, fakeTo);
-            rateDeferred.resolve(fakeResponse);
+    describe('requestCharge', function() {
+        it('should correctly call restService.getChargeForUser', function() {
+            controller.requestCharge(fakeUser, fakeFrom, fakeTo);
+            chargeDeferred.resolve(fakeResponse);
             $scope.$digest();
 
-            expect(restServiceMock.getRateForMeter)
-                .toHaveBeenCalledWith(fakeMeter, fakeFrom, fakeTo);
+            expect(restServiceMock.getChargeForUser)
+                .toHaveBeenCalledWith(fakeUser, fakeFrom, fakeTo);
         });
 
-        it('should execute loadUdrDataSuccess on rateDeferred.resolve', function() {
-            controller.requestRate(fakeMeter, fakeFrom, fakeTo);
-            rateDeferred.resolve(fakeResponse);
+        it('should execute loadUdrDataSuccess on chargeDeferred.resolve', function() {
+            controller.requestCharge(fakeUser, fakeFrom, fakeTo);
+            chargeDeferred.resolve(fakeResponse);
             $scope.$digest();
 
-            expect(rateDataServiceMock.setRawData)
+            expect(chargeDataServiceMock.setRawData)
                 .toHaveBeenCalledWith(fakeResponse.data);
         });
 
-        it('should broadcast CHART_DATA_READY on rateDeferred.resolve', function() {
-            controller.requestRate(fakeMeter, fakeFrom, fakeTo);
-            rateDeferred.resolve(fakeResponse);
+        it('should broadcast CHART_DATA_READY on chargeDeferred.resolve', function() {
+            controller.requestCharge(fakeUser, fakeFrom, fakeTo);
+            chargeDeferred.resolve(fakeResponse);
             $scope.$digest();
 
             expect($scope.$broadcast).toHaveBeenCalledWith('CHART_DATA_READY');
         });
 
-        it('should excute loadUdrDataFailed on rateDeferred.reject', function() {
-            controller.requestRate(fakeMeter, fakeFrom, fakeTo);
-            rateDeferred.reject();
+        it('should excute loadUdrDataFailed on chargeDeferred.reject', function() {
+            controller.requestCharge(fakeUser, fakeFrom, fakeTo);
+            chargeDeferred.reject();
             $scope.$digest();
 
             expect($log.debug.logs)
-                .toContain(['Requesting rate data failed']);
+                .toContain(['Requesting charge data failed']);
         });
     });
 });

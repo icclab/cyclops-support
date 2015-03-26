@@ -17,6 +17,7 @@
 
 package ch.icclab.cyclops.dashboard.application;
 
+import ch.icclab.cyclops.dashboard.charge.Charge;
 import ch.icclab.cyclops.dashboard.keystone.KeystoneAssociation;
 import ch.icclab.cyclops.dashboard.keystone.KeystoneMeter;
 import ch.icclab.cyclops.dashboard.login.Login;
@@ -45,6 +46,7 @@ public class DashboardApplication extends Application {
         router.attach("/tokeninfo", TokenInfo.class);
         router.attach("/usage", Usage.class);
         router.attach("/rate", Rate.class);
+        router.attach("/charge", Charge.class);
         router.attach("/keystonemeters", KeystoneMeter.class);
         router.attach("/udrmeters", UdrMeter.class);
         router.attach("/keystone", KeystoneAssociation.class);

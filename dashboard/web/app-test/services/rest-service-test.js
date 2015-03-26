@@ -15,6 +15,7 @@ describe('RestService', function() {
     var fakeFrom = "2015-01-01 12:00:00";
     var fakeTo = "2015-01-02 12:00:00";
     var fakeRateQuery = "?resourcename="+fakeMeterName+"&from="+fakeFrom+"&to="+fakeTo;
+    var fakeChargeQuery = "?userid="+fakeUser+"&from="+fakeFrom+"&to="+fakeTo;
     var fakeAccessQuery = "?access_token=" + fakeAccessToken;
     var fakeSessionQuery = "?session_id=" + fakeSessionId;
 
@@ -38,6 +39,7 @@ describe('RestService', function() {
 
         $httpBackend.whenPOST("/dashboard/rest/usage").respond(200);
         $httpBackend.whenGET("/dashboard/rest/rate" + fakeRateQuery).respond(200);
+        $httpBackend.whenGET("/dashboard/rest/charge" + fakeChargeQuery).respond(200);
         $httpBackend.whenPOST("/dashboard/rest/keystone").respond(200);
         $httpBackend.whenPOST("/dashboard/rest/login").respond(200);
         $httpBackend.whenPOST("/dashboard/rest/session").respond(200);
@@ -170,6 +172,14 @@ describe('RestService', function() {
         it('should send complete GET request', function() {
             $httpBackend.expectGET("/dashboard/rest/rate" + fakeRateQuery);
             restService.getRateForMeter(fakeMeterName, fakeFrom, fakeTo);
+            $httpBackend.flush();
+        });
+    });
+
+    describe('getChargeForUser', function() {
+        it('should send complete GET request', function() {
+            $httpBackend.expectGET("/dashboard/rest/charge" + fakeChargeQuery);
+            restService.getChargeForUser(fakeUser, fakeFrom, fakeTo);
             $httpBackend.flush();
         });
     });
