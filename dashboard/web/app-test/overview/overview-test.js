@@ -1,11 +1,11 @@
 describe('OverviewController', function() {
-    var $log;
     var $scope;
     var $location;
     var controller;
     var restServiceMock;
     var sessionServiceMock;
     var usageDataServiceMock;
+    var alertServiceMock;
     var dateUtilMock;
     var udrDeferred;
     var udrPromise;
@@ -13,6 +13,7 @@ describe('OverviewController', function() {
     /*
         Fake Data
      */
+    var errorMsg = 'Requesting meter data failed';
     var fakeDateToday = "2015-03-04";
     var fakeDateYesterday = "2015-03-03";
     var fakeDateLast3days = "2015-03-02";
@@ -56,6 +57,11 @@ describe('OverviewController', function() {
             ['setRawData']
         );
 
+        alertServiceMock = jasmine.createSpyObj(
+            'alertService',
+            ['showError']
+        );
+
         dateUtilMock = jasmine.createSpyObj(
             'dateUtil',
             [
@@ -68,8 +74,7 @@ describe('OverviewController', function() {
         /*
             Inject dependencies and configure mocks
          */
-        inject(function($controller, $q, $rootScope, _$log_, _$location_) {
-            $log = _$log_;
+        inject(function($controller, $q, $rootScope, _$location_) {
             $location = _$location_;
             $scope = $rootScope.$new();
             udrDeferred = $q.defer();
@@ -90,6 +95,7 @@ describe('OverviewController', function() {
                 'restService': restServiceMock,
                 'sessionService': sessionServiceMock,
                 'usageDataService': usageDataServiceMock,
+                'alertService': alertServiceMock,
                 'dateUtil': dateUtilMock
             });
         });
@@ -153,8 +159,7 @@ describe('OverviewController', function() {
             udrDeferred.reject();
             $scope.$digest();
 
-            expect($log.debug.logs)
-                .toContain(['Requesting meter data failed']);
+            expect(alertServiceMock.showError).toHaveBeenCalledWith(errorMsg);
         });
     });
 

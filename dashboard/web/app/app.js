@@ -4,14 +4,16 @@
     */
     angular.module('dashboard', [
       'ngAnimate',
-      'angular-loading-bar',
       'ui.router',
+      'toasty',
+      'angular-loading-bar',
       'dashboard.services',
       'dashboard.utils',
       'dashboard.navigation',
       'dashboard.login',
       'dashboard.overview',
       'dashboard.rate',
+      'dashboard.charge',
       'dashboard.keystone',
       'dashboard.bills',
       'dashboard.cloudservices',
@@ -133,6 +135,34 @@
                         templateUrl: 'rate/rate.html',
                         controller: 'RateController',
                         controllerAs: 'rateCtrl'
+                    }
+                }
+            });
+        }
+    ]);
+
+    /*
+        Charge Module Setup
+    */
+    angular.module('dashboard.charge', [
+        'ui.router'
+    ]).config([
+        '$stateProvider',
+        function($stateProvider) {
+            $stateProvider.state('charge', {
+                url: "/charge",
+                authenticate: true,
+                adminOnly: false,
+                views: {
+                    "navigation": {
+                        templateUrl: 'navigation/navigation.html',
+                        controller: 'NavigationController',
+                        controllerAs: 'navigationCtrl'
+                    },
+                    "content": {
+                        templateUrl: 'charge/charge.html',
+                        controller: 'ChargeController',
+                        controllerAs: 'chargeCtrl'
                     }
                 }
             });

@@ -182,6 +182,19 @@
             var query = "?resourcename=" + meter + "&from=" + from + "&to=" + to;
             return $http.get('/dashboard/rest/rate' + query);
         };
+
+        /**
+         * This method gets the charge for a use in a desired time frame
+         * from the dashboard backend
+         * @param  {String} userId Keystone User ID
+         * @param  {String} from Timestamp in the format "YYYY-MM-DD HH:MM:SS"
+         * @param  {String} to Timestamp in the format "YYYY-MM-DD HH:MM:SS"
+         * @return {Promise}
+         */
+        this.getChargeForUser = function(userId, from, to) {
+            var query = "?userid=" + userId + "&from=" + from + "&to=" + to;
+            return $http.get('/dashboard/rest/charge' + query);
+        };
     }
 
 })();
