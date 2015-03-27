@@ -4,8 +4,9 @@
     */
     angular.module('dashboard', [
       'ngAnimate',
-      'angular-loading-bar',
       'ui.router',
+      'toasty',
+      'angular-loading-bar',
       'dashboard.services',
       'dashboard.utils',
       'dashboard.navigation',

@@ -9,12 +9,12 @@
         Controllers, Factories, Services, Directives
     */
     RateController.$inject = [
-        '$log', '$scope', '$location',
-        'restService', 'sessionService', 'rateDataService', 'dateUtil'
+        '$scope', 'restService', 'sessionService', 'rateDataService',
+        'alertService', 'dateUtil'
     ];
     function RateController(
-            $log, $scope, $location,
-            restService, sessionService, rateDataService, dateUtil) {
+            $scope, restService, sessionService, rateDataService,
+            alertService, dateUtil) {
         var me = this;
 
         var loadRateDataSuccess = function(response) {
@@ -23,7 +23,7 @@
         };
 
         var loadRateDataFailed = function(reponse) {
-            $log.debug("Requesting rate data failed");
+            alertService.showError("Requesting rate data failed");
         };
 
         this.requestRate = function(meter, from, to) {
