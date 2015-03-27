@@ -1,6 +1,9 @@
 describe('ChartDataService', function() {
     var service;
     var dateUtilMock;
+    var usageDataServiceMock;
+    var rateDataServiceMock;
+    var chargeDataServiceMock;
 
     /*
         Fake Data
@@ -17,7 +20,7 @@ describe('ChartDataService', function() {
     var fakeCumulativeName = "cumulativeChart";
     var fakeGaugeName = "gaugeChart";
 
-    var fakeUsageData = {
+    var fakeData = {
         cumulativeChart: {
             'name': fakeCumulativeName,
             'points': [ [null, 2000] ]
@@ -30,8 +33,8 @@ describe('ChartDataService', function() {
             ]
         }
     };
-    var fakeCumulativeUsageData = { data: 2000 };
-    var fakeGaugeUsageData = {
+    var fakeCumulativeData = { data: 2000 };
+    var fakeGaugeData = {
         labels: ['', ''],
         data: [ [0.4, 0.5] ]
     };
@@ -59,11 +62,23 @@ describe('ChartDataService', function() {
             ['getRawData']
         );
 
+        rateDataServiceMock = jasmine.createSpyObj(
+            'rateDataService',
+            ['getRawData']
+        );
+
+        chargeDataServiceMock = jasmine.createSpyObj(
+            'chargeDataService',
+            ['getRawData']
+        );
+
         dateUtilMock.fromTimestamp.and.returnValue("12-Jan-15 13:33");
 
         module(function($provide) {
             $provide.value('dateUtil', dateUtilMock);
             $provide.value('usageDataService', usageDataServiceMock);
+            $provide.value('rateDataService', rateDataServiceMock);
+            $provide.value('chargeDataService', chargeDataServiceMock);
         });
 
         /*
@@ -83,13 +98,13 @@ describe('ChartDataService', function() {
             spyOn(service, 'getServiceDelegate').and.returnValue(usageDataServiceMock);
         });
 
-        it('returns the correct usage data if available', function() {
-            usageDataServiceMock.getRawData.and.returnValue(fakeUsageData);
+        it('returns the correct data if available', function() {
+            usageDataServiceMock.getRawData.and.returnValue(fakeData);
             var res = service.getCumulativeMeterData(usage, fakeCumulativeName);
-            expect(res).toEqual(fakeCumulativeUsageData);
+            expect(res).toEqual(fakeCumulativeData);
         });
 
-        it('returns an error if no usage data available', function() {
+        it('returns an error if no data available', function() {
             usageDataServiceMock.getRawData.and.returnValue(undefined);
             var res = service.getCumulativeMeterData(usage, fakeCumulativeName);
             expect(res).toEqual(fakeError);
@@ -103,9 +118,9 @@ describe('ChartDataService', function() {
         });
 
         it('returns the correct usage data if available', function() {
-            usageDataServiceMock.getRawData.and.returnValue(fakeUsageData);
+            usageDataServiceMock.getRawData.and.returnValue(fakeData);
             var res = service.getGaugeMeterData(usage, fakeGaugeName);
-            expect(res).toEqual(fakeGaugeUsageData);
+            expect(res).toEqual(fakeGaugeData);
         });
 
         it('returns an error if no usage data available', function() {
@@ -121,14 +136,14 @@ describe('ChartDataService', function() {
             expect(res).toEqual(usageDataServiceMock);
         });
 
-        xit('returns chargeDataService if selected', function() {
+        it('returns chargeDataService if selected', function() {
             var res = service.getServiceDelegate(charge);
-            expect(res).toEqual(usageDataServiceMock);
+            expect(res).toEqual(chargeDataServiceMock);
         });
 
-        xit('returns rateDataService if selected', function() {
+        it('returns rateDataService if selected', function() {
             var res = service.getServiceDelegate(rate);
-            expect(res).toEqual(usageDataServiceMock);
+            expect(res).toEqual(rateDataServiceMock);
         });
     });
 

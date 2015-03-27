@@ -9,13 +9,13 @@
         Controllers, Factories, Services, Directives
     */
     OverviewController.$inject = [
-        '$log', '$scope', '$location',
-        'restService', 'sessionService', 'usageDataService',
+        '$scope', '$location',
+        'restService', 'sessionService', 'usageDataService', 'alertService',
         'dateUtil'
     ];
     function OverviewController(
-            $log, $scope, $location,
-            restService, sessionService, usageDataService,
+            $scope, $location,
+            restService, sessionService, usageDataService, alertService,
             dateUtil) {
 
         var me = this;
@@ -35,7 +35,7 @@
         };
 
         var loadUdrDataFailed = function(response) {
-            $log.debug("Requesting meter data failed");
+            alertService.showError("Requesting meter data failed");
         };
 
         this.requestUsage = function(keystoneId, from, to) {
