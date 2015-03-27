@@ -1,11 +1,10 @@
 describe('RateController', function() {
-    var $log;
     var $scope;
-    var $location;
     var controller;
     var restServiceMock;
     var sessionServiceMock;
     var rateDataServiceMock;
+    var alertServiceMock;
     var dateUtilMock;
     var rateDeferred;
     var ratePromise;
@@ -13,12 +12,8 @@ describe('RateController', function() {
     /*
         Fake Data
      */
+    var errorMsg = 'Requesting rate data failed';
     var fakeDateToday = "2015-03-04";
-    var fakeDateYesterday = "2015-03-03";
-    var fakeDateLast3days = "2015-03-02";
-    var fakeDateLastWeek = "2015-02-27";
-    var fakeDateLastMonth = "2015-02-05";
-    var fakeDateLastYear = "2014-03-05";
     var fakeFrom = "2015-03-03 00:00:00";
     var fakeTo = "2015-03-04 23:59:59";
     var fakeMeter = "network.incoming.bytes";
@@ -56,32 +51,26 @@ describe('RateController', function() {
             ['setRawData']
         );
 
+        alertServiceMock = jasmine.createSpyObj(
+            'alertService',
+            ['showError']
+        );
+
         dateUtilMock = jasmine.createSpyObj(
             'dateUtil',
-            [
-                'getFormattedDateToday', 'getFormattedDateYesterday',
-                'getFormattedDateLast3Days', 'getFormattedDateLastWeek',
-                'getFormattedDateLastMonth', 'getFormattedDateLastYear'
-            ]
+            ['getFormattedDateToday']
         );
 
         /*
             Inject dependencies and configure mocks
          */
-        inject(function($controller, $q, $rootScope, _$log_, _$location_) {
-            $log = _$log_;
-            $location = _$location_;
+        inject(function($controller, $q, $rootScope) {
             $scope = $rootScope.$new();
             rateDeferred = $q.defer();
             ratePromise = rateDeferred.promise;
 
             restServiceMock.getRateForMeter.and.returnValue(ratePromise);
             dateUtilMock.getFormattedDateToday.and.returnValue(fakeDateToday);
-            dateUtilMock.getFormattedDateYesterday.and.returnValue(fakeDateYesterday);
-            dateUtilMock.getFormattedDateLast3Days.and.returnValue(fakeDateLast3days);
-            dateUtilMock.getFormattedDateLastWeek.and.returnValue(fakeDateLastWeek);
-            dateUtilMock.getFormattedDateLastMonth.and.returnValue(fakeDateLastMonth);
-            dateUtilMock.getFormattedDateLastYear.and.returnValue(fakeDateLastYear);
             spyOn($scope, '$broadcast');
 
             controller = $controller('RateController', {
@@ -89,6 +78,7 @@ describe('RateController', function() {
                 'restService': restServiceMock,
                 'sessionService': sessionServiceMock,
                 'rateDataService': rateDataServiceMock,
+                'alertService': alertServiceMock,
                 'dateUtil': dateUtilMock
             });
         });
@@ -129,8 +119,7 @@ describe('RateController', function() {
             rateDeferred.reject();
             $scope.$digest();
 
-            expect($log.debug.logs)
-                .toContain(['Requesting rate data failed']);
+            expect(alertServiceMock.showError).toHaveBeenCalledWith(errorMsg);
         });
     });
 });

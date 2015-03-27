@@ -9,12 +9,12 @@
         Controllers, Factories, Services, Directives
     */
     ChargeController.$inject = [
-        '$log', '$scope', '$location',
-        'restService', 'sessionService', 'chargeDataService', 'dateUtil'
+        '$scope', 'restService', 'sessionService', 'chargeDataService',
+        'alertService', 'dateUtil'
     ];
     function ChargeController(
-            $log, $scope, $location,
-            restService, sessionService, chargeDataService, dateUtil) {
+            $scope, restService, sessionService, chargeDataService,
+            alertService, dateUtil) {
         var me = this;
 
         var loadChargeDataSuccess = function(response) {
@@ -23,7 +23,7 @@
         };
 
         var loadChargeDataFailed = function(reponse) {
-            $log.debug("Requesting charge data failed");
+            alertService.showError("Requesting charge data failed");
         };
 
         this.requestCharge = function(userId, from, to) {
@@ -32,9 +32,9 @@
         };
 
         this.requestCharge(
-            sessionService.getKeystoneId(),
-            dateUtil.getFormattedDateToday() + " 00:00",
-            dateUtil.getFormattedDateToday() + " 23:59"
+            "49588f5cea984040bc05d871eff67d2f",
+            dateUtil.getFormattedDateToday() + " 00:00:00",
+            dateUtil.getFormattedDateToday() + " 23:59:59"
         );
     };
 
