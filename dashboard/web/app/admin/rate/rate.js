@@ -41,7 +41,7 @@
             return {
                 source : "dashboard",
                 time: dateUtil.getFormattedDateTimeNow(),
-                rating : "dynamic",
+                rate_policy : "dynamic",
                 rate : null
             };
         };
@@ -57,7 +57,7 @@
 
             return {
                 source: "dashboard",
-                rating: "static",
+                rate_policy: "static",
                 time: dateUtil.getFormattedDateTimeNow(),
                 rate: rates
             };
