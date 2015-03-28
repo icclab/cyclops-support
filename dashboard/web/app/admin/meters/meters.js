@@ -8,8 +8,8 @@
     /*
         Controllers, Factories, Services, Directives
     */
-    AdminMeterController.$inject = ['$log', 'restService', 'dateUtil'];
-    function AdminMeterController($log, restService, dateUtil) {
+    AdminMeterController.$inject = ['restService', 'alertService', 'dateUtil'];
+    function AdminMeterController(restService, alertService, dateUtil) {
         var me = this;
         this.uniqueMeterMap = {};
 
@@ -23,15 +23,15 @@
         };
 
         var loadMeterError = function(response) {
-            $log.debug("Error loading list of meters");
+            alertService.showError("Error loading list of meters");
         };
 
         var updateMeterSuccess = function(response) {
-            $log.debug("Meters successfully updated");
+            alertService.showSuccess("Meters successfully updated");
         };
 
         var updateMeterError = function(response) {
-            $log.debug("Updating meters failed");
+            alertService.showError("Updating meters failed");
         };
 
         this.preselectMeters = function(udrMeterResponse) {

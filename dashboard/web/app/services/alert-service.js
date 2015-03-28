@@ -20,6 +20,17 @@
 
             $log.debug("Error: " + message);
         };
+
+        this.showSuccess = function(message) {
+            toasty.pop.success({
+                title: "Success",
+                msg: message,
+                sound: false,
+                timeout: 3000
+            });
+
+            $log.debug("Success: " + message);
+        };
     }
 
 })();
