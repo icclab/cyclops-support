@@ -23,6 +23,7 @@ import ch.icclab.cyclops.dashboard.keystone.KeystoneMeter;
 import ch.icclab.cyclops.dashboard.login.Login;
 import ch.icclab.cyclops.dashboard.login.Session;
 import ch.icclab.cyclops.dashboard.rate.Rate;
+import ch.icclab.cyclops.dashboard.rate.RateStatus;
 import ch.icclab.cyclops.dashboard.token.TokenInfo;
 import ch.icclab.cyclops.dashboard.udr.UdrMeter;
 import ch.icclab.cyclops.dashboard.udr.Usage;
@@ -46,6 +47,7 @@ public class DashboardApplication extends Application {
         router.attach("/tokeninfo", TokenInfo.class);
         router.attach("/usage", Usage.class);
         router.attach("/rate", Rate.class);
+        router.attach("/rate/status", RateStatus.class);
         router.attach("/charge", Charge.class);
         router.attach("/keystonemeters", KeystoneMeter.class);
         router.attach("/udrmeters", UdrMeter.class);

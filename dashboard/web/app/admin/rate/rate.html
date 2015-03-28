@@ -1,23 +1,25 @@
 <div class="panel panel-primary">
     <div class="panel-heading">
-        Static Rate
+        Rating Policy
     </div>
     <div class="panel-body">
-        <button
-            type="button"
-            class="btn btn-success {{adminRateCtrl.enabledButtonClass}}"
-            data-ng-click="adminRateCtrl.setStaticRateEnabled(true)">
-            Enable
-        </button>
-        <button
-            type="button"
-            class="btn btn-danger {{adminRateCtrl.disabledButtonClass}}"
-            data-ng-click="adminRateCtrl.setStaticRateEnabled(false)">
-            Disable
-        </button>
+        <div class="btn-group">
+            <button
+                type="button"
+                class="btn btn-primary {{adminRateCtrl.staticRatingButtonClass}}"
+                data-ng-click="adminRateCtrl.setGuiStaticRateEnabled()">
+                Static Rating
+            </button>
+            <button
+                type="button"
+                class="btn btn-primary {{adminRateCtrl.dynamicRatingButtonClass}}"
+                data-ng-click="adminRateCtrl.setGuiDynamicRateEnabled()">
+                Dynamic Rating
+            </button>
+        </div>
     </div>
     <div class="panel-footer">
-        Static rate is currently {{adminRateCtrl.staticRateStatusString}}
+        Currently, the RC Microservice is using <strong>{{adminRateCtrl.activePolicyStatusString}}</strong>
     </div>
 </div>
 
@@ -33,7 +35,7 @@
         <tbody>
             <tr data-ng-repeat="meter in adminRateCtrl.meters">
                 <td>{{meter.name}}</td>
-                <td><input type="text" data-ng-value="meter.rate" /></td>
+                <td><input type="text" data-ng-model="meter.rate" /></td>
             </tr>
         </tbody>
     </table>
@@ -41,5 +43,18 @@
     <button
         type="button"
         class="btn btn-success btn-lg btn-block"
-        data-ng-click="adminRateCtrl.updateStaticRates()">Save</button>
+        data-ng-click="adminRateCtrl.activatePolicyStatic()">Save</button>
+</div>
+
+<div data-ng-if="!adminRateCtrl.isStaticRateEnabled">
+
+    <div class="alert alert-warning">
+        Switching to <strong>Dynamic Rating</strong> will disable static rating
+        for all meters
+    </div>
+
+    <button
+        type="button"
+        class="btn btn-success btn-lg btn-block"
+        data-ng-click="adminRateCtrl.activatePolicyDynamic()">Save</button>
 </div>
