@@ -18,39 +18,10 @@
         this.activePolicyStatusString = "Dynamic Rating";
         this.staticRatingButtonClass = "";
         this.dynamicRatingButtonClass = "disabled";
-        this.meters = [
-            {
-                name: "cpu_util",
-                rate: "0.5"
-            },
-            {
-                name: "energy",
-                rate: "1"
-            },
-            {
-                name: "network.incoming.bytes",
-                rate: "1.25"
-            }
-        ];
-
-        var onGetActivePolicySuccess = function(response) {
-            var responseData = response.data;
-            var policy = responseData.rate_policy;
-            var staticEnabled = (policy && policy == "static");
-
-            if(staticEnabled) {
-                me.setGuiStaticRateEnabled();
-                me.setGuiActivePolicyStatic();
-                me.meters = responseParser.getStaticRatingListFromResponse(responseData);
-            }
-            else {
-                me.setGuiDynamicRateEnabled();
-                me.setGuiActivePolicyDynamic();
-            }
-        };
+        this.meters = [];
 
         var onGetActivePolicyError = function(response) {
-            alertService.showError("Could not determine rate status");
+            alertService.showError("Could not determine rate policy");
         };
 
         var onActivatePolicyStaticSuccess = function(response) {
@@ -106,7 +77,14 @@
 
             for(var i = 0; i < meters.length; i++) {
                 var currentMeter = meters[i];
-                rates[currentMeter.name] = currentMeter.rate;
+                var rate = currentMeter.rate;
+
+                //replace illegal numbers / strings with 1
+                if(isNaN(rate) || rate < 0) {
+                    rate = 1;
+                }
+
+                rates[currentMeter.name] = rate;
             }
 
             return {
@@ -131,12 +109,76 @@
                 .then(onActivatePolicyDynamicSuccess, onActivatePolicyDynamicError);
         };
 
-        this.getActiveRatePolicy = function() {
-            restService.getActiveRatePolicy()
-                .then(onGetActivePolicySuccess, onGetActivePolicyError);
+        this.filterEnabledMeters = function(udrMeterResponse) {
+            var meterData = udrMeterResponse.data;
+            var udrMeters = meterData.points || [];
+            var columns = meterData.columns || [];
+            var indexName = columns.indexOf("metername");
+            var indexStatus = columns.indexOf("status");
+
+            if(indexName == -1 || indexStatus == -1) {
+                return;
+            }
+
+            /*
+            Outer Loop: Goes through all meters that the UDR microservice
+            knows.
+
+            Inner Loop: For each meter that is enabled, it looks up if a
+            static meter already exists (meaning that a static rate has been set)
+
+            If the meter doesn't exist yet, it means that it was selected, but
+            not configured for static rating yet. Therefore, we have to add it
+            to the static meter array with a default rate (here: 1)
+             */
+            for(var i = 0; i < udrMeters.length; i++) {
+                var enabledMeter = udrMeters[i];
+
+                if(enabledMeter[indexStatus] == 1) {
+                    var meterExists = false;
+
+                    for(var j = 0; j < me.meters.length; j++) {
+                        var staticMeter = me.meters[j];
+
+                        if(staticMeter.name == enabledMeter[indexName]) {
+                            meterExists = true;
+                        }
+                    }
+
+                    if(!meterExists) {
+                        me.meters.push({
+                            'name': enabledMeter[indexName],
+                            'rate': 1
+                        });
+                    }
+                }
+            }
         };
 
-        this.getActiveRatePolicy();
+        this.prepareGuiByActivePolicy = function(policyData) {
+            var policy = policyData.rate_policy || "";
+
+            if(policy == "static") {
+                me.meters = responseParser.getStaticRatingListFromResponse(policyData);
+                me.setGuiStaticRateEnabled();
+                me.setGuiActivePolicyStatic();
+            }
+            else {
+                me.setGuiDynamicRateEnabled();
+                me.setGuiActivePolicyDynamic();
+            }
+        };
+
+        this.onLoad = function() {
+            restService.getActiveRatePolicy()
+                .then(function(response) {
+                    me.prepareGuiByActivePolicy(response.data);
+                    return restService.getUdrMeters();
+                })
+                .then(me.filterEnabledMeters, onGetActivePolicyError);
+        };
+
+        this.onLoad();
     }
 
 })();

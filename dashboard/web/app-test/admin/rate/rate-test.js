@@ -1,12 +1,14 @@
-describe('controller', function() {
+describe('AdminRateController', function() {
     var $scope;
     var controller;
     var restServiceMock;
     var alertServiceMock;
     var responseParserMock;
     var dateUtilMock;
-    var deferred;
-    var promise;
+    var policyDeferred;
+    var udrDeferred;
+    var policyPromise;
+    var udrPromise;
 
     /*
         Fake Data
@@ -20,20 +22,33 @@ describe('controller', function() {
         { name: "meter.name1", rate: 3 },
         { name: "meter.name2", rate: 4 }
     ];
+    var fakeMetersIllegal = [
+        { name: "meter.name1", rate: "a" },
+        { name: "meter.name2", rate: -5 }
+    ];
     var fakeStaticRateConfig = {
-        "source" : "dashboard",
-        "time" : fakeDateTime,
-        "rate_policy" : "static",
-        "rate" : {
+        "source": "dashboard",
+        "time": fakeDateTime,
+        "rate_policy": "static",
+        "rate": {
             "meter.name1": 3,
             "meter.name2": 4
         }
     };
+    var fakeStaticRateConfigFixed = {
+        "source": "dashboard",
+        "time": fakeDateTime,
+        "rate_policy": "static",
+        "rate": {
+            "meter.name1": 1,
+            "meter.name2": 1
+        }
+    };
     var fakeDynamicRateConfig = {
-        "source" : "dashboard",
-        "time" : fakeDateTime,
-        "rate_policy" : "dynamic",
-        "rate" : null
+        "source": "dashboard",
+        "time": fakeDateTime,
+        "rate_policy": "dynamic",
+        "rate": null
     };
     var fakeResponseDynamic = {
         data: fakeDynamicRateConfig
@@ -41,6 +56,25 @@ describe('controller', function() {
     var fakeResponseStatic = {
         data: fakeStaticRateConfig
     };
+    var fakeUdrMeterResponse = {
+        data: {
+            name: "meterselection",
+            columns: ["time", "source", "metersource", "metertype", "metername", "status"],
+            points: [
+                [1425399530223, "cyclops-ui", "openstack", "gauge", "a.test1", 0],
+                [1425399530223, "cyclops-ui", "openstack", "cumulative", "b.test2", 1]
+            ]
+        }
+    };
+    var fakeMetersAfterFilter = [
+        { name: "b.test2", rate: 1 }
+    ];
+    var fakeMetersBeforeFilter = [
+        { name: "b.test2", rate: 3 }
+    ];
+    var fakeMetersAfterFilterUntouched = [
+        { name: "b.test2", rate: 3 }
+    ];
 
     /*
         Test setup
@@ -57,7 +91,7 @@ describe('controller', function() {
          */
         restServiceMock = jasmine.createSpyObj(
             'restService',
-            ['getActiveRatePolicy', 'setActiveRatePolicy']
+            ['getActiveRatePolicy', 'setActiveRatePolicy', 'getUdrMeters']
         );
 
         alertServiceMock = jasmine.createSpyObj(
@@ -80,11 +114,14 @@ describe('controller', function() {
          */
         inject(function($controller, $q, $rootScope) {
             $scope = $rootScope.$new();
-            deferred = $q.defer();
-            promise = deferred.promise;
+            policyDeferred = $q.defer();
+            udrDeferred = $q.defer();
+            policyPromise = policyDeferred.promise;
+            udrPromise = udrDeferred.promise;
 
-            restServiceMock.setActiveRatePolicy.and.returnValue(promise);
-            restServiceMock.getActiveRatePolicy.and.returnValue(promise);
+            restServiceMock.getUdrMeters.and.returnValue(udrPromise);
+            restServiceMock.setActiveRatePolicy.and.returnValue(policyPromise);
+            restServiceMock.getActiveRatePolicy.and.returnValue(policyPromise);
             responseParserMock.getStaticRatingListFromResponse.and.returnValue(fakeMeters);
             dateUtilMock.getFormattedDateTimeNow.and.returnValue(fakeDateTime);
 
@@ -151,6 +188,12 @@ describe('controller', function() {
             var res = controller.buildStaticRateConfig();
             expect(res).toEqual(fakeStaticRateConfig);
         });
+
+        it('should replace illegal values with 1', function() {
+            controller.meters = fakeMetersIllegal;
+            var res = controller.buildStaticRateConfig();
+            expect(res).toEqual(fakeStaticRateConfigFixed);
+        });
     });
 
     describe('buildDynamicRateConfig', function() {
@@ -177,18 +220,18 @@ describe('controller', function() {
                 .toHaveBeenCalledWith(fakeStaticRateConfig);
         });
 
-        it('should execute success callback on deferred.resolve', function() {
+        it('should execute success callback on policyDeferred.resolve', function() {
             controller.activatePolicyStatic();
-            deferred.resolve(fakeResponseDynamic);
+            policyDeferred.resolve(fakeResponseDynamic);
             $scope.$digest();
 
             expect(alertServiceMock.showSuccess).toHaveBeenCalled();
             expect(controller.setGuiActivePolicyStatic).toHaveBeenCalled();
         });
 
-        it('should execute error callback on deferred.reject', function() {
+        it('should execute error callback on policyDeferred.reject', function() {
             controller.activatePolicyStatic();
-            deferred.reject();
+            policyDeferred.reject();
             $scope.$digest();
 
             expect(alertServiceMock.showError).toHaveBeenCalled();
@@ -196,50 +239,91 @@ describe('controller', function() {
         });
     });
 
-    describe('getActiveRatePolicy', function() {
+    describe('onLoad', function() {
         it('should call restService.getActiveRatePolicy', function() {
-            controller.getActiveRatePolicy();
+            controller.onLoad();
             expect(restServiceMock.getActiveRatePolicy).toHaveBeenCalled();
         });
 
-        it('should execute success callback (static path) on deferred.resolve', function() {
+        it('should execute callback on policyDeferred.resolve', function() {
+            spyOn(controller, 'prepareGuiByActivePolicy');
+
+            controller.onLoad();
+            policyDeferred.resolve(fakeResponseDynamic);
+            $scope.$digest();
+            expect(restServiceMock.getUdrMeters).toHaveBeenCalled();
+            expect(controller.prepareGuiByActivePolicy)
+                .toHaveBeenCalledWith(fakeDynamicRateConfig);
+        });
+
+        it('should execute callback on udrDeferred.resolve', function() {
+            spyOn(controller, 'filterEnabledMeters');
+
+            controller.onLoad();
+            policyDeferred.resolve(fakeResponseDynamic);
+            udrDeferred.resolve(fakeUdrMeterResponse);
+            $scope.$digest();
+
+            expect(controller.filterEnabledMeters)
+                .toHaveBeenCalledWith(fakeUdrMeterResponse);
+        });
+
+        it('should execute error callback on policyDeferred.reject', function() {
+            controller.onLoad();
+            policyDeferred.reject();
+            $scope.$digest();
+
+            expect(alertServiceMock.showError).toHaveBeenCalled();
+        });
+
+        it('should execute error callback on udrDeferred.reject', function() {
+            controller.onLoad();
+            policyDeferred.resolve(fakeResponseDynamic);
+            udrDeferred.reject();
+            $scope.$digest();
+
+            expect(alertServiceMock.showError).toHaveBeenCalled();
+        });
+    });
+
+    describe('prepareGuiByActivePolicy', function() {
+        beforeEach(function(){
             spyOn(controller, 'setGuiStaticRateEnabled');
             spyOn(controller, 'setGuiDynamicRateEnabled');
             spyOn(controller, 'setGuiActivePolicyStatic');
             spyOn(controller, 'setGuiActivePolicyDynamic');
+        });
 
-            controller.getActiveRatePolicy();
-            deferred.resolve(fakeResponseStatic);
-            $scope.$digest();
-
+        it('should execute static path for static policy data', function() {
+            controller.prepareGuiByActivePolicy(fakeStaticRateConfig);
             expect(controller.setGuiStaticRateEnabled).toHaveBeenCalled();
             expect(controller.setGuiActivePolicyStatic).toHaveBeenCalled();
             expect(controller.setGuiDynamicRateEnabled).not.toHaveBeenCalled();
             expect(controller.setGuiActivePolicyDynamic).not.toHaveBeenCalled();
+            expect(responseParserMock.getStaticRatingListFromResponse)
+                .toHaveBeenCalledWith(fakeStaticRateConfig);
         });
 
-        it('should execute success callback (dynamic path) on deferred.resolve', function() {
-            spyOn(controller, 'setGuiStaticRateEnabled');
-            spyOn(controller, 'setGuiDynamicRateEnabled');
-            spyOn(controller, 'setGuiActivePolicyStatic');
-            spyOn(controller, 'setGuiActivePolicyDynamic');
-
-            controller.getActiveRatePolicy();
-            deferred.resolve(fakeResponseDynamic);
-            $scope.$digest();
-
+        it('should execute dynamic path for dynamic policy data', function() {
+            controller.prepareGuiByActivePolicy(fakeDynamicRateConfig);
             expect(controller.setGuiStaticRateEnabled).not.toHaveBeenCalled();
             expect(controller.setGuiActivePolicyStatic).not.toHaveBeenCalled();
             expect(controller.setGuiDynamicRateEnabled).toHaveBeenCalled();
             expect(controller.setGuiActivePolicyDynamic).toHaveBeenCalled();
         });
+    });
 
-        it('should execute error callback on deferred.reject', function() {
-            controller.getActiveRatePolicy();
-            deferred.reject();
-            $scope.$digest();
+    describe('filterEnabledMeters', function() {
+        it('should filter meters correctly on normal response', function() {
+            controller.meters = [];
+            controller.filterEnabledMeters(fakeUdrMeterResponse);
+            expect(controller.meters).toEqual(fakeMetersAfterFilter);
+        });
 
-            expect(alertServiceMock.showError).toHaveBeenCalled();
+        it('should consider preconfigured meters', function() {
+            controller.meters = fakeMetersBeforeFilter;
+            controller.filterEnabledMeters(fakeUdrMeterResponse);
+            expect(controller.meters).toEqual(fakeMetersAfterFilterUntouched);
         });
     });
 
