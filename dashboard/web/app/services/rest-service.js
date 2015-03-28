@@ -195,6 +195,25 @@
             var query = "?userid=" + userId + "&from=" + from + "&to=" + to;
             return $http.get('/dashboard/rest/charge' + query);
         };
+
+        /**
+         * This method gets the current rate policy from the RC microservice via
+         * the dashboard backend
+         * @return {Promise}
+         */
+        this.getActiveRatePolicy = function() {
+            return $http.get('/dashboard/rest/rate/status');
+        };
+
+        /**
+         * This method gets updates the rate policy on the RC microservice via
+         * the dashboard backend
+         * @param {Object} policyConfig New Policy Configuration
+         * @return {Promise}
+         */
+        this.setActiveRatePolicy = function(policyConfig) {
+            return $http.post('/dashboard/rest/rate/status', policyConfig);
+        };
     }
 
 })();
