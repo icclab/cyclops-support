@@ -32,7 +32,7 @@
         };
 
         this.requestCharge(
-            "49588f5cea984040bc05d871eff67d2f",
+            sessionService.getKeystoneId(),
             dateUtil.getFormattedDateToday() + " 00:00:00",
             dateUtil.getFormattedDateToday() + " 23:59:59"
         );
