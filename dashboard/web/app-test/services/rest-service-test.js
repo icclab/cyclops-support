@@ -18,6 +18,7 @@ describe('RestService', function() {
     var fakeChargeQuery = "?userid="+fakeUser+"&from="+fakeFrom+"&to="+fakeTo;
     var fakeAccessQuery = "?access_token=" + fakeAccessToken;
     var fakeSessionQuery = "?session_id=" + fakeSessionId;
+    var fakePolicyConfig = { rate_policy:'dynamic' };
 
     /*
         Test setup
@@ -39,6 +40,8 @@ describe('RestService', function() {
 
         $httpBackend.whenPOST("/dashboard/rest/usage").respond(200);
         $httpBackend.whenGET("/dashboard/rest/rate" + fakeRateQuery).respond(200);
+        $httpBackend.whenGET("/dashboard/rest/rate/status").respond(200);
+        $httpBackend.whenPOST("/dashboard/rest/rate/status").respond(200);
         $httpBackend.whenGET("/dashboard/rest/charge" + fakeChargeQuery).respond(200);
         $httpBackend.whenPOST("/dashboard/rest/keystone").respond(200);
         $httpBackend.whenPOST("/dashboard/rest/login").respond(200);
@@ -180,6 +183,22 @@ describe('RestService', function() {
         it('should send complete GET request', function() {
             $httpBackend.expectGET("/dashboard/rest/charge" + fakeChargeQuery);
             restService.getChargeForUser(fakeUser, fakeFrom, fakeTo);
+            $httpBackend.flush();
+        });
+    });
+
+    describe('getActiveRatePolicy', function() {
+        it('should send complete GET request', function() {
+            $httpBackend.expectGET("/dashboard/rest/rate/status");
+            restService.getActiveRatePolicy();
+            $httpBackend.flush();
+        });
+    });
+
+    describe('setActiveRatePolicy', function() {
+        it('should send complete POST request', function() {
+            $httpBackend.expectPOST("/dashboard/rest/rate/status", fakePolicyConfig);
+            restService.setActiveRatePolicy(fakePolicyConfig);
             $httpBackend.flush();
         });
     });

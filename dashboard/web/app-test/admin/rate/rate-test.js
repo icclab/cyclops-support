@@ -1,36 +1,80 @@
-describe('controller', function() {
-    var controller;
+describe('AdminRateController', function() {
     var $scope;
-    var $log;
+    var controller;
     var restServiceMock;
+    var alertServiceMock;
+    var responseParserMock;
+    var dateUtilMock;
+    var policyDeferred;
+    var udrDeferred;
+    var policyPromise;
+    var udrPromise;
 
     /*
         Fake Data
      */
     var disabledClass = "disabled";
     var enabledClass = "";
-    var statusStringOn = "on";
-    var statusStringOff = "off";
+    var statusStringDynamic = "Dynamic Rating";
+    var statusStringStatic = "Static Rating";
     var fakeDateTime = "2015-03-21 15:14:13";
     var fakeMeters = [
         { name: "meter.name1", rate: 3 },
         { name: "meter.name2", rate: 4 }
     ];
+    var fakeMetersIllegal = [
+        { name: "meter.name1", rate: "a" },
+        { name: "meter.name2", rate: -5 }
+    ];
     var fakeStaticRateConfig = {
-        "source" : "dashboard",
-        "time" : fakeDateTime,
-        "rating" : "static",
-        "rate" : {
+        "source": "dashboard",
+        "time": fakeDateTime,
+        "rate_policy": "static",
+        "rate": {
             "meter.name1": 3,
             "meter.name2": 4
         }
     };
-    var fakeDynamicRateConfig = {
-        "source" : "dashboard",
-        "time" : fakeDateTime,
-        "rating" : "dynamic",
-        "rate" : null
+    var fakeStaticRateConfigFixed = {
+        "source": "dashboard",
+        "time": fakeDateTime,
+        "rate_policy": "static",
+        "rate": {
+            "meter.name1": 1,
+            "meter.name2": 1
+        }
     };
+    var fakeDynamicRateConfig = {
+        "source": "dashboard",
+        "time": fakeDateTime,
+        "rate_policy": "dynamic",
+        "rate": null
+    };
+    var fakeResponseDynamic = {
+        data: fakeDynamicRateConfig
+    };
+    var fakeResponseStatic = {
+        data: fakeStaticRateConfig
+    };
+    var fakeUdrMeterResponse = {
+        data: {
+            name: "meterselection",
+            columns: ["time", "source", "metersource", "metertype", "metername", "status"],
+            points: [
+                [1425399530223, "cyclops-ui", "openstack", "gauge", "a.test1", 0],
+                [1425399530223, "cyclops-ui", "openstack", "cumulative", "b.test2", 1]
+            ]
+        }
+    };
+    var fakeMetersAfterFilter = [
+        { name: "b.test2", rate: 1 }
+    ];
+    var fakeMetersBeforeFilter = [
+        { name: "b.test2", rate: 3 }
+    ];
+    var fakeMetersAfterFilterUntouched = [
+        { name: "b.test2", rate: 3 }
+    ];
 
     /*
         Test setup
@@ -47,7 +91,17 @@ describe('controller', function() {
          */
         restServiceMock = jasmine.createSpyObj(
             'restService',
-            ['']
+            ['getActiveRatePolicy', 'setActiveRatePolicy', 'getUdrMeters']
+        );
+
+        alertServiceMock = jasmine.createSpyObj(
+            'alertService',
+            ['showError', 'showSuccess']
+        );
+
+        responseParserMock = jasmine.createSpyObj(
+            'responseParser',
+            ['getStaticRatingListFromResponse']
         );
 
         dateUtilMock = jasmine.createSpyObj(
@@ -58,16 +112,25 @@ describe('controller', function() {
         /*
             Inject dependencies and configure mocks
          */
-        inject(function($controller, $q, $rootScope, _$log_) {
+        inject(function($controller, $q, $rootScope) {
             $scope = $rootScope.$new();
-            $log = _$log_;
+            policyDeferred = $q.defer();
+            udrDeferred = $q.defer();
+            policyPromise = policyDeferred.promise;
+            udrPromise = udrDeferred.promise;
 
+            restServiceMock.getUdrMeters.and.returnValue(udrPromise);
+            restServiceMock.setActiveRatePolicy.and.returnValue(policyPromise);
+            restServiceMock.getActiveRatePolicy.and.returnValue(policyPromise);
+            responseParserMock.getStaticRatingListFromResponse.and.returnValue(fakeMeters);
             dateUtilMock.getFormattedDateTimeNow.and.returnValue(fakeDateTime);
 
             controller = $controller('AdminRateController', {
                 '$scope': $scope,
                 'restService': restServiceMock,
-                'dateUtil': dateUtilMock
+                'alertService': alertServiceMock,
+                'responseParser': responseParserMock,
+                'dateUtil': dateUtilMock,
             });
         });
     });
@@ -75,33 +138,47 @@ describe('controller', function() {
     /*
         Tests
      */
-    describe('setStaticRateEnabled', function() {
-        it('should set staticRateStatusString to "on" if enabled', function() {
-            controller.staticRateStatusString = statusStringOff;
-            controller.setStaticRateEnabled(true);
-            expect(controller.staticRateStatusString).toEqual(statusStringOn);
-        });
+    describe('setGuiStaticRateEnabled', function() {
+        it('should correctly set GUI variables', function() {
+            controller.isStaticRateEnabled = false;
+            controller.staticRatingButtonClass = enabledClass;
+            controller.dynamicRatingButtonClass = disabledClass;
 
-        it('should set staticRateStatusString to "off" if disabled', function() {
-            controller.staticRateStatusString = statusStringOn;
-            controller.setStaticRateEnabled(false);
-            expect(controller.staticRateStatusString).toEqual(statusStringOff);
-        });
+            controller.setGuiStaticRateEnabled();
 
-        it('should set button classes correctly if enabled', function() {
-            controller.enabledButtonClass = enabledClass;
-            controller.disabledButtonClass = disabledClass;
-            controller.setStaticRateEnabled(true);
-            expect(controller.enabledButtonClass).toEqual(disabledClass);
-            expect(controller.disabledButtonClass).toEqual(enabledClass);
+            expect(controller.isStaticRateEnabled).toBeTruthy();
+            expect(controller.staticRatingButtonClass).toEqual(disabledClass);
+            expect(controller.dynamicRatingButtonClass).toEqual(enabledClass);
         });
+    });
 
-        it('should set button classes correctly if disabled', function() {
-            controller.enabledButtonClass = disabledClass;
-            controller.disabledButtonClass = enabledClass;
-            controller.setStaticRateEnabled(false);
-            expect(controller.enabledButtonClass).toEqual(enabledClass);
-            expect(controller.disabledButtonClass).toEqual(disabledClass);
+    describe('setGuiDynamicRateEnabled', function() {
+        it('should correctly set GUI variables', function() {
+            controller.isStaticRateEnabled = true;
+            controller.staticRatingButtonClass = disabledClass;
+            controller.dynamicRatingButtonClass = enabledClass;
+
+            controller.setGuiDynamicRateEnabled();
+
+            expect(controller.isStaticRateEnabled).toBeFalsy();
+            expect(controller.staticRatingButtonClass).toEqual(enabledClass);
+            expect(controller.dynamicRatingButtonClass).toEqual(disabledClass);
+        });
+    });
+
+    describe('setGuiActivePolicyStatic', function() {
+        it('should correctly set status string', function() {
+            controller.activePolicyStatusString = statusStringDynamic;
+            controller.setGuiActivePolicyStatic();
+            expect(controller.activePolicyStatusString).toEqual(statusStringStatic)
+        });
+    });
+
+    describe('setGuiActivePolicyDynamic', function() {
+        it('should correctly set status string', function() {
+            controller.activePolicyStatusString = statusStringStatic;
+            controller.setGuiActivePolicyDynamic();
+            expect(controller.activePolicyStatusString).toEqual(statusStringDynamic)
         });
     });
 
@@ -111,6 +188,12 @@ describe('controller', function() {
             var res = controller.buildStaticRateConfig();
             expect(res).toEqual(fakeStaticRateConfig);
         });
+
+        it('should replace illegal values with 1', function() {
+            controller.meters = fakeMetersIllegal;
+            var res = controller.buildStaticRateConfig();
+            expect(res).toEqual(fakeStaticRateConfigFixed);
+        });
     });
 
     describe('buildDynamicRateConfig', function() {
@@ -119,4 +202,129 @@ describe('controller', function() {
             expect(res).toEqual(fakeDynamicRateConfig);
         });
     });
+
+    describe('activatePolicyStatic', function() {
+        beforeEach(function() {
+            spyOn(controller, 'buildStaticRateConfig').and.returnValue(fakeStaticRateConfig);
+            spyOn(controller, 'setGuiActivePolicyStatic');
+        });
+
+        it('should call buildStaticRateConfig', function() {
+            controller.activatePolicyStatic();
+            expect(controller.buildStaticRateConfig).toHaveBeenCalled();
+        });
+
+        it('should correctly call restService.setActiveRatePolicy', function() {
+            var res = controller.activatePolicyStatic();
+            expect(restServiceMock.setActiveRatePolicy)
+                .toHaveBeenCalledWith(fakeStaticRateConfig);
+        });
+
+        it('should execute success callback on policyDeferred.resolve', function() {
+            controller.activatePolicyStatic();
+            policyDeferred.resolve(fakeResponseDynamic);
+            $scope.$digest();
+
+            expect(alertServiceMock.showSuccess).toHaveBeenCalled();
+            expect(controller.setGuiActivePolicyStatic).toHaveBeenCalled();
+        });
+
+        it('should execute error callback on policyDeferred.reject', function() {
+            controller.activatePolicyStatic();
+            policyDeferred.reject();
+            $scope.$digest();
+
+            expect(alertServiceMock.showError).toHaveBeenCalled();
+            expect(controller.setGuiActivePolicyStatic).not.toHaveBeenCalled();
+        });
+    });
+
+    describe('onLoad', function() {
+        it('should call restService.getActiveRatePolicy', function() {
+            controller.onLoad();
+            expect(restServiceMock.getActiveRatePolicy).toHaveBeenCalled();
+        });
+
+        it('should execute callback on policyDeferred.resolve', function() {
+            spyOn(controller, 'prepareGuiByActivePolicy');
+
+            controller.onLoad();
+            policyDeferred.resolve(fakeResponseDynamic);
+            $scope.$digest();
+            expect(restServiceMock.getUdrMeters).toHaveBeenCalled();
+            expect(controller.prepareGuiByActivePolicy)
+                .toHaveBeenCalledWith(fakeDynamicRateConfig);
+        });
+
+        it('should execute callback on udrDeferred.resolve', function() {
+            spyOn(controller, 'filterEnabledMeters');
+
+            controller.onLoad();
+            policyDeferred.resolve(fakeResponseDynamic);
+            udrDeferred.resolve(fakeUdrMeterResponse);
+            $scope.$digest();
+
+            expect(controller.filterEnabledMeters)
+                .toHaveBeenCalledWith(fakeUdrMeterResponse);
+        });
+
+        it('should execute error callback on policyDeferred.reject', function() {
+            controller.onLoad();
+            policyDeferred.reject();
+            $scope.$digest();
+
+            expect(alertServiceMock.showError).toHaveBeenCalled();
+        });
+
+        it('should execute error callback on udrDeferred.reject', function() {
+            controller.onLoad();
+            policyDeferred.resolve(fakeResponseDynamic);
+            udrDeferred.reject();
+            $scope.$digest();
+
+            expect(alertServiceMock.showError).toHaveBeenCalled();
+        });
+    });
+
+    describe('prepareGuiByActivePolicy', function() {
+        beforeEach(function(){
+            spyOn(controller, 'setGuiStaticRateEnabled');
+            spyOn(controller, 'setGuiDynamicRateEnabled');
+            spyOn(controller, 'setGuiActivePolicyStatic');
+            spyOn(controller, 'setGuiActivePolicyDynamic');
+        });
+
+        it('should execute static path for static policy data', function() {
+            controller.prepareGuiByActivePolicy(fakeStaticRateConfig);
+            expect(controller.setGuiStaticRateEnabled).toHaveBeenCalled();
+            expect(controller.setGuiActivePolicyStatic).toHaveBeenCalled();
+            expect(controller.setGuiDynamicRateEnabled).not.toHaveBeenCalled();
+            expect(controller.setGuiActivePolicyDynamic).not.toHaveBeenCalled();
+            expect(responseParserMock.getStaticRatingListFromResponse)
+                .toHaveBeenCalledWith(fakeStaticRateConfig);
+        });
+
+        it('should execute dynamic path for dynamic policy data', function() {
+            controller.prepareGuiByActivePolicy(fakeDynamicRateConfig);
+            expect(controller.setGuiStaticRateEnabled).not.toHaveBeenCalled();
+            expect(controller.setGuiActivePolicyStatic).not.toHaveBeenCalled();
+            expect(controller.setGuiDynamicRateEnabled).toHaveBeenCalled();
+            expect(controller.setGuiActivePolicyDynamic).toHaveBeenCalled();
+        });
+    });
+
+    describe('filterEnabledMeters', function() {
+        it('should filter meters correctly on normal response', function() {
+            controller.meters = [];
+            controller.filterEnabledMeters(fakeUdrMeterResponse);
+            expect(controller.meters).toEqual(fakeMetersAfterFilter);
+        });
+
+        it('should consider preconfigured meters', function() {
+            controller.meters = fakeMetersBeforeFilter;
+            controller.filterEnabledMeters(fakeUdrMeterResponse);
+            expect(controller.meters).toEqual(fakeMetersAfterFilterUntouched);
+        });
+    });
+
 });
