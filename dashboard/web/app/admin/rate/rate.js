@@ -8,8 +8,11 @@
     /*
         Controllers, Factories, Services, Directives
     */
-    AdminRateController.$inject = ['restService', 'alertService', 'dateUtil'];
-    function AdminRateController(restService, alertService, dateUtil) {
+    AdminRateController.$inject = [
+        'restService', 'alertService', 'responseParser', 'dateUtil'
+    ];
+    function AdminRateController(
+            restService, alertService, responseParser, dateUtil) {
         var me = this;
         this.isStaticRateEnabled = false;
         this.activePolicyStatusString = "Dynamic Rating";
@@ -31,12 +34,14 @@
         ];
 
         var onGetActivePolicySuccess = function(response) {
-            var policy = response.data.rate_policy;
+            var responseData = response.data;
+            var policy = responseData.rate_policy;
             var staticEnabled = (policy && policy == "static");
 
             if(staticEnabled) {
                 me.setGuiStaticRateEnabled();
                 me.setGuiActivePolicyStatic();
+                me.meters = responseParser.getStaticRatingListFromResponse(responseData);
             }
             else {
                 me.setGuiDynamicRateEnabled();

@@ -3,6 +3,7 @@ describe('controller', function() {
     var controller;
     var restServiceMock;
     var alertServiceMock;
+    var responseParserMock;
     var dateUtilMock;
     var deferred;
     var promise;
@@ -64,6 +65,11 @@ describe('controller', function() {
             ['showError', 'showSuccess']
         );
 
+        responseParserMock = jasmine.createSpyObj(
+            'responseParser',
+            ['getStaticRatingListFromResponse']
+        );
+
         dateUtilMock = jasmine.createSpyObj(
             'dateUtil',
             ['getFormattedDateTimeNow']
@@ -79,13 +85,15 @@ describe('controller', function() {
 
             restServiceMock.setActiveRatePolicy.and.returnValue(promise);
             restServiceMock.getActiveRatePolicy.and.returnValue(promise);
+            responseParserMock.getStaticRatingListFromResponse.and.returnValue(fakeMeters);
             dateUtilMock.getFormattedDateTimeNow.and.returnValue(fakeDateTime);
 
             controller = $controller('AdminRateController', {
                 '$scope': $scope,
                 'restService': restServiceMock,
                 'alertService': alertServiceMock,
-                'dateUtil': dateUtilMock
+                'responseParser': responseParserMock,
+                'dateUtil': dateUtilMock,
             });
         });
     });

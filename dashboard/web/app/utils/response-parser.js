@@ -9,6 +9,22 @@
         Controllers, Factories, Services, Directives
     */
     function ResponseParser() {
+
+        this.getStaticRatingListFromResponse = function(responseData) {
+            var rates = responseData.rate || {};
+            var staticRatingList = [];
+
+            for(var meterName in rates) {
+                var rate = rates[meterName];
+                staticRatingList.push({
+                    'name': meterName,
+                    'rate': rate
+                });
+            }
+
+            return staticRatingList;
+        };
+
         this.getAdminListFromResponse = function(responseData) {
             var userStrings = responseData.uniqueMember || [];
             var userList = [];
