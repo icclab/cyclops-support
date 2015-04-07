@@ -214,6 +214,15 @@
         this.setActiveRatePolicy = function(policyConfig) {
             return $http.post('/dashboard/rest/rate/status', policyConfig);
         };
+
+        this.updateAdmins = function(admins, sessionId) {
+            var putData = {
+                'admins': admins,
+                'sessionId': sessionId
+            };
+
+            return $http.put('/dashboard/rest/admins', putData);
+        };
     }
 
 })();

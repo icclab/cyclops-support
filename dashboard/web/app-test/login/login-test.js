@@ -17,7 +17,6 @@ describe('LoginController', function() {
     /*
         Fake Data
      */
-    var errorMsg = "Username or password is invalid. Please try again";
     var fakeUser = "testuser";
     var fakePass = "testpass";
     var fakeLoginResponse = {
@@ -172,7 +171,7 @@ describe('LoginController', function() {
             loginDeferred.reject();
             $scope.$digest();
 
-            expect(alertServiceMock.showError).toHaveBeenCalledWith(errorMsg);
+            expect(alertServiceMock.showError).toHaveBeenCalled();
         });
 
         it('should execute loginFailed on tokenDeferred.reject', function() {
@@ -181,7 +180,7 @@ describe('LoginController', function() {
             tokenDeferred.reject();
             $scope.$digest();
 
-            expect(alertServiceMock.showError).toHaveBeenCalledWith(errorMsg);
+            expect(alertServiceMock.showError).toHaveBeenCalled();
         });
 
         it('should execute loginFailed on sessionDeferred.reject', function() {
@@ -191,7 +190,7 @@ describe('LoginController', function() {
             sessionDeferred.reject();
             $scope.$digest();
 
-            expect(alertServiceMock.showError).toHaveBeenCalledWith(errorMsg);
+            expect(alertServiceMock.showError).toHaveBeenCalled();
         });
     });
 

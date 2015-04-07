@@ -19,6 +19,11 @@ describe('RestService', function() {
     var fakeAccessQuery = "?access_token=" + fakeAccessToken;
     var fakeSessionQuery = "?session_id=" + fakeSessionId;
     var fakePolicyConfig = { rate_policy:'dynamic' };
+    var fakeAdmins = ['test1', 'user2'];
+    var fakeUpdatedAdmins = {
+        'admins': fakeAdmins,
+        'sessionId': fakeSessionId
+    };
 
     /*
         Test setup
@@ -53,6 +58,7 @@ describe('RestService', function() {
         $httpBackend.whenPOST("/dashboard/rest/udrmeters").respond(200);
         $httpBackend.whenGET("/dashboard/rest/users" + fakeSessionQuery).respond(200);
         $httpBackend.whenGET("/dashboard/rest/admins" + fakeSessionQuery).respond(200);
+        $httpBackend.whenPUT("/dashboard/rest/admins").respond(200);
     });
 
     /*
@@ -199,6 +205,17 @@ describe('RestService', function() {
         it('should send complete POST request', function() {
             $httpBackend.expectPOST("/dashboard/rest/rate/status", fakePolicyConfig);
             restService.setActiveRatePolicy(fakePolicyConfig);
+            $httpBackend.flush();
+        });
+    });
+
+    describe('updateAdmins', function() {
+        it('should send complete PUT request', function() {
+            $httpBackend.expectPUT("/dashboard/rest/admins", {
+                'admins': fakeAdmins,
+                'sessionId': fakeSessionId
+            });
+            restService.updateAdmins(fakeAdmins, fakeSessionId);
             $httpBackend.flush();
         });
     });
