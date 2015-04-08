@@ -5,6 +5,7 @@ describe('KeystoneController', function() {
     var keystoneController;
     var restServiceMock;
     var sessionServiceMock;
+    var alertServiceMock;
     var authDeferred;
     var sessionDeferred;
     var authPromise;
@@ -46,6 +47,11 @@ describe('KeystoneController', function() {
             ['getUsername', 'getKeystoneId', 'getSessionId', 'setKeystoneId']
         );
 
+        alertServiceMock = jasmine.createSpyObj(
+            'alertService',
+            ['showError']
+        );
+
         /*
             Inject dependencies and configure mocks
          */
@@ -67,7 +73,8 @@ describe('KeystoneController', function() {
             keystoneController = $controller('KeystoneController', {
                 '$scope': $scope,
                 'restService': restServiceMock,
-                'sessionService': sessionServiceMock
+                'sessionService': sessionServiceMock,
+                'alertService': alertServiceMock
             });
 
             keystoneController.user = fakeUser;
@@ -111,7 +118,7 @@ describe('KeystoneController', function() {
             authDeferred.reject();
             $scope.$digest();
 
-            expect($log.debug.logs).toContain(['Reading Keystone ID failed']);
+            expect(alertServiceMock.showError).toHaveBeenCalled();
         });
 
         it('should execute keystoneAuthFailed on sessionDeferred.reject', function() {
@@ -120,7 +127,7 @@ describe('KeystoneController', function() {
             sessionDeferred.reject();
             $scope.$digest();
 
-            expect($log.debug.logs).toContain(['Reading Keystone ID failed']);
+            expect(alertServiceMock.showError).toHaveBeenCalled();
         });
     });
 });

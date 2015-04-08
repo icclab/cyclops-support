@@ -80,7 +80,7 @@
             try {
                 var service = me.getServiceDelegate(type);
                 var serviceData = service.getRawData();
-                var dataPoints = serviceData[meterName].points;
+                var dataPoints = serviceData[meterName].points || [];
                 var numPoints = dataPoints.length;
 
                 /*

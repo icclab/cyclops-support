@@ -2,7 +2,7 @@
     <div class="panel-heading">
         <div
             class="row huge text-center">
-            {{cumulativeChartCtrl.chartData}}
+            {{ cumulativeChartCtrl.chartData | xbytes:true }}
         </div>
     </div>
     <div class="panel-body text-center">
