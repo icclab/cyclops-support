@@ -6,6 +6,7 @@
         </div>
     </div>
     <div class="panel-body text-center">
-        {{cumulativeChartCtrl.chartName}} ({{cumulativeChartCtrl.chartDataType}})
+        {{cumulativeChartCtrl.chartName}}
+        <span data-ng-if="cumulativeChartCtrl.chartDataUnit"> ({{cumulativeChartCtrl.chartDataUnit}})</span>
     </div>
 </div>
