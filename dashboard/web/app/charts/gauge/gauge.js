@@ -22,9 +22,10 @@
     GaugeChartController.$inject = ['$scope', 'chartDataService'];
     function GaugeChartController($scope, chartDataService) {
         var me = this;
-        this.chartName = undefined;
+        this.chartName = '';
         this.chartData = undefined;
         this.chartDataType = undefined;
+        this.chartDataUnit = undefined;
         this.chartLabels = undefined;
         this.chartSeries = undefined;
         this.chartOptions = {
@@ -40,14 +41,13 @@
                 me.chartName
             );
 
-            if(result.error) {
-                me.chartData = [[0]];
-                me.chartLabels = [''];
-            }
-            else {
-                me.chartData = result.data;
-                me.chartLabels = result.labels;
-            }
+            me.chartData = result.data;
+            me.chartLabels = result.labels;
+
+            me.chartDataUnit = chartDataService.getDataUnit(
+                me.chartDataType,
+                me.chartName
+            );
         };
 
         $scope.$on('CHART_DATA_READY', function() {
