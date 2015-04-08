@@ -11,7 +11,7 @@
         <div class="form-group">
             <label for="timeperiod">Currently displaying:</label>
             <select class="form-control input-lg" id="timeperiod" data-ng-change="overviewCtrl.onDateChanged()" data-ng-model="overviewCtrl.selectedDate">
-                <option selected value="today">
+                <option data-ng-selected="true" value="today">
                     Today ({{overviewCtrl.dates.today}})
                 </option>
                 <option value="yesterday">
