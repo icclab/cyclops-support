@@ -20,7 +20,8 @@
       'dashboard.admin.meters',
       'dashboard.admin.users',
       'dashboard.admin.rate',
-      'dashboard.charts'
+      'dashboard.charts',
+      'dashboard.filter'
     ]).config([
         '$urlRouterProvider',
         '$logProvider',
@@ -356,4 +357,9 @@
         Charts Module Setup
     */
     angular.module('dashboard.charts', ['chart.js']);
+
+    /*
+        Filter Module Setup
+    */
+    angular.module('dashboard.filter', []);
 })();

@@ -9,8 +9,8 @@
         Controllers, Factories, Services, Directives
     */
     KeystoneController.$inject =
-        ['$log', '$location', 'restService', 'sessionService'];
-    function KeystoneController($log, $location, restService, sessionService) {
+        ['$log', '$location', 'restService', 'sessionService', 'alertService'];
+    function KeystoneController($log, $location, restService, sessionService, alertService) {
         var me = this;
         this.user = '';
         this.pwd = '';
@@ -29,7 +29,7 @@
         };
 
         var keystoneAuthFailed = function(response) {
-            $log.debug("Reading Keystone ID failed");
+            alertService.showError("Login failed. Please verify your credentials");
         };
 
         this.loadKeystoneId = function() {

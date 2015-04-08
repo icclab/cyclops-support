@@ -22,17 +22,21 @@
     CumulativeChartController.$inject = ['$scope', 'chartDataService'];
     function CumulativeChartController($scope, chartDataService) {
         var me = this;
-        this.chartName = undefined;
+        this.chartName = '';
+        this.chartDataUnit = undefined;
         this.chartDataType = undefined;
         this.chartData = undefined;
 
         this.updateGraph = function() {
-            var result = chartDataService.getCumulativeMeterData(
+            me.chartData = chartDataService.getCumulativeMeterData(
+                me.chartDataType,
+                me.chartName
+            ).data;
+
+            me.chartDataUnit = chartDataService.getDataUnit(
                 me.chartDataType,
                 me.chartName
             );
-
-            me.chartData = result.error ? 0 : result.data;
         };
 
         $scope.$on('CHART_DATA_READY', function() {
