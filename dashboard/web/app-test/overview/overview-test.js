@@ -14,15 +14,48 @@ describe('OverviewController', function() {
         Fake Data
      */
     var errorMsg = 'Requesting meter data failed';
+    var fakeTimeNow = "15:00";
+    var fakeTimeLastSixHours = "09:00";
+    var fakeTimeFrom = "00:00";
+    var fakeTimeTo = "23:59";
     var fakeDateToday = "2015-03-04";
     var fakeDateYesterday = "2015-03-03";
     var fakeDateLast3days = "2015-03-02";
-    var fakeDateLastWeek = "2015-02-27";
+    var fakeDateLastWeek = "2015-03-27";
     var fakeDateLastMonth = "2015-02-05";
     var fakeDateLastYear = "2014-03-05";
+
+    var fakeDateObjectLast6Hours = {
+        from: fakeDateToday + " " + fakeTimeLastSixHours,
+        to: fakeDateToday + " " + fakeTimeNow
+    };
+    var fakeDateObjectToday = {
+        from: fakeDateToday + " " + fakeTimeFrom,
+        to: fakeDateToday + " " + fakeTimeTo
+    };
+    var fakeDateObjectYesterday = {
+        from: fakeDateYesterday + " " + fakeTimeFrom,
+        to: fakeDateToday + " " + fakeTimeTo
+    };
+    var fakeDateObjectLast3days = {
+        from: fakeDateLast3days + " " + fakeTimeFrom,
+        to: fakeDateToday + " " + fakeTimeTo
+    };
+    var fakeDateObjectLastWeek = {
+        from: fakeDateLastWeek + " " + fakeTimeFrom,
+        to: fakeDateToday + " " + fakeTimeTo
+    };
+    var fakeDateObjectLastMonth = {
+        from: fakeDateLastMonth + " " + fakeTimeFrom,
+        to: fakeDateToday + " " + fakeTimeTo
+    };
+    var fakeDateObjectLastYear = {
+        from: fakeDateLastYear + " " + fakeTimeFrom,
+        to: fakeDateToday + " " + fakeTimeTo
+    };
     var fakeKeystoneId = '123';
-    var fakeFrom = "2015-03-03 00:00:00";
-    var fakeTo = "2015-03-04 23:59:59";
+    var fakeFrom = "2015-03-03 00:00";
+    var fakeTo = "2015-03-04 23:59";
     var fakeResponse = {
         data: {
             'test': 'abc'
@@ -54,7 +87,7 @@ describe('OverviewController', function() {
 
         usageDataServiceMock = jasmine.createSpyObj(
             'usageDataService',
-            ['setRawData']
+            ['setRawData', 'notifyChartDataReady']
         );
 
         alertServiceMock = jasmine.createSpyObj(
@@ -67,7 +100,8 @@ describe('OverviewController', function() {
             [
                 'getFormattedDateToday', 'getFormattedDateYesterday',
                 'getFormattedDateLast3Days', 'getFormattedDateLastWeek',
-                'getFormattedDateLastMonth', 'getFormattedDateLastYear'
+                'getFormattedDateLastMonth', 'getFormattedDateLastYear',
+                'getFormattedTimeNow', 'getFormattedTimeLastSixHours'
             ]
         );
 
@@ -88,6 +122,8 @@ describe('OverviewController', function() {
             dateUtilMock.getFormattedDateLastWeek.and.returnValue(fakeDateLastWeek);
             dateUtilMock.getFormattedDateLastMonth.and.returnValue(fakeDateLastMonth);
             dateUtilMock.getFormattedDateLastYear.and.returnValue(fakeDateLastYear);
+            dateUtilMock.getFormattedTimeNow.and.returnValue(fakeTimeNow);
+            dateUtilMock.getFormattedTimeLastSixHours.and.returnValue(fakeTimeLastSixHours);
             spyOn($scope, '$broadcast');
 
             controller = $controller('OverviewController', {
@@ -109,7 +145,10 @@ describe('OverviewController', function() {
             spyOn(controller, 'hasKeystoneId').and.returnValue(true);
             spyOn(controller, 'requestUsage');
 
-            controller.updateCharts(fakeDateYesterday, fakeDateToday);
+            controller.updateCharts(
+                fakeDateObjectYesterday.from,
+                fakeDateObjectYesterday.to
+            );
 
             expect(controller.hasKeystoneId).toHaveBeenCalled();
             expect(controller.requestUsage)
@@ -120,7 +159,10 @@ describe('OverviewController', function() {
             spyOn(controller, 'hasKeystoneId').and.returnValue(false);
             spyOn(controller, 'requestUsage');
 
-            controller.updateCharts(fakeDateYesterday, fakeDateToday);
+            controller.updateCharts(
+                fakeDateObjectYesterday.from,
+                fakeDateObjectYesterday.to
+            );
 
             expect(controller.hasKeystoneId).toHaveBeenCalled();
             expect(controller.requestUsage).not.toHaveBeenCalled();
@@ -144,14 +186,6 @@ describe('OverviewController', function() {
 
             expect(usageDataServiceMock.setRawData)
                 .toHaveBeenCalledWith(fakeResponse.data);
-        });
-
-        it('should broadcast CHART_DATA_READY on udrDeferred.resolve', function() {
-            controller.requestUsage(fakeKeystoneId, fakeFrom, fakeTo);
-            udrDeferred.resolve(fakeResponse);
-            $scope.$digest();
-
-            expect($scope.$broadcast).toHaveBeenCalledWith('CHART_DATA_READY');
         });
 
         it('should excute loadUdrDataFailed on udrDeferred.reject', function() {
@@ -183,12 +217,13 @@ describe('OverviewController', function() {
 
     describe('dates-Array', function() {
         it('should be initialised correctly', function() {
-            expect(controller.dates.today).toEqual(fakeDateToday);
-            expect(controller.dates.yesterday).toEqual(fakeDateYesterday);
-            expect(controller.dates.last3days).toEqual(fakeDateLast3days);
-            expect(controller.dates.lastWeek).toEqual(fakeDateLastWeek);
-            expect(controller.dates.lastMonth).toEqual(fakeDateLastMonth);
-            expect(controller.dates.lastYear).toEqual(fakeDateLastYear);
+            expect(controller.dates.last6Hours).toEqual(fakeDateObjectLast6Hours);
+            expect(controller.dates.today).toEqual(fakeDateObjectToday);
+            expect(controller.dates.yesterday).toEqual(fakeDateObjectYesterday);
+            expect(controller.dates.last3days).toEqual(fakeDateObjectLast3days);
+            expect(controller.dates.lastWeek).toEqual(fakeDateObjectLastWeek);
+            expect(controller.dates.lastMonth).toEqual(fakeDateObjectLastMonth);
+            expect(controller.dates.lastYear).toEqual(fakeDateObjectLastYear);
         });
     });
 
@@ -198,8 +233,10 @@ describe('OverviewController', function() {
 
             controller.onDateChanged();
 
-            expect(controller.updateCharts)
-                .toHaveBeenCalledWith(fakeDateToday, fakeDateToday);
+            expect(controller.updateCharts).toHaveBeenCalledWith(
+                fakeDateToday + " " + fakeTimeLastSixHours,
+                fakeDateToday + " " + fakeTimeNow
+            );
         });
 
         it('should correctly call updateCharts when a date was selected', function() {
@@ -208,8 +245,10 @@ describe('OverviewController', function() {
 
             controller.onDateChanged();
 
-            expect(controller.updateCharts)
-                .toHaveBeenCalledWith(fakeDateYesterday, fakeDateToday);
+            expect(controller.updateCharts).toHaveBeenCalledWith(
+                fakeDateYesterday + " " + fakeTimeFrom,
+                fakeDateToday + " " + fakeTimeTo
+            );
         });
     });
 });

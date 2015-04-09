@@ -81,6 +81,7 @@
                 var service = me.getServiceDelegate(type);
                 var serviceData = service.getRawData();
                 var dataPoints = serviceData[meterName].points || [];
+                dataPoints.reverse();
                 var numPoints = dataPoints.length;
 
                 /*

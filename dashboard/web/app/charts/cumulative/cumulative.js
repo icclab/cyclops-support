@@ -39,7 +39,7 @@
             );
         };
 
-        $scope.$on('CHART_DATA_READY', function() {
+        $scope.$on('USAGE_DATA_READY', function() {
             console.log("CHART_DATA_READY");
             me.updateGraph();
         });

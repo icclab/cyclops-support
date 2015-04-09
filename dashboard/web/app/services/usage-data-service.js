@@ -12,7 +12,19 @@
         var me = this;
         var rawData = {};
 
+        this.notifyChartDataReady = function($scope) {
+            var chartNames = [];
+
+            for(var chart in rawData) {
+                chartNames.push(chart);
+            }
+
+            $scope.$broadcast('USAGE_DATA_READY', chartNames);
+        };
+
         this.setRawData = function(data) {
+            rawData = {};
+
             if(data && data.usage && data.usage.openstack) {
                 dataArray = data.usage.openstack;
 

@@ -1,5 +1,6 @@
 describe('UsageDataService', function() {
     var service;
+    var scopeMock;
 
     /*
         Fake Data
@@ -38,6 +39,11 @@ describe('UsageDataService', function() {
          */
         module('dashboard.services');
 
+        scopeMock = jasmine.createSpyObj(
+            'scope',
+            ['$broadcast']
+        );
+
         /*
             Inject dependencies and configure mocks
          */
@@ -52,13 +58,19 @@ describe('UsageDataService', function() {
     describe('setRawData', function() {
         it('stores correctly formatted data', function() {
             service.setRawData(fakeChartData);
-            expect(service.getRawData())
-                .toEqual(fakeFormattedChartData);
+            expect(service.getRawData()).toEqual(fakeFormattedChartData);
         });
 
         it('ignores incorrectly formatted data', function() {
             service.setRawData(fakeChartData.usage);
             expect(service.getRawData()).toEqual({});
+        });
+    });
+
+    describe('notifyChartDataReady', function() {
+        it('should broadcast RATE_DATA_READY on rateDeferred.resolve', function() {
+            service.notifyChartDataReady(scopeMock);
+            expect(scopeMock.$broadcast).toHaveBeenCalledWith('USAGE_DATA_READY', []);
         });
     });
 });

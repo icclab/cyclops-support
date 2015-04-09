@@ -52,11 +52,11 @@ describe('ChartDataService', function() {
     var fakeCumulativeResult = { data: 2000 };
     var fakeGaugeResult = {
         labels: ['', ''],
-        data: [ [0.30349895, 0.33750436] ]
+        data: [ [0.33750436, 0.30349895] ]
     };
     var fakeGaugeResultNoColumns = {
         labels: ['', ''],
-        data: [ [2, 3] ]
+        data: [ [3, 2] ]
     };
     var fakeCumulativeResult = {
         data: 0.30349895 + 0.33750436
