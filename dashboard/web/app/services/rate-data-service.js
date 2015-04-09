@@ -12,6 +12,16 @@
         var me = this;
         var rawData = {};
 
+        this.notifyChartDataReady = function($scope) {
+            var chartNames = [];
+
+            for(var chart in rawData) {
+                chartNames.push(chart);
+            }
+
+            $scope.$broadcast('RATE_DATA_READY', chartNames);
+        };
+
         this.setRawData = function(data) {
             if(data && data.rate) {
                 var rateData = data.rate;

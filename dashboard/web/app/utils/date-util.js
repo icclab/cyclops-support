@@ -14,6 +14,10 @@
             return dateObject.toString("yyyy-MM-dd");
         };
 
+        var formatTime = function(dateObject) {
+            return dateObject.toString("HH:mm");
+        };
+
         var formatDateTime = function(dateObject) {
             return dateObject.toString("yyyy-MM-dd HH:mm:ss")
         };
@@ -24,6 +28,14 @@
 
         this.fromTimestamp = function(timestamp) {
             return new Date(timestamp).toString("d/MM/yy HH:mm");
+        };
+
+        this.getFormattedTimeNow = function() {
+            return formatTime(Date.now());
+        };
+
+        this.getFormattedTimeLastSixHours = function() {
+            return formatTime(Date.now().addHours(-6));
         };
 
         this.getFormattedDateTimeNow = function() {

@@ -9,13 +9,14 @@
         Controllers, Factories, Services, Directives
     */
     function SessionService() {
+
         var set = function(key, value) {
             sessionStorage[key] = value;
         };
 
         var get = function(key) {
             return sessionStorage[key];
-        }
+        };
 
         this.clearSession = function() {
             sessionStorage.clear();

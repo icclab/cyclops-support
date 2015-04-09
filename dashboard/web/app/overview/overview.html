@@ -11,23 +11,26 @@
         <div class="form-group">
             <label for="timeperiod">Currently displaying:</label>
             <select class="form-control input-lg" id="timeperiod" data-ng-change="overviewCtrl.onDateChanged()" data-ng-model="overviewCtrl.selectedDate">
-                <option data-ng-selected="true" value="today">
-                    Today ({{overviewCtrl.dates.today}})
+                <option data-ng-selected="true" value="last6Hours">
+                    Last 6 Hours
+                </option>
+                <option value="today">
+                    Today
                 </option>
                 <option value="yesterday">
-                    Since Yesterday ({{overviewCtrl.dates.yesterday}} - {{overviewCtrl.dates.today}})
+                    Since Yesterday ({{overviewCtrl.dates.yesterday.from}} - {{overviewCtrl.dates.yesterday.to}})
                 </option>
                 <option value="last3days">
-                    Last 3 Days ({{overviewCtrl.dates.last3days}} - {{overviewCtrl.dates.today}})
+                    Last 3 Days ({{overviewCtrl.dates.last3days.from}} - {{overviewCtrl.dates.last3days.to}})
                 </option>
                 <option value="lastWeek">
-                    Last Week ({{overviewCtrl.dates.lastWeek}} - {{overviewCtrl.dates.today}})
+                    Last Week ({{overviewCtrl.dates.lastWeek.from}} - {{overviewCtrl.dates.lastWeek.to}})
                 </option>
                 <option value="lastMonth">
-                    Last Month ({{overviewCtrl.dates.lastMonth}} - {{overviewCtrl.dates.today}})
+                    Last Month ({{overviewCtrl.dates.lastMonth.from}} - {{overviewCtrl.dates.lastMonth.to}})
                 </option>
                 <option value="lastYear">
-                    Last Year ({{overviewCtrl.dates.lastYear}} - {{overviewCtrl.dates.today}})
+                    Last Year ({{overviewCtrl.dates.lastYear.from}} - {{overviewCtrl.dates.lastYear.to}})
                 </option>
             </select>
         </div>
@@ -37,9 +40,5 @@
         <cumulative-chart name="network.incoming.bytes" type="usage" class="col-lg-6"></cumulative-chart>
         <cumulative-chart name="network.outgoing.bytes" type="usage" class="col-lg-6"></cumulative-chart>
     </div>
-
-    <div class="row">
-        <gauge-chart name="cpu_util" type="usage" class="col-lg-6"></gauge-chart>
-        <gauge-chart name="cpu_util" type="usage" class="col-lg-6"></gauge-chart>
-    </div>
+    <chart-container></chart-container>
 </div>
