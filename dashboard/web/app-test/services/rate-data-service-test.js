@@ -27,6 +27,12 @@ describe('RateDataService', function() {
             unit: ""
         }
     };
+    var fakeEventData = [{
+        name: fakeMeterName,
+        unit: "",
+        chartType: "gauge",
+        serviceType: "rate"
+    }];
 
     /*
         Test setup
@@ -67,9 +73,16 @@ describe('RateDataService', function() {
     });
 
     describe('notifyChartDataReady', function() {
-        it('should broadcast RATE_DATA_READY on rateDeferred.resolve', function() {
+        it('should broadcast CHART_DATA_READY', function() {
             service.notifyChartDataReady(scopeMock);
-            expect(scopeMock.$broadcast).toHaveBeenCalledWith('RATE_DATA_READY', []);
+            expect(scopeMock.$broadcast).toHaveBeenCalledWith('CHART_DATA_READY', []);
+        });
+
+        it('should send chart information with event', function() {
+            service.setRawData(fakeChartData);
+            service.notifyChartDataReady(scopeMock);
+            expect(scopeMock.$broadcast)
+                .toHaveBeenCalledWith('CHART_DATA_READY', fakeEventData);
         });
     });
 
@@ -80,7 +93,7 @@ describe('RateDataService', function() {
         });
     });
 
-    describe('formatPoints', function() {
+    describe('formatColumns', function() {
         it('should correctly format columns', function() {
             var res = service.formatColumns(undefined);
             expect(res).toEqual(["time", "value"]);

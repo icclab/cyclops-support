@@ -10,16 +10,36 @@
     */
     function UsageDataService() {
         var me = this;
-        var rawData = {};
+        var formattedData = {};
 
+        /**
+         * Fires an event for the chart container to create a chart. Sends the
+         * following information with the event:
+         *
+         * {
+         *     name: <chart_name>
+         *     unit: <data_unit>
+         *     chartType: <chart_type>
+         *     serviceType: "usage"
+         * }
+         *
+         * @param  {Scope} $scope Scope on which the event is fired
+         */
         this.notifyChartDataReady = function($scope) {
             var chartNames = [];
 
-            for(var chart in rawData) {
-                chartNames.push(chart);
+            for(var chartName in formattedData) {
+                var chart = formattedData[chartName];
+
+                chartNames.push({
+                    name: chart.name,
+                    unit: chart.unit,
+                    chartType: chart.type,
+                    serviceType: "usage"
+                });
             }
 
-            $scope.$broadcast('USAGE_DATA_READY', chartNames);
+            $scope.$broadcast('CHART_DATA_READY', chartNames);
         };
 
         /**
@@ -38,7 +58,7 @@
          * @param {Object} data Raw response data
          */
         this.setRawData = function(data) {
-            rawData = {};
+            formattedData = {};
 
             if(data && data.usage && data.usage.openstack) {
                 dataArray = data.usage.openstack;
@@ -64,7 +84,7 @@
                         currentData.columns
                     );
 
-                    rawData[currentData.name] = {
+                    formattedData[currentData.name] = {
                         name: currentData.name,
                         columns: formattedColumns,
                         points: formattedPoints,
@@ -129,7 +149,7 @@
         };
 
         this.getFormattedData = function() {
-            return rawData;
+            return formattedData;
         };
     }
 

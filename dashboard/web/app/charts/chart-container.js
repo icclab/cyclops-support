@@ -9,21 +9,29 @@
             restrict: 'E',
             template: '',
             link: function($scope, el, attr, controller) {
-                $scope.$on('USAGE_DATA_READY', function(e, charts) {
+                var gaugeTemplate = "<gauge-chart name='{{NAME}}' type='{{TYPE}}' unit='{{UNIT}}' class='col-lg-6'></gauge-chart>";
+                var cumulativeTemplate = "<cumulative-chart name='{{NAME}}' type='{{TYPE}}' unit='{{UNIT}}' class='col-lg-6'></cumulative-chart>";
+
+                $scope.$on('CHART_DATA_READY', function(e, charts) {
                     el.empty();
 
                     for(var i = 0; i < charts.length; i++) {
-                        var chart = $compile("<gauge-chart name='" + charts[i] + "' type='usage' class='col-lg-6'></gauge-chart>")($scope);
-                        el.append(chart);
-                    }
-                });
+                        var chart = charts[i];
+                        var template = "";
 
-                $scope.$on('RATE_DATA_READY', function(e, charts) {
-                    el.empty();
+                        if(chart.chartType == "cumulative") {
+                            template = cumulativeTemplate;
+                        }
+                        else if(chart.chartType == "gauge") {
+                            template = gaugeTemplate;
+                        }
 
-                    for(var i = 0; i < charts.length; i++) {
-                        var chart = $compile("<gauge-chart name='" + charts[i] + "' type='rate' class='col-lg-6'></gauge-chart>")($scope);
-                        el.append(chart);
+                        var finalTmpl = template.replace("{{NAME}}", chart.name)
+                            .replace("{{TYPE}}", chart.serviceType)
+                            .replace("{{UNIT}}", chart.unit);
+
+                        var chartElement = $compile(finalTmpl)($scope);
+                        el.append(chartElement);
                     }
                 });
             }
