@@ -53,6 +53,20 @@ describe('UsageDataService', function() {
             'unit': "%"
         }
     };
+    var fakeEventData = [
+        {
+            name: fakeCumulativeName,
+            unit: "B",
+            chartType: "cumulative",
+            serviceType: "usage"
+        },
+        {
+            name: fakeGaugeName,
+            unit: "%",
+            chartType: "gauge",
+            serviceType: "usage"
+        },
+    ];
 
     /*
         Test setup
@@ -93,9 +107,16 @@ describe('UsageDataService', function() {
     });
 
     describe('notifyChartDataReady', function() {
-        it('should broadcast RATE_DATA_READY on rateDeferred.resolve', function() {
+        it('should broadcast CHART_DATA_READY', function() {
             service.notifyChartDataReady(scopeMock);
-            expect(scopeMock.$broadcast).toHaveBeenCalledWith('USAGE_DATA_READY', []);
+            expect(scopeMock.$broadcast).toHaveBeenCalledWith('CHART_DATA_READY', []);
+        });
+
+        it('should send chart information with event', function() {
+            service.setRawData(fakeChartData);
+            service.notifyChartDataReady(scopeMock);
+            expect(scopeMock.$broadcast)
+                .toHaveBeenCalledWith('CHART_DATA_READY', fakeEventData);
         });
     });
 
@@ -117,7 +138,7 @@ describe('UsageDataService', function() {
         });
     });
 
-    describe('formatPoints', function() {
+    describe('formatColumns', function() {
         it('should correctly format columns', function() {
             var res = service.formatColumns(undefined);
             expect(res).toEqual(["time", "value"]);

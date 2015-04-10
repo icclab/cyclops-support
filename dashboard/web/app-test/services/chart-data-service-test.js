@@ -19,7 +19,6 @@ describe('ChartDataService', function() {
     var emptyGaugeObject = { "labels": [], "data": [[]] };
     var fakeCumulativeName = "cumulativeChart";
     var fakeGaugeName = "gaugeChart";
-    var fakeUnitBytes = 'B';
     var fakeUsageData = {
         cumulativeChart: {
             name: fakeCumulativeName,
@@ -194,24 +193,6 @@ describe('ChartDataService', function() {
                 fakeNumPoints, fakePointIndex + 1, fakeNumLabels, fakeLabel
             );
             expect(res).toEqual('');
-        });
-    });
-
-    describe('getDataUnit', function() {
-        beforeEach(function() {
-            spyOn(service, 'getServiceDelegate').and.returnValue(usageDataServiceMock);
-        });
-
-        it('should return a unit if available', function() {
-            usageDataServiceMock.getFormattedData.and.returnValue(fakeUsageData);
-            var res = service.getDataUnit(usage, fakeCumulativeName);
-            expect(res).toEqual(fakeUnitBytes);
-        });
-
-        it('should return undefined if no unit available', function() {
-            usageDataServiceMock.getFormattedData.and.returnValue(fakeRateData);
-            var res = service.getDataUnit(usage, fakeCumulativeName);
-            expect(res).toEqual(undefined);
         });
     });
 });

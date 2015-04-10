@@ -17,6 +17,7 @@
     function onLink(scope, el, attr, controller) {
         controller.chartName = attr.name;
         controller.chartDataType = attr.type;
+        controller.chartDataUnit = attr.unit;
         controller.updateGraph();
     }
 
@@ -44,11 +45,6 @@
 
             me.chartData = result.data;
             me.chartLabels = result.labels;
-
-            me.chartDataUnit = chartDataService.getDataUnit(
-                me.chartDataType,
-                me.chartName
-            );
         };
     }
 

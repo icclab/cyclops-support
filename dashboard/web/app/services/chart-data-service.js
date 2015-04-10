@@ -40,17 +40,6 @@
             return pointIndex % modulus == 0 ? label : "";
         };
 
-        this.getDataUnit = function(type, meterName) {
-            try {
-                var service = me.getServiceDelegate(type);
-                var serviceData = service.getFormattedData();
-                return serviceData[meterName].unit;
-            }
-            catch(err) {
-                return undefined;
-            }
-        };
-
         this.getCumulativeMeterData = function(type, meterName) {
             try {
                 /*
