@@ -43,11 +43,8 @@
         this.getDataUnit = function(type, meterName) {
             try {
                 var service = me.getServiceDelegate(type);
-                var serviceData = service.getRawData();
-                var dataPoints = serviceData[meterName].points;
-                var columns = serviceData[meterName].columns || [];
-                var unitIndex = columns.indexOf('unit');
-                return dataPoints[0][unitIndex];
+                var serviceData = service.getFormattedData();
+                return serviceData[meterName].unit;
             }
             catch(err) {
                 return undefined;
@@ -79,31 +76,10 @@
         this.getGaugeMeterData = function(type, meterName) {
             try {
                 var service = me.getServiceDelegate(type);
-                var serviceData = service.getRawData();
+                var serviceData = service.getFormattedData();
                 var dataPoints = serviceData[meterName].points || [];
                 dataPoints.reverse();
                 var numPoints = dataPoints.length;
-
-                /*
-                    In some responses, usage data is stored in a field
-                    called 'avg', in others in a field called 'usage'. Here,
-                    we try to find which one is actually present by using the
-                    one with the highest index in the array.
-                 */
-                var columns = serviceData[meterName].columns || [];
-                var timeIndex = columns.indexOf('time');
-                var usageIndex = Math.max(
-                    columns.indexOf('usage'),
-                    columns.indexOf('avg')
-                );
-
-                /*
-                    Use default indices if no columns could be found (e.g. for
-                    rate data)
-                 */
-                timeIndex = timeIndex > -1 ? timeIndex : DEFAULT_INDEX_TIME;
-                usageIndex = usageIndex > -1 ? usageIndex : DEFAULT_INDEX_USAGE;
-
                 var dataX = [];
                 var dataY = [];
 
@@ -112,9 +88,9 @@
                         numPoints,
                         i,
                         NUM_LABELS,
-                        dateUtil.fromTimestamp(dataPoints[i][timeIndex])
+                        dateUtil.fromTimestamp(dataPoints[i][0])
                     ));
-                    dataY.push(dataPoints[i][usageIndex]);
+                    dataY.push(dataPoints[i][1]);
                 }
 
                 return { "labels": dataX, "data": [dataY] }

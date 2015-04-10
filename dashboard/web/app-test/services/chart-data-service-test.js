@@ -20,46 +20,54 @@ describe('ChartDataService', function() {
     var fakeCumulativeName = "cumulativeChart";
     var fakeGaugeName = "gaugeChart";
     var fakeUnitBytes = 'B';
-    var fakeRate = {
-        'points': [
-            [1428497295803, 7308830001, 2],
-            [1428497055806, 7308810001, 3]
-        ]
-    };
-    var fakeUsageGauge = {
-        'columns': ["time", "sequence_number", "avg", "unit"],
-        'name': fakeGaugeName,
-        'points': [
-            [1428478328000, 7163780001, 0.30349895, "%"],
-            [1428478327000, 7163810001, 0.33750436, "%"]
-        ]
-    };
-    var fakeUsageCumulative = {
-        'columns': ["time", "sequence_number", "unit", "usage"],
-        'name': fakeCumulativeName,
-        'points': [
-            [1428478324000, 7155910001, fakeUnitBytes, 443309],
-            [1428478324000, 7155890001, fakeUnitBytes, 142012]
-        ]
-    };
     var fakeUsageData = {
-        cumulativeChart: fakeUsageCumulative,
-        gaugeChart: fakeUsageGauge
+        cumulativeChart: {
+            name: fakeCumulativeName,
+            columns: ["time", "value"],
+            points: [
+                [1428478324000, 443309],
+                [1428478324000, 142012]
+            ],
+            enabled: true,
+            type: "cumulative",
+            unit: "B"
+        },
+        gaugeChart: {
+            name: fakeCumulativeName,
+            columns: ["time", "value"],
+            points: [
+                [1428478324000, 443309],
+                [1428478324000, 142012]
+            ],
+            enabled: true,
+            type: "gauge",
+            unit: "B"
+        }
     };
     var fakeRateData = {
-        gaugeChart: fakeRate
+        gaugeChart: {
+            name: fakeCumulativeName,
+            columns: ["time", "value"],
+            points: [
+                [1428497295803, 2],
+                [1428497055806, 3]
+            ],
+            enabled: true,
+            type: "gauge",
+            unit: "B"
+        }
     };
-    var fakeCumulativeResult = { data: 2000 };
     var fakeGaugeResult = {
         labels: ['', ''],
-        data: [ [0.33750436, 0.30349895] ]
-    };
-    var fakeGaugeResultNoColumns = {
-        labels: ['', ''],
-        data: [ [3, 2] ]
+        data: [
+            [
+                fakeUsageData.gaugeChart.points[1][1],
+                fakeUsageData.gaugeChart.points[0][1],
+            ]
+        ]
     };
     var fakeCumulativeResult = {
-        data: 0.30349895 + 0.33750436
+        data: fakeUsageData.cumulativeChart.points[0][1] + fakeUsageData.cumulativeChart.points[1][1]
     };
 
     /*
@@ -82,17 +90,17 @@ describe('ChartDataService', function() {
 
         usageDataServiceMock = jasmine.createSpyObj(
             'usageDataService',
-            ['getRawData']
+            ['getFormattedData']
         );
 
         rateDataServiceMock = jasmine.createSpyObj(
             'rateDataService',
-            ['getRawData']
+            ['getFormattedData']
         );
 
         chargeDataServiceMock = jasmine.createSpyObj(
             'chargeDataService',
-            ['getRawData']
+            ['getFormattedData']
         );
 
         dateUtilMock.fromTimestamp.and.returnValue("12-Jan-15 13:33");
@@ -121,8 +129,8 @@ describe('ChartDataService', function() {
             spyOn(service, 'getServiceDelegate').and.returnValue(usageDataServiceMock);
         });
 
-        it('returns the correct data if available (with columns)', function() {
-            usageDataServiceMock.getRawData.and.returnValue(fakeUsageData);
+        it('returns the correct data if available', function() {
+            usageDataServiceMock.getFormattedData.and.returnValue(fakeUsageData);
             spyOn(service, 'getGaugeMeterData').and.returnValue(fakeGaugeResult);
 
             var res = service.getCumulativeMeterData(usage, fakeCumulativeName);
@@ -130,7 +138,7 @@ describe('ChartDataService', function() {
         });
 
         it('returns an error if no data available', function() {
-            usageDataServiceMock.getRawData.and.returnValue(undefined);
+            usageDataServiceMock.getFormattedData.and.returnValue(undefined);
             var res = service.getCumulativeMeterData(usage, fakeCumulativeName);
             expect(res).toEqual(emptyCumulativeObject);
         });
@@ -142,20 +150,14 @@ describe('ChartDataService', function() {
             spyOn(service, 'getServiceDelegate').and.returnValue(usageDataServiceMock);
         });
 
-        it('returns the correct usage data if available (with columns)', function() {
-            usageDataServiceMock.getRawData.and.returnValue(fakeUsageData);
+        it('returns the correct usage data if available', function() {
+            usageDataServiceMock.getFormattedData.and.returnValue(fakeUsageData);
             var res = service.getGaugeMeterData(usage, fakeGaugeName);
             expect(res).toEqual(fakeGaugeResult);
         });
 
-        it('returns the correct usage data if available (without columns)', function() {
-            usageDataServiceMock.getRawData.and.returnValue(fakeRateData);
-            var res = service.getGaugeMeterData(usage, fakeGaugeName);
-            expect(res).toEqual(fakeGaugeResultNoColumns);
-        });
-
         it('returns empty data if no usage data is available', function() {
-            usageDataServiceMock.getRawData.and.returnValue(undefined);
+            usageDataServiceMock.getFormattedData.and.returnValue(undefined);
             var res = service.getGaugeMeterData(usage, fakeGaugeName);
             expect(res).toEqual(emptyGaugeObject);
         });
@@ -201,13 +203,13 @@ describe('ChartDataService', function() {
         });
 
         it('should return a unit if available', function() {
-            usageDataServiceMock.getRawData.and.returnValue(fakeUsageData);
+            usageDataServiceMock.getFormattedData.and.returnValue(fakeUsageData);
             var res = service.getDataUnit(usage, fakeCumulativeName);
             expect(res).toEqual(fakeUnitBytes);
         });
 
         it('should return undefined if no unit available', function() {
-            usageDataServiceMock.getRawData.and.returnValue(fakeRateData);
+            usageDataServiceMock.getFormattedData.and.returnValue(fakeRateData);
             var res = service.getDataUnit(usage, fakeCumulativeName);
             expect(res).toEqual(undefined);
         });

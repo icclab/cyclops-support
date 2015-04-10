@@ -12,21 +12,46 @@ describe('UsageDataService', function() {
             'openstack': [
                 {
                     'name': fakeCumulativeName,
-                    'points': [ [null, 2000] ]
+                    'columns': ["time", "sequence_number", "type", "unit", "usage"],
+                    'points': [
+                        [1428568125000, 7654340001, "cumulative", "B", 14600],
+                        [1428567525000, 7654830001, "cumulative", "B", 16951]
+                    ]
                 },
                 {
                     'name': fakeGaugeName,
+                    'columns': ["time", "sequence_number", "avg", "type", "unit"],
                     'points': [
-                        [ 123123123,null, 0.4 ],
-                        [ 123123123, null, 0.5 ]
+                        [1428555539000, 7432920001, 0.22915418, "gauge", "%"],
+                        [1428556139000, 7443990001, 0.22790419, "gauge", "%"]
                     ]
                 }
             ]
         }
     };
     var fakeFormattedChartData = {
-        "network.incoming.bytes": fakeChartData.usage.openstack[0],
-        "cpu_util": fakeChartData.usage.openstack[1],
+        "network.incoming.bytes": {
+            'name': fakeCumulativeName,
+            'columns': ["time", "value"],
+            'points': [
+                [1428568125000, 14600],
+                [1428567525000, 16951]
+            ],
+            'enabled': true,
+            'type': "cumulative",
+            'unit': "B"
+        },
+        "cpu_util": {
+            'name': fakeGaugeName,
+            'columns': ["time", "value"],
+            'points': [
+                [1428555539000, 0.22915418],
+                [1428556139000, 0.22790419]
+            ],
+            'enabled': true,
+            'type': "gauge",
+            'unit': "%"
+        }
     };
 
     /*
@@ -58,12 +83,12 @@ describe('UsageDataService', function() {
     describe('setRawData', function() {
         it('stores correctly formatted data', function() {
             service.setRawData(fakeChartData);
-            expect(service.getRawData()).toEqual(fakeFormattedChartData);
+            expect(service.getFormattedData()).toEqual(fakeFormattedChartData);
         });
 
         it('ignores incorrectly formatted data', function() {
             service.setRawData(fakeChartData.usage);
-            expect(service.getRawData()).toEqual({});
+            expect(service.getFormattedData()).toEqual({});
         });
     });
 
@@ -71,6 +96,31 @@ describe('UsageDataService', function() {
         it('should broadcast RATE_DATA_READY on rateDeferred.resolve', function() {
             service.notifyChartDataReady(scopeMock);
             expect(scopeMock.$broadcast).toHaveBeenCalledWith('USAGE_DATA_READY', []);
+        });
+    });
+
+    describe('formatPoints', function() {
+        it('should correctly format points for gauge meters', function() {
+            var res = service.formatPoints(
+                fakeChartData.usage.openstack[0].points,
+                fakeChartData.usage.openstack[0].columns
+            );
+            expect(res).toEqual(fakeFormattedChartData[fakeCumulativeName].points);
+        });
+
+        it('should correctly format points for gauge meters', function() {
+            var res = service.formatPoints(
+                fakeChartData.usage.openstack[1].points,
+                fakeChartData.usage.openstack[1].columns
+            );
+            expect(res).toEqual(fakeFormattedChartData[fakeGaugeName].points);
+        });
+    });
+
+    describe('formatPoints', function() {
+        it('should correctly format columns', function() {
+            var res = service.formatColumns(undefined);
+            expect(res).toEqual(["time", "value"]);
         });
     });
 });

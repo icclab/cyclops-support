@@ -47,8 +47,8 @@
                 "network.outgoing.bytes",
                 "cpu_util"
             ],
-            dateUtil.getFormattedDateToday() + " " + dateUtil.getFormattedTimeLastSixHours(),
-            dateUtil.getFormattedDateToday() + " " + dateUtil.getFormattedTimeNow()
+            dateUtil.getFormattedDateYesterday() + " 00:00",
+            dateUtil.getFormattedDateToday() + " 23:59"
         );
     };
 

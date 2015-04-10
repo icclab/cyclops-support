@@ -59,7 +59,10 @@ describe('RateController', function() {
 
         dateUtilMock = jasmine.createSpyObj(
             'dateUtil',
-            ['getFormattedDateToday', 'getFormattedTimeLastSixHours', 'getFormattedTimeNow']
+            [
+                'getFormattedDateToday', 'getFormattedTimeLastSixHours',
+                'getFormattedTimeNow', 'getFormattedDateYesterday'
+            ]
         );
 
         /*
