@@ -5,17 +5,26 @@ describe('RateDataService', function() {
     /*
         Fake Data
      */
+    var fakeMeterName = "network.incoming.bytes";
     var fakeChartData = {
         'rate': {
             "network.incoming.bytes": [
-                [ 123123123,null, 0.4 ],
-                [ 123123123, null, 0.5 ]
+                [1428655317042, 7678720001, 3],
+                [1428655257045, 7678710001, 3]
             ]
         }
     };
     var fakeFormattedChartData = {
         "network.incoming.bytes": {
-            points: fakeChartData.rate["network.incoming.bytes"]
+            name: fakeMeterName,
+            columns: ["time", "value"],
+            points: [
+                [1428655317042, 3],
+                [1428655257045, 3]
+            ],
+            enabled: true,
+            type: "gauge",
+            unit: ""
         }
     };
 
@@ -48,12 +57,12 @@ describe('RateDataService', function() {
     describe('setRawData', function() {
         it('stores correctly formatted data', function() {
             service.setRawData(fakeChartData);
-            expect(service.getRawData()).toEqual(fakeFormattedChartData);
+            expect(service.getFormattedData()).toEqual(fakeFormattedChartData);
         });
 
         it('ignores incorrectly formatted data', function() {
             service.setRawData(fakeChartData.usage);
-            expect(service.getRawData()).toEqual({});
+            expect(service.getFormattedData()).toEqual({});
         });
     });
 
@@ -61,6 +70,20 @@ describe('RateDataService', function() {
         it('should broadcast RATE_DATA_READY on rateDeferred.resolve', function() {
             service.notifyChartDataReady(scopeMock);
             expect(scopeMock.$broadcast).toHaveBeenCalledWith('RATE_DATA_READY', []);
+        });
+    });
+
+    describe('formatPoints', function() {
+        it('should correctly format points', function() {
+            var res = service.formatPoints(fakeChartData.rate[fakeMeterName], []);
+            expect(res).toEqual(fakeFormattedChartData[fakeMeterName].points);
+        });
+    });
+
+    describe('formatPoints', function() {
+        it('should correctly format columns', function() {
+            var res = service.formatColumns(undefined);
+            expect(res).toEqual(["time", "value"]);
         });
     });
 });
