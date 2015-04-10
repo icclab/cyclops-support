@@ -12,11 +12,12 @@ describe('RateController', function() {
     /*
         Fake Data
      */
-    var errorMsg = 'Requesting rate data failed';
+    var fakeTimeNow = "12:00";
+    var fakeTimeLast6Hours = "06:00";
     var fakeDateToday = "2015-03-04";
     var fakeFrom = "2015-03-03 00:00:00";
     var fakeTo = "2015-03-04 23:59:59";
-    var fakeMeter = "network.incoming.bytes";
+    var fakeMeters = ["network.incoming.bytes", "cpu_util"];
     var fakeResponse = {
         data: {
             'test': 'abc'
@@ -48,7 +49,7 @@ describe('RateController', function() {
 
         rateDataServiceMock = jasmine.createSpyObj(
             'rateDataService',
-            ['setRawData']
+            ['setRawData', 'notifyChartDataReady']
         );
 
         alertServiceMock = jasmine.createSpyObj(
@@ -58,7 +59,10 @@ describe('RateController', function() {
 
         dateUtilMock = jasmine.createSpyObj(
             'dateUtil',
-            ['getFormattedDateToday']
+            [
+                'getFormattedDateToday', 'getFormattedTimeLastSixHours',
+                'getFormattedTimeNow', 'getFormattedDateYesterday'
+            ]
         );
 
         /*
@@ -71,6 +75,8 @@ describe('RateController', function() {
 
             restServiceMock.getRateForMeter.and.returnValue(ratePromise);
             dateUtilMock.getFormattedDateToday.and.returnValue(fakeDateToday);
+            dateUtilMock.getFormattedTimeNow.and.returnValue(fakeTimeNow);
+            dateUtilMock.getFormattedTimeLastSixHours.and.returnValue(fakeTimeLast6Hours);
             spyOn($scope, '$broadcast');
 
             controller = $controller('RateController', {
@@ -87,39 +93,36 @@ describe('RateController', function() {
     /*
         Tests
      */
-    describe('requestRate', function() {
+    describe('requestRates', function() {
         it('should correctly call restService.getRateForMeter', function() {
-            controller.requestRate(fakeMeter, fakeFrom, fakeTo);
+            controller.requestRates(fakeMeters, fakeFrom, fakeTo);
             rateDeferred.resolve(fakeResponse);
             $scope.$digest();
 
             expect(restServiceMock.getRateForMeter)
-                .toHaveBeenCalledWith(fakeMeter, fakeFrom, fakeTo);
+                .toHaveBeenCalledWith(fakeMeters[0], fakeFrom, fakeTo);
+
+            expect(restServiceMock.getRateForMeter)
+                .toHaveBeenCalledWith(fakeMeters[1], fakeFrom, fakeTo);
         });
 
         it('should execute loadUdrDataSuccess on rateDeferred.resolve', function() {
-            controller.requestRate(fakeMeter, fakeFrom, fakeTo);
+            controller.requestRates(fakeMeters, fakeFrom, fakeTo);
             rateDeferred.resolve(fakeResponse);
             $scope.$digest();
 
             expect(rateDataServiceMock.setRawData)
                 .toHaveBeenCalledWith(fakeResponse.data);
-        });
 
-        it('should broadcast CHART_DATA_READY on rateDeferred.resolve', function() {
-            controller.requestRate(fakeMeter, fakeFrom, fakeTo);
-            rateDeferred.resolve(fakeResponse);
-            $scope.$digest();
-
-            expect($scope.$broadcast).toHaveBeenCalledWith('CHART_DATA_READY');
+            expect(rateDataServiceMock.notifyChartDataReady).toHaveBeenCalled();
         });
 
         it('should excute loadUdrDataFailed on rateDeferred.reject', function() {
-            controller.requestRate(fakeMeter, fakeFrom, fakeTo);
+            controller.requestRates(fakeMeters, fakeFrom, fakeTo);
             rateDeferred.reject();
             $scope.$digest();
 
-            expect(alertServiceMock.showError).toHaveBeenCalledWith(errorMsg);
+            expect(alertServiceMock.showError).toHaveBeenCalled();
         });
     });
 });

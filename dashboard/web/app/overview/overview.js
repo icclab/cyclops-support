@@ -21,17 +21,39 @@
         var me = this;
         this.selectedDate;
         this.dates = {
-            "today": dateUtil.getFormattedDateToday(),
-            "yesterday": dateUtil.getFormattedDateYesterday(),
-            "last3days": dateUtil.getFormattedDateLast3Days(),
-            "lastWeek": dateUtil.getFormattedDateLastWeek(),
-            "lastMonth": dateUtil.getFormattedDateLastMonth(),
-            "lastYear": dateUtil.getFormattedDateLastYear()
+            "last6Hours": {
+                "from": dateUtil.getFormattedDateToday() + " " + dateUtil.getFormattedTimeLastSixHours(),
+                "to": dateUtil.getFormattedDateToday() + " " + dateUtil.getFormattedTimeNow()
+            },
+            "today": {
+                "from": dateUtil.getFormattedDateToday() + " 00:00",
+                "to": dateUtil.getFormattedDateToday() + " 23:59"
+            },
+            "yesterday": {
+                "from": dateUtil.getFormattedDateYesterday() + " 00:00",
+                "to": dateUtil.getFormattedDateToday() + " 23:59"
+            },
+            "last3days": {
+                "from": dateUtil.getFormattedDateLast3Days() + " 00:00",
+                "to": dateUtil.getFormattedDateToday() + " 23:59"
+            },
+            "lastWeek": {
+                "from": dateUtil.getFormattedDateLastWeek() + " 00:00",
+                "to": dateUtil.getFormattedDateToday() + " 23:59"
+            },
+            "lastMonth": {
+                "from": dateUtil.getFormattedDateLastMonth() + " 00:00",
+                "to": dateUtil.getFormattedDateToday() + " 23:59"
+            },
+            "lastYear": {
+                "from": dateUtil.getFormattedDateLastYear() + " 00:00",
+                "to": dateUtil.getFormattedDateToday() + " 23:59"
+            }
         };
 
         var loadUdrDataSuccess = function(response) {
             usageDataService.setRawData(response.data);
-            $scope.$broadcast('CHART_DATA_READY');
+            usageDataService.notifyChartDataReady($scope);
         };
 
         var loadUdrDataFailed = function(response) {
@@ -53,17 +75,15 @@
         };
 
         this.onDateChanged = function() {
-            var sel = me.selectedDate || 'today';
-            fromDate = me.dates[sel];
-            toDate = me.dates['today'];
-            me.updateCharts(fromDate, toDate);
+            var sel = me.selectedDate || 'last6Hours';
+            var from = me.dates[sel].from;
+            var to = me.dates[sel].to;
+            me.updateCharts(from, to);
         };
 
-        this.updateCharts = function(fromDate, toDate) {
+        this.updateCharts = function(from, to) {
             if(me.hasKeystoneId()) {
                 var keystoneId = sessionService.getKeystoneId();
-                var from = fromDate + " 00:00:00";
-                var to = toDate + " 23:59:59";
                 me.requestUsage(keystoneId, from, to);
             }
         };

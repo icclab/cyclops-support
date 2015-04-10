@@ -17,6 +17,8 @@
     function onLink(scope, el, attr, controller) {
         controller.chartName = attr.name;
         controller.chartDataType = attr.type;
+        controller.chartDataUnit = attr.unit;
+        controller.updateGraph();
     }
 
     GaugeChartController.$inject = ['$scope', 'chartDataService'];
@@ -43,17 +45,7 @@
 
             me.chartData = result.data;
             me.chartLabels = result.labels;
-
-            me.chartDataUnit = chartDataService.getDataUnit(
-                me.chartDataType,
-                me.chartName
-            );
         };
-
-        $scope.$on('CHART_DATA_READY', function() {
-            console.log("CHART_DATA_READY");
-            me.updateGraph();
-        });
     }
 
 })();
