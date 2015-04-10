@@ -2,6 +2,7 @@ describe('AdminMeterController', function() {
     var controller;
     var $scope;
     var restServiceMock;
+    var meterselectionDataServiceMock;
     var alertServiceMock;
     var dateUtilMock;
     var keystoneDeferred;
@@ -18,8 +19,8 @@ describe('AdminMeterController', function() {
         { name:'a.test1', type:'delta', source:'openstack' }
     ];
     var fakeMetersWithSelection = [
-        { name:'a.test1', type:'gauge', source:'openstack', selected: false },
-        { name:'b.test2', type:'cumulative', source:'openstack', selected: true }
+        { name:'a.test1', type:'gauge', source:'openstack', enabled: false },
+        { name:'b.test2', type:'cumulative', source:'openstack', enabled: true }
     ];
     var fakeUniqueMeters = {
         'a.test1': fakeMeters[0],
@@ -33,8 +34,8 @@ describe('AdminMeterController', function() {
         data: fakeMeters
     };
     var fakeToggleMeterName = "toggle.test";
-    var fakeMeterSelected = { 'toggle.test': { selected: true } };
-    var fakeMeterUnselected = { 'toggle.test': { selected: false } };
+    var fakeMeterSelected = { 'toggle.test': { enabled: true } };
+    var fakeMeterUnselected = { 'toggle.test': { enabled: false } };
     var fakeMeterEmpty = { 'toggle.test' : {} };
     var fakeTimestamp = 1425399530223;
     var fakeColumns = [
@@ -60,15 +61,21 @@ describe('AdminMeterController', function() {
     var fakeUdrMeterResponse = {
         data: fakeUdrRequestBody
     };
-    var fakeUdrMeterResponsePreselection = {
-        data: {
-            columns: fakeColumns,
-            points: [
-                fakePointUnselected1,
-                fakePointSelected
-            ]
+    var fakeFormattedUdrData = {
+        "a.test1": {
+            name: "a.test1",
+            enabled: false,
+            type: "gauge",
+            source: "openstack"
+        },
+        "b.test2": {
+            name: "b.test2",
+            enabled: true,
+            type: "cumulative",
+            source: "openstack"
         }
-    };
+     };
+    var fakeFormattedOpenstackData = fakeFormattedUdrData;
 
     /*
         Test setup
@@ -86,6 +93,14 @@ describe('AdminMeterController', function() {
         restServiceMock = jasmine.createSpyObj(
             'restService',
             ['getKeystoneMeters', 'getUdrMeters', 'updateUdrMeters']
+        );
+
+        meterselectionDataServiceMock = jasmine.createSpyObj(
+            'meterselectionDataService',
+            [
+                'setRawUdrData', 'getFormattedUdrData',
+                'setRawOpenstackData', 'getFormattedOpenstackData'
+            ]
         );
 
         alertServiceMock = jasmine.createSpyObj(
@@ -110,12 +125,15 @@ describe('AdminMeterController', function() {
 
             restServiceMock.getKeystoneMeters.and.returnValue(keystonePromise);
             restServiceMock.getUdrMeters.and.returnValue(udrPromise);
-            restServiceMock.updateUdrMeters.and.returnValue(udrPromise)
+            restServiceMock.updateUdrMeters.and.returnValue(udrPromise);
+            meterselectionDataServiceMock.getFormattedUdrData.and.returnValue(fakeFormattedUdrData);
+            meterselectionDataServiceMock.getFormattedOpenstackData.and.returnValue(fakeFormattedOpenstackData);
             dateUtilMock.getTimestamp.and.returnValue(fakeTimestamp);
 
             controller = $controller('AdminMeterController', {
                 '$scope': $scope,
                 'restService': restServiceMock,
+                'meterselectionDataService': meterselectionDataServiceMock,
                 'alertService': alertServiceMock,
                 'dateUtil': dateUtilMock
             });
@@ -132,17 +150,17 @@ describe('AdminMeterController', function() {
         });
 
         it('should execute loadKeystoneMeterSuccess on keystoneDeferred.resolve', function() {
-            spyOn(controller, 'buildUniqueMeterMap');
-
             controller.loadMeterData();
             keystoneDeferred.resolve(fakeResponse);
             $scope.$digest();
 
-            expect(controller.buildUniqueMeterMap).toHaveBeenCalled();
+            expect(meterselectionDataServiceMock.setRawOpenstackData)
+                .toHaveBeenCalledWith(fakeResponse.data);
+
+            expect(restServiceMock.getUdrMeters).toHaveBeenCalled();
         });
 
         it('should execute loadUdrMeterSuccess on udrDeferred.resolve', function() {
-            spyOn(controller, 'buildUniqueMeterMap');
             spyOn(controller, 'preselectMeters');
 
             controller.loadMeterData();
@@ -150,7 +168,7 @@ describe('AdminMeterController', function() {
             udrDeferred.resolve(fakeUdrMeterResponse);
             $scope.$digest();
 
-            expect(controller.buildUniqueMeterMap).toHaveBeenCalled();
+            expect(meterselectionDataServiceMock.setRawUdrData).toHaveBeenCalled();
             expect(controller.preselectMeters)
                 .toHaveBeenCalledWith(fakeUdrRequestBody);
         });
@@ -164,8 +182,6 @@ describe('AdminMeterController', function() {
         });
 
         it('should execute loadMeterError on udrDeferred.reject', function() {
-            spyOn(controller, 'buildUniqueMeterMap');
-
             controller.loadMeterData();
             keystoneDeferred.resolve(fakeResponse);
             udrDeferred.reject();
@@ -177,7 +193,7 @@ describe('AdminMeterController', function() {
 
     describe('updateUdrMeters', function() {
         it('should correctly call restService.updateUdrMeters', function() {
-            controller.uniqueMeterMap = fakeUniqueMeters;
+            controller.meterMap = fakeUniqueMeters;
             controller.updateUdrMeters();
             expect(restServiceMock.updateUdrMeters)
                 .toHaveBeenCalledWith(fakeUdrRequestBody);
@@ -204,41 +220,34 @@ describe('AdminMeterController', function() {
         });
     });
 
-    describe('buildUniqueMeterMap', function() {
-        it('should correctly build a map with unique meters', function() {
-            var res = controller.buildUniqueMeterMap(fakeMeters);
-            expect(res).toEqual(fakeUniqueMeters);
-        });
-    });
-
     describe('toggleMeter', function() {
         beforeEach(function() {
-            fakeMeterSelected['toggle.test'].selected = true;
-            fakeMeterUnselected['toggle.test'].selected = false;
+            fakeMeterSelected['toggle.test'].enabled = true;
+            fakeMeterUnselected['toggle.test'].enabled = false;
         });
 
         it('should set the meter to selected = false if unselected', function() {
-            controller.uniqueMeterMap = fakeMeterSelected;
+            controller.meterMap = fakeMeterSelected;
             controller.toggleMeter(fakeToggleMeterName);
-            expect(controller.uniqueMeterMap).toEqual(fakeMeterUnselected);
+            expect(controller.meterMap).toEqual(fakeMeterUnselected);
         });
 
         it('should set the meter to selected = true if selected', function() {
-            controller.uniqueMeterMap = fakeMeterUnselected;
+            controller.meterMap = fakeMeterUnselected;
             controller.toggleMeter(fakeToggleMeterName);
-            expect(controller.uniqueMeterMap).toEqual(fakeMeterSelected);
+            expect(controller.meterMap).toEqual(fakeMeterSelected);
         });
 
         it('should set the meter to selected = true if selected on empty meter', function() {
-            controller.uniqueMeterMap = fakeMeterEmpty;
+            controller.meterMap = fakeMeterEmpty;
             controller.toggleMeter(fakeToggleMeterName);
-            expect(controller.uniqueMeterMap).toEqual(fakeMeterSelected);
+            expect(controller.meterMap).toEqual(fakeMeterSelected);
         });
     });
 
     describe('buildUdrRequest', function() {
         it('should build a full request body JSON object', function() {
-            controller.uniqueMeterMap = fakeUniqueMeters;
+            controller.meterMap = fakeUniqueMeters;
             var res = controller.buildUdrRequest();
             expect(res).toEqual(fakeUdrRequestBody);
         });
@@ -246,15 +255,10 @@ describe('AdminMeterController', function() {
 
     describe('preselectMeters', function() {
         it('should select correct meters', function() {
-            controller.uniqueMeterMap = fakeUniqueMeters;
-            controller.preselectMeters(fakeUdrMeterResponsePreselection.data);
-            expect(controller.uniqueMeterMap).toEqual(fakeUniqueMetersAfterPreselection);
-        });
-
-        it('should not touch the uniqueMeterMap if an error occurs', function() {
-            controller.uniqueMeterMap = fakeUniqueMeters;
-            controller.preselectMeters({});
-            expect(controller.uniqueMeterMap).toEqual(fakeUniqueMeters);
+            controller.meterMap = fakeUniqueMeters;
+            controller.preselectMeters();
+            expect(meterselectionDataServiceMock.getFormattedUdrData).toHaveBeenCalled();
+            expect(controller.meterMap).toEqual(fakeUniqueMetersAfterPreselection);
         });
     });
 });
