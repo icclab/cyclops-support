@@ -1,12 +1,6 @@
 describe('RateController', function() {
     var $scope;
     var controller;
-    var restServiceMock;
-    var sessionServiceMock;
-    var rateDataServiceMock;
-    var meterselectionDataServiceMock;
-    var alertServiceMock;
-    var dateUtilMock;
     var deferred;
     var promise;
 
@@ -39,42 +33,6 @@ describe('RateController', function() {
             Load module
          */
         module('dashboard.rate');
-
-        /*
-            Mocks
-         */
-        restServiceMock = jasmine.createSpyObj(
-            'restService',
-            ['getRateForMeter', 'getUdrMeters']
-        );
-
-        sessionServiceMock = jasmine.createSpyObj(
-            'sessionService',
-            ['getKeystoneId', 'setUserData']
-        );
-
-        rateDataServiceMock = jasmine.createSpyObj(
-            'rateDataService',
-            ['setRawData', 'notifyChartDataReady']
-        );
-
-        meterselectionDataServiceMock = jasmine.createSpyObj(
-            'meterselectionDataService',
-            ['setRawUdrData', 'getFormattedUdrData']
-        );
-
-        alertServiceMock = jasmine.createSpyObj(
-            'alertService',
-            ['showError']
-        );
-
-        dateUtilMock = jasmine.createSpyObj(
-            'dateUtil',
-            [
-                'getFormattedDateToday', 'getFormattedTime6HoursAgo',
-                'getFormattedTimeNow', 'getFormattedDateYesterday'
-            ]
-        );
 
         /*
             Inject dependencies and configure mocks

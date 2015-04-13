@@ -1,10 +1,6 @@
 describe('AdminMeterController', function() {
     var controller;
     var $scope;
-    var restServiceMock;
-    var meterselectionDataServiceMock;
-    var alertServiceMock;
-    var dateUtilMock;
     var keystoneDeferred;
     var udrDeferred;
     var keystonePromise;
@@ -86,32 +82,6 @@ describe('AdminMeterController', function() {
             Load module
          */
         module('dashboard.admin.meters');
-
-        /*
-            Mocks
-         */
-        restServiceMock = jasmine.createSpyObj(
-            'restService',
-            ['getKeystoneMeters', 'getUdrMeters', 'updateUdrMeters']
-        );
-
-        meterselectionDataServiceMock = jasmine.createSpyObj(
-            'meterselectionDataService',
-            [
-                'setRawUdrData', 'getFormattedUdrData',
-                'setRawOpenstackData', 'getFormattedOpenstackData'
-            ]
-        );
-
-        alertServiceMock = jasmine.createSpyObj(
-            'alertService',
-            ['showError', 'showSuccess']
-        );
-
-        dateUtilMock = jasmine.createSpyObj(
-            'dateUtil',
-            ['getTimestamp']
-        );
 
         /*
             Inject dependencies and configure mocks
