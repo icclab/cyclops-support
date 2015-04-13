@@ -1,10 +1,6 @@
 describe('AdminRateController', function() {
     var $scope;
     var controller;
-    var restServiceMock;
-    var alertServiceMock;
-    var responseParserMock;
-    var dateUtilMock;
     var policyDeferred;
     var udrDeferred;
     var policyPromise;
@@ -85,29 +81,6 @@ describe('AdminRateController', function() {
             Load module
          */
         module('dashboard.admin.rate');
-
-        /*
-            Mocks
-         */
-        restServiceMock = jasmine.createSpyObj(
-            'restService',
-            ['getActiveRatePolicy', 'setActiveRatePolicy', 'getUdrMeters']
-        );
-
-        alertServiceMock = jasmine.createSpyObj(
-            'alertService',
-            ['showError', 'showSuccess']
-        );
-
-        responseParserMock = jasmine.createSpyObj(
-            'responseParser',
-            ['getStaticRatingListFromResponse']
-        );
-
-        dateUtilMock = jasmine.createSpyObj(
-            'dateUtil',
-            ['getFormattedDateTimeNow']
-        );
 
         /*
             Inject dependencies and configure mocks

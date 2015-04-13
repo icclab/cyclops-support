@@ -1,9 +1,5 @@
 describe('AdminUserController', function() {
     var controller;
-    var sessionServiceMock;
-    var restServiceMock;
-    var alertServiceMock;
-    var responseParserMock;
     var userDeferred;
     var adminDeferred;
     var userPromise;
@@ -41,29 +37,6 @@ describe('AdminUserController', function() {
             Load module
          */
         module('dashboard.admin.users');
-
-        /*
-            Mocks
-         */
-        restServiceMock = jasmine.createSpyObj(
-            'restService',
-            ['getAllUsers', 'getAdminGroupInfo', 'updateAdmins']
-        );
-
-        sessionServiceMock = jasmine.createSpyObj(
-            'sessionService',
-            ['getSessionId']
-        );
-
-        alertServiceMock = jasmine.createSpyObj(
-            'alertService',
-            ['showError', 'showSuccess']
-        );
-
-        responseParserMock = jasmine.createSpyObj(
-            'responseParser',
-            ['getUserListFromResponse', 'getAdminListFromResponse']
-        );
 
         /*
             Inject dependencies and configure mocks

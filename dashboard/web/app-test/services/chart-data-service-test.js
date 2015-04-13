@@ -1,9 +1,5 @@
 describe('ChartDataService', function() {
     var service;
-    var dateUtilMock;
-    var usageDataServiceMock;
-    var rateDataServiceMock;
-    var chargeDataServiceMock;
 
     /*
         Fake Data
@@ -78,29 +74,6 @@ describe('ChartDataService', function() {
             Load module
          */
         module('dashboard.services');
-
-        /*
-            Mocks
-         */
-        dateUtilMock = jasmine.createSpyObj(
-            'dateUtil',
-            ['fromTimestamp']
-        );
-
-        usageDataServiceMock = jasmine.createSpyObj(
-            'usageDataService',
-            ['getFormattedData']
-        );
-
-        rateDataServiceMock = jasmine.createSpyObj(
-            'rateDataService',
-            ['getFormattedData']
-        );
-
-        chargeDataServiceMock = jasmine.createSpyObj(
-            'chargeDataService',
-            ['getFormattedData']
-        );
 
         dateUtilMock.fromTimestamp.and.returnValue("12-Jan-15 13:33");
 
