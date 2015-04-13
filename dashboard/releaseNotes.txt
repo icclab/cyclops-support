@@ -1,3 +1,11 @@
+Version 0.0.2
+Date 13/Apr/2015
+Notes
+1. [User] Dynamic Usage Charts
+2. [User] Dynamic Rate Charts
+3. [User] Alert Messages
+4. [Admin] User Management
+5. [Admin] Configure Rate Microservice 
 
 *************************************************************
 
