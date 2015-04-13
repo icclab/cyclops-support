@@ -99,9 +99,9 @@ describe('OverviewController', function() {
             'dateUtil',
             [
                 'getFormattedDateToday', 'getFormattedDateYesterday',
-                'getFormattedDateLast3Days', 'getFormattedDateLastWeek',
-                'getFormattedDateLastMonth', 'getFormattedDateLastYear',
-                'getFormattedTimeNow', 'getFormattedTimeLastSixHours'
+                'getFormattedDate3DaysAgo', 'getFormattedDate1WeekAgo',
+                'getFormattedDate1MonthAgo', 'getFormattedDate1YearAgo',
+                'getFormattedTimeNow', 'getFormattedTime6HoursAgo'
             ]
         );
 
@@ -118,12 +118,12 @@ describe('OverviewController', function() {
             restServiceMock.getUdrData.and.returnValue(udrPromise);
             dateUtilMock.getFormattedDateToday.and.returnValue(fakeDateToday);
             dateUtilMock.getFormattedDateYesterday.and.returnValue(fakeDateYesterday);
-            dateUtilMock.getFormattedDateLast3Days.and.returnValue(fakeDateLast3days);
-            dateUtilMock.getFormattedDateLastWeek.and.returnValue(fakeDateLastWeek);
-            dateUtilMock.getFormattedDateLastMonth.and.returnValue(fakeDateLastMonth);
-            dateUtilMock.getFormattedDateLastYear.and.returnValue(fakeDateLastYear);
+            dateUtilMock.getFormattedDate3DaysAgo.and.returnValue(fakeDateLast3days);
+            dateUtilMock.getFormattedDate1WeekAgo.and.returnValue(fakeDateLastWeek);
+            dateUtilMock.getFormattedDate1MonthAgo.and.returnValue(fakeDateLastMonth);
+            dateUtilMock.getFormattedDate1YearAgo.and.returnValue(fakeDateLastYear);
             dateUtilMock.getFormattedTimeNow.and.returnValue(fakeTimeNow);
-            dateUtilMock.getFormattedTimeLastSixHours.and.returnValue(fakeTimeLastSixHours);
+            dateUtilMock.getFormattedTime6HoursAgo.and.returnValue(fakeTimeLastSixHours);
             spyOn($scope, '$broadcast');
 
             controller = $controller('OverviewController', {

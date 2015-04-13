@@ -22,7 +22,7 @@
         this.selectedDate;
         this.dates = {
             "last6Hours": {
-                "from": dateUtil.getFormattedDateToday() + " " + dateUtil.getFormattedTimeLastSixHours(),
+                "from": dateUtil.getFormattedDateToday() + " " + dateUtil.getFormattedTime6HoursAgo(),
                 "to": dateUtil.getFormattedDateToday() + " " + dateUtil.getFormattedTimeNow()
             },
             "today": {
@@ -34,19 +34,19 @@
                 "to": dateUtil.getFormattedDateToday() + " 23:59"
             },
             "last3days": {
-                "from": dateUtil.getFormattedDateLast3Days() + " 00:00",
+                "from": dateUtil.getFormattedDate3DaysAgo() + " 00:00",
                 "to": dateUtil.getFormattedDateToday() + " 23:59"
             },
             "lastWeek": {
-                "from": dateUtil.getFormattedDateLastWeek() + " 00:00",
+                "from": dateUtil.getFormattedDate1WeekAgo() + " 00:00",
                 "to": dateUtil.getFormattedDateToday() + " 23:59"
             },
             "lastMonth": {
-                "from": dateUtil.getFormattedDateLastMonth() + " 00:00",
+                "from": dateUtil.getFormattedDate1MonthAgo() + " 00:00",
                 "to": dateUtil.getFormattedDateToday() + " 23:59"
             },
             "lastYear": {
-                "from": dateUtil.getFormattedDateLastYear() + " 00:00",
+                "from": dateUtil.getFormattedDate1YearAgo() + " 00:00",
                 "to": dateUtil.getFormattedDateToday() + " 23:59"
             }
         };
