@@ -11,10 +11,16 @@
     <link rel="stylesheet" type="text/css" href="css/metisMenu.min.css">
     <link rel="stylesheet" type="text/css" href="css/sb-admin-2.css">
     <link rel="stylesheet" type="text/css" href="css/timeline.css">
+    <link rel="stylesheet" type="text/css" href="css/loading-bar.css">
+    <link rel="stylesheet" type="text/css" href="css/ng-toasty.css">
 </head>
 <body>
 
     <div id="wrapper">
+
+        <div ng-controller="toasty-controller">
+            <toasty-container></toasty-container>
+        </div>
 
         <!-- NAVIGATION RENDERING TARGET -->
         <div ui-view="navigation"></div>
@@ -46,23 +52,36 @@
     <script src="libs/metisMenu.min.js"></script>
     <script src="libs/sb-admin-2.js"></script>
     <script src="libs/angular.min.js"></script>
+    <script src="libs/angular-animate.min.js"></script>
     <script src="libs/angular-ui-router.min.js"></script>
+    <script src="libs/loading-bar.min.js"></script>
+    <script src="libs/ng-toasty.min.js"></script>
     <script src="libs/Chart.min.js"></script>
     <script src="libs/angular-chart.js"></script>
     <script src="app.js"></script>
     <script src="services/session-service.js"></script>
     <script src="services/rest-service.js"></script>
     <script src="services/chart-data-service.js"></script>
+    <script src="services/usage-data-service.js"></script>
+    <script src="services/rate-data-service.js"></script>
+    <script src="services/charge-data-service.js"></script>
+    <script src="services/meterselection-data-service.js"></script>
+    <script src="services/alert-service.js"></script>
     <script src="utils/date-util.js"></script>
+    <script src="filter/xbyte-filter.js"></script>
     <script src="utils/response-parser.js"></script>
     <script src="navigation/navigation.js"></script>
     <script src="login/login.js"></script>
     <script src="overview/overview.js"></script>
+    <script src="rate/rate.js"></script>
+    <script src="charge/charge.js"></script>
     <script src="keystone/keystone.js"></script>
     <script src="bills/bills.js"></script>
     <script src="cloud-services/cloud-services.js"></script>
     <script src="admin/meters/meters.js"></script>
     <script src="admin/users/users.js"></script>
+    <script src="admin/rate/rate.js"></script>
+    <script src="charts/chart-container.js"></script>
     <script src="charts/gauge/gauge.js"></script>
     <script src="charts/cumulative/cumulative.js"></script>
 </body>

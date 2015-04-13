@@ -9,34 +9,58 @@
         Controllers, Factories, Services, Directives
     */
     OverviewController.$inject = [
-        '$log', '$scope', '$location',
-        'restService', 'sessionService', 'chartDataService', 'dateUtil'
+        '$scope', '$location',
+        'restService', 'sessionService', 'usageDataService', 'alertService',
+        'dateUtil'
     ];
     function OverviewController(
-            $log, $scope, $location,
-            restService, sessionService, chartDataService, dateUtil) {
+            $scope, $location,
+            restService, sessionService, usageDataService, alertService,
+            dateUtil) {
 
         var me = this;
         this.selectedDate;
         this.dates = {
-            "today": dateUtil.getFormattedDateToday(),
-            "yesterday": dateUtil.getFormattedDateYesterday(),
-            "last3days": dateUtil.getFormattedDateLast3Days(),
-            "lastWeek": dateUtil.getFormattedDateLastWeek(),
-            "lastMonth": dateUtil.getFormattedDateLastMonth(),
-            "lastYear": dateUtil.getFormattedDateLastYear()
+            "last6Hours": {
+                "from": dateUtil.getFormattedDateToday() + " " + dateUtil.getFormattedTime6HoursAgo(),
+                "to": dateUtil.getFormattedDateToday() + " " + dateUtil.getFormattedTimeNow()
+            },
+            "today": {
+                "from": dateUtil.getFormattedDateToday() + " 00:00",
+                "to": dateUtil.getFormattedDateToday() + " 23:59"
+            },
+            "yesterday": {
+                "from": dateUtil.getFormattedDateYesterday() + " 00:00",
+                "to": dateUtil.getFormattedDateToday() + " 23:59"
+            },
+            "last3days": {
+                "from": dateUtil.getFormattedDate3DaysAgo() + " 00:00",
+                "to": dateUtil.getFormattedDateToday() + " 23:59"
+            },
+            "lastWeek": {
+                "from": dateUtil.getFormattedDate1WeekAgo() + " 00:00",
+                "to": dateUtil.getFormattedDateToday() + " 23:59"
+            },
+            "lastMonth": {
+                "from": dateUtil.getFormattedDate1MonthAgo() + " 00:00",
+                "to": dateUtil.getFormattedDateToday() + " 23:59"
+            },
+            "lastYear": {
+                "from": dateUtil.getFormattedDate1YearAgo() + " 00:00",
+                "to": dateUtil.getFormattedDateToday() + " 23:59"
+            }
         };
 
         var loadUdrDataSuccess = function(response) {
-            chartDataService.setRawData(response.data);
-            $scope.$broadcast('UDR_DATA_READY');
+            usageDataService.setRawData(response.data);
+            usageDataService.notifyChartDataReady($scope);
         };
 
         var loadUdrDataFailed = function(response) {
-            $log.debug("Requesting meter data failed");
+            alertService.showError("Requesting meter data failed");
         };
 
-        this.requestMeter = function(keystoneId, from, to) {
+        this.requestUsage = function(keystoneId, from, to) {
             restService.getUdrData(keystoneId, from, to)
                 .then(loadUdrDataSuccess, loadUdrDataFailed);
         };
@@ -51,18 +75,16 @@
         };
 
         this.onDateChanged = function() {
-            var sel = me.selectedDate || 'today';
-            fromDate = me.dates[sel];
-            toDate = me.dates['today'];
-            me.updateCharts(fromDate, toDate);
+            var sel = me.selectedDate || 'last6Hours';
+            var from = me.dates[sel].from;
+            var to = me.dates[sel].to;
+            me.updateCharts(from, to);
         };
 
-        this.updateCharts = function(fromDate, toDate) {
+        this.updateCharts = function(from, to) {
             if(me.hasKeystoneId()) {
                 var keystoneId = sessionService.getKeystoneId();
-                var from = fromDate + " 00:00:00";
-                var to = toDate + " 23:59:59";
-                me.requestMeter(keystoneId, from, to);
+                me.requestUsage(keystoneId, from, to);
             }
         };
 

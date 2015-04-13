@@ -1,8 +1,5 @@
 describe('AdminUserController', function() {
     var controller;
-    var sessionServiceMock;
-    var restServiceMock;
-    var responseParserMock;
     var userDeferred;
     var adminDeferred;
     var userPromise;
@@ -11,6 +8,8 @@ describe('AdminUserController', function() {
     /*
         Fake Data
      */
+    var fakeUser = "test";
+    var fakeAdmin = "AdminA";
     var fakeSessionId = "123abc";
     var fakeUserResponseData = {
         result: "bla"
@@ -26,8 +25,9 @@ describe('AdminUserController', function() {
     };
     var fakeUserList = ["UserA", "AdminA"];
     var fakeNormalUsers = ["UserA"];
-    var fakeAdmins = ["AdminA"];
-
+    var fakeAdmins = [ fakeAdmin ];
+    var fakeAdminsAfterPromotion = [fakeAdmin, fakeUser];
+    var fakeAdminsAfterDemotion = [];
     /*
         Test setup
      */
@@ -37,24 +37,6 @@ describe('AdminUserController', function() {
             Load module
          */
         module('dashboard.admin.users');
-
-        /*
-            Mocks
-         */
-        restServiceMock = jasmine.createSpyObj(
-            'restService',
-            ['getAllUsers', 'getAdminGroupInfo']
-        );
-
-        sessionServiceMock = jasmine.createSpyObj(
-            'sessionService',
-            ['getSessionId']
-        );
-
-        responseParserMock = jasmine.createSpyObj(
-            'responseParser',
-            ['getUserListFromResponse', 'getAdminListFromResponse']
-        );
 
         /*
             Inject dependencies and configure mocks
@@ -70,6 +52,7 @@ describe('AdminUserController', function() {
             sessionServiceMock.getSessionId.and.returnValue(fakeSessionId);
             restServiceMock.getAllUsers.and.returnValue(userPromise);
             restServiceMock.getAdminGroupInfo.and.returnValue(adminPromise);
+            restServiceMock.updateAdmins.and.returnValue(adminPromise);
             responseParserMock.getUserListFromResponse.and.returnValue(fakeUserList);
             responseParserMock.getAdminListFromResponse.and.returnValue(fakeAdmins);
 
@@ -77,6 +60,7 @@ describe('AdminUserController', function() {
                 '$scope': $scope,
                 'sessionService': sessionServiceMock,
                 'restService': restServiceMock,
+                'alertService': alertServiceMock,
                 'responseParser': responseParserMock
             });
         });
@@ -120,7 +104,8 @@ describe('AdminUserController', function() {
             userDeferred.reject();
             $scope.$digest();
 
-            expect($log.debug.logs).toContain(['onLoadError']);
+            expect(alertServiceMock.showError).toHaveBeenCalled();
+
         });
 
         it('should execute onLoadError on adminDeferred.reject', function() {
@@ -129,7 +114,61 @@ describe('AdminUserController', function() {
             adminDeferred.reject();
             $scope.$digest();
 
-            expect($log.debug.logs).toContain(['onLoadError']);
+            expect(alertServiceMock.showError).toHaveBeenCalled();
+        });
+    });
+
+    describe('updateAdmins', function() {
+        it('should correctly call restService.updateAdmins', function() {
+            controller.admins = fakeAdmins;
+
+            controller.updateAdmins(fakeAdmins);
+
+            expect(sessionServiceMock.getSessionId).toHaveBeenCalled();
+            expect(restServiceMock.updateAdmins)
+                .toHaveBeenCalledWith(fakeAdmins, fakeSessionId);
+        });
+
+        it('should execute success callback on adminDeferred.resolve', function() {
+            controller.updateAdmins();
+            adminDeferred.resolve(fakeAdminResponse);
+            $scope.$digest();
+
+            expect(responseParserMock.getAdminListFromResponse)
+                .toHaveBeenCalledWith(fakeAdminResponseData);
+            expect(alertServiceMock.showSuccess).toHaveBeenCalled();
+        });
+
+        it('should execute error callback on adminDeferred.reject', function() {
+            controller.updateAdmins();
+            adminDeferred.reject();
+            $scope.$digest();
+
+            expect(alertServiceMock.showError).toHaveBeenCalled();
+        });
+    });
+
+    describe('promoteUser', function() {
+        it('should call updateAdmins with promoted user', function() {
+            spyOn(controller, 'updateAdmins');
+            controller.admins = fakeAdmins;
+
+            controller.promoteUser(fakeUser);
+
+            expect(controller.updateAdmins)
+                .toHaveBeenCalledWith(fakeAdminsAfterPromotion);
+        });
+    });
+
+    describe('demoteUser', function() {
+        it('should call updateAdmins with promoted user', function() {
+            spyOn(controller, 'updateAdmins');
+            controller.admins = fakeAdmins;
+
+            controller.demoteUser(fakeAdmin);
+
+            expect(controller.updateAdmins)
+                .toHaveBeenCalledWith(fakeAdminsAfterDemotion);
         });
     });
 });

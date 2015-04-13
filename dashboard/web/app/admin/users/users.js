@@ -9,10 +9,10 @@
         Controllers, Factories, Services, Directives
     */
     AdminUserController.$inject = [
-        '$log', 'sessionService', 'restService', 'responseParser'
+        '$log', 'sessionService', 'restService', 'alertService', 'responseParser'
     ];
     function AdminUserController(
-            $log, sessionService, restService, responseParser) {
+            $log, sessionService, restService, alertService, responseParser) {
         var me = this;
         this.users = [];
         this.admins = [];
@@ -28,8 +28,18 @@
             filterUsersAndAdmins();
         };
 
+        var onUpdateAdminsSuccess = function(response) {
+            me.admins = responseParser.getAdminListFromResponse(response.data);
+            filterUsersAndAdmins();
+            alertService.showSuccess('User group successfully updated');
+        };
+
+        var onUpdateAdminsError = function() {
+            alertService.showError('Could not update admin status');
+        };
+
         var onLoadError = function() {
-            $log.debug('onLoadError');
+            alertService.showError('Error loading user information');
         };
 
         var filterUsersAndAdmins = function() {
@@ -47,10 +57,33 @@
             me.users = normalUsers;
         };
 
+        this.promoteUser = function(user) {
+            var newAdmins = me.admins.slice(0);
+            newAdmins.push(user);
+            me.updateAdmins(newAdmins);
+        };
+
+        this.demoteUser = function(user) {
+            var newAdmins = me.admins.slice(0);
+            var adminIndex = newAdmins.indexOf(user);
+
+            if(adminIndex > -1) {
+                newAdmins.splice(adminIndex, 1);
+            }
+
+            me.updateAdmins(newAdmins);
+        };
+
         this.getAllUsers = function() {
             restService.getAllUsers(sessionService.getSessionId())
                 .then(onUsersLoadSuccess)
                 .then(onAdminsLoadSuccess, onLoadError);
+        };
+
+        this.updateAdmins = function(admins) {
+            var sessionId = sessionService.getSessionId();
+            restService.updateAdmins(admins, sessionId)
+                .then(onUpdateAdminsSuccess, onUpdateAdminsError);
         };
 
         this.getAllUsers();

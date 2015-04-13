@@ -11,10 +11,19 @@ describe('RestService', function() {
     var fakeSessionId = "abc123";
     var fakeAccessToken = "5s5s5s";
     var fakeUdrMeters = { meter: "bla" };
-    var fakeAccessQuery = "?access_token=" + fakeAccessToken;
-    var fakeSessionQuery = "?session_id=" + fakeSessionId;
+    var fakeMeterName = "net";
     var fakeFrom = "2015-01-01 12:00:00";
     var fakeTo = "2015-01-02 12:00:00";
+    var fakeRateQuery = "?resourcename="+fakeMeterName+"&from="+fakeFrom+"&to="+fakeTo;
+    var fakeChargeQuery = "?userid="+fakeUser+"&from="+fakeFrom+"&to="+fakeTo;
+    var fakeAccessQuery = "?access_token=" + fakeAccessToken;
+    var fakeSessionQuery = "?session_id=" + fakeSessionId;
+    var fakePolicyConfig = { rate_policy:'dynamic' };
+    var fakeAdmins = ['test1', 'user2'];
+    var fakeUpdatedAdmins = {
+        'admins': fakeAdmins,
+        'sessionId': fakeSessionId
+    };
 
     /*
         Test setup
@@ -35,6 +44,10 @@ describe('RestService', function() {
         });
 
         $httpBackend.whenPOST("/dashboard/rest/usage").respond(200);
+        $httpBackend.whenGET("/dashboard/rest/rate" + fakeRateQuery).respond(200);
+        $httpBackend.whenGET("/dashboard/rest/rate/status").respond(200);
+        $httpBackend.whenPOST("/dashboard/rest/rate/status").respond(200);
+        $httpBackend.whenGET("/dashboard/rest/charge" + fakeChargeQuery).respond(200);
         $httpBackend.whenPOST("/dashboard/rest/keystone").respond(200);
         $httpBackend.whenPOST("/dashboard/rest/login").respond(200);
         $httpBackend.whenPOST("/dashboard/rest/session").respond(200);
@@ -45,6 +58,7 @@ describe('RestService', function() {
         $httpBackend.whenPOST("/dashboard/rest/udrmeters").respond(200);
         $httpBackend.whenGET("/dashboard/rest/users" + fakeSessionQuery).respond(200);
         $httpBackend.whenGET("/dashboard/rest/admins" + fakeSessionQuery).respond(200);
+        $httpBackend.whenPUT("/dashboard/rest/admins").respond(200);
     });
 
     /*
@@ -154,10 +168,54 @@ describe('RestService', function() {
             $httpBackend.flush();
         });
     });
+
     describe('updateUdrMeters', function() {
         it('should send complete POST request', function() {
             $httpBackend.expectPOST("/dashboard/rest/udrmeters", fakeUdrMeters);
             restService.updateUdrMeters(fakeUdrMeters);
+            $httpBackend.flush();
+        });
+    });
+
+    describe('getRateForMeter', function() {
+        it('should send complete GET request', function() {
+            $httpBackend.expectGET("/dashboard/rest/rate" + fakeRateQuery);
+            restService.getRateForMeter(fakeMeterName, fakeFrom, fakeTo);
+            $httpBackend.flush();
+        });
+    });
+
+    describe('getChargeForUser', function() {
+        it('should send complete GET request', function() {
+            $httpBackend.expectGET("/dashboard/rest/charge" + fakeChargeQuery);
+            restService.getChargeForUser(fakeUser, fakeFrom, fakeTo);
+            $httpBackend.flush();
+        });
+    });
+
+    describe('getActiveRatePolicy', function() {
+        it('should send complete GET request', function() {
+            $httpBackend.expectGET("/dashboard/rest/rate/status");
+            restService.getActiveRatePolicy();
+            $httpBackend.flush();
+        });
+    });
+
+    describe('setActiveRatePolicy', function() {
+        it('should send complete POST request', function() {
+            $httpBackend.expectPOST("/dashboard/rest/rate/status", fakePolicyConfig);
+            restService.setActiveRatePolicy(fakePolicyConfig);
+            $httpBackend.flush();
+        });
+    });
+
+    describe('updateAdmins', function() {
+        it('should send complete PUT request', function() {
+            $httpBackend.expectPUT("/dashboard/rest/admins", {
+                'admins': fakeAdmins,
+                'sessionId': fakeSessionId
+            });
+            restService.updateAdmins(fakeAdmins, fakeSessionId);
             $httpBackend.flush();
         });
     });

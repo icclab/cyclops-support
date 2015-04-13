@@ -16,30 +16,25 @@
 
     function onLink(scope, el, attr, controller) {
         controller.chartName = attr.name;
+        controller.chartDataType = attr.type;
+        controller.chartDataUnit = attr.unit;
+        controller.updateGraph();
     }
 
     CumulativeChartController.$inject = ['$scope', 'chartDataService'];
     function CumulativeChartController($scope, chartDataService) {
         var me = this;
-        this.dataError = false;
-        this.chartName = undefined;
+        this.chartName = '';
+        this.chartDataUnit = undefined;
+        this.chartDataType = undefined;
         this.chartData = undefined;
 
         this.updateGraph = function() {
-            var result = chartDataService.getCumulativeMeterData(me.chartName);
-
-            if(result.error) {
-                me.dataError = true;
-            }
-            else {
-                me.chartData = result.data;
-            }
+            me.chartData = chartDataService.getCumulativeMeterData(
+                me.chartDataType,
+                me.chartName
+            ).data;
         };
-
-        $scope.$on('UDR_DATA_READY', function() {
-            console.log("UDR DATA READY");
-            me.updateGraph();
-        });
     }
 
 })();

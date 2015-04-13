@@ -16,39 +16,38 @@
 
     function onLink(scope, el, attr, controller) {
         controller.chartName = attr.name;
+        controller.chartDataType = attr.type;
+        controller.chartDataUnit = attr.unit;
+        controller.updateGraph();
     }
 
     GaugeChartController.$inject = ['$scope', 'chartDataService'];
     function GaugeChartController($scope, chartDataService) {
         var me = this;
-        this.dataError = false;
-        this.chartName = undefined;
+        this.chartName = '';
         this.chartData = undefined;
+        this.chartDataType = undefined;
+        this.chartDataUnit = undefined;
         this.chartLabels = undefined;
         this.chartSeries = undefined;
         this.chartOptions = {
             pointDot: false,
+            animation: false,
             bezierCurve : true,
+            showTooltips: false,
             bezierCurveTension : 0.4,
             pointHitDetectionRadius: 0
         };
 
         this.updateGraph = function() {
-            var result = chartDataService.getGaugeMeterData(me.chartName);
+            var result = chartDataService.getGaugeMeterData(
+                me.chartDataType,
+                me.chartName
+            );
 
-            if(result.error) {
-                me.dataError = true;
-            }
-            else {
-                me.chartData = result.data;
-                me.chartLabels = result.labels;
-            }
+            me.chartData = result.data;
+            me.chartLabels = result.labels;
         };
-
-        $scope.$on('UDR_DATA_READY', function() {
-            console.log("UDR DATA READY");
-            me.updateGraph();
-        });
     }
 
 })();

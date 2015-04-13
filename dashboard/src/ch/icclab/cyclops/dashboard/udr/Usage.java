@@ -66,11 +66,10 @@ public class Usage extends ServerResource{
         }
 
         Form form = new Form();
-        form.add("userid", userId);
         form.add("from", from);
         form.add("to", to);
 
-        String url = LoadConfiguration.configuration.get("UDR_USAGE_URL") + "?" + form.getQueryString();
+        String url = LoadConfiguration.configuration.get("UDR_USAGE_URL") + userId + "?" + form.getQueryString();
         ClientResource clientResource = new ClientResource(url);
         ChallengeScheme scheme = new ChallengeScheme("Bearer", "Bearer");
         //TODO: use real Token

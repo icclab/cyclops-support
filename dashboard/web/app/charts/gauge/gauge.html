@@ -1,14 +1,11 @@
 <div class="panel panel-default">
-    <div class="panel-heading">{{gaugeChartCtrl.chartName}}</div>
+    <div class="panel-heading">
+        {{gaugeChartCtrl.chartName}}
+        <span data-ng-if="gaugeChartCtrl.chartDataUnit"> ({{gaugeChartCtrl.chartDataUnit}})</span>
+        </div>
     <div class="panel-body">
 
-        <div
-            class="alert alert-danger"
-            data-ng-show="gaugeChartCtrl.dataError">
-            Error loading chart data</div>
-
         <canvas
-            data-ng-hide="gaugeChartCtrl.dataError"
             class="chart chart-line"
             data="gaugeChartCtrl.chartData"
             labels="gaugeChartCtrl.chartLabels"

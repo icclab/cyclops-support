@@ -1,12 +1,12 @@
 <div class="row">
     <div
         class="col-lg-4"
-        data-ng-repeat="meter in adminMeterCtrl.uniqueMeterMap">
+        data-ng-repeat="meter in adminMeterCtrl.meterMap">
 
         <label>
             <input
                 type="checkbox"
-                data-ng-checked="meter.selected"
+                data-ng-checked="meter.enabled"
                 data-ng-click="adminMeterCtrl.toggleMeter(meter.name)">
 
                 {{meter.name}}

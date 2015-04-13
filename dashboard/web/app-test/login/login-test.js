@@ -3,9 +3,6 @@ describe('LoginController', function() {
     var $scope;
     var $location;
     var loginController;
-    var restServiceMock;
-    var sessionServiceMock;
-    var responseParserMock;
     var loginDeferred;
     var tokenDeferred;
     var sessionDeferred;
@@ -46,31 +43,9 @@ describe('LoginController', function() {
         module('dashboard.login');
 
         /*
-            Mocks
-         */
-        restServiceMock = jasmine.createSpyObj(
-            'restService',
-            ['sendLoginRequest', 'getTokenInfo', 'requestSessionToken']
-        );
-
-        sessionServiceMock = jasmine.createSpyObj(
-            'sessionService',
-            [
-                'setUsername', 'setAccessToken', 'setAdmin',
-                'setIdToken', 'setKeystoneId', 'setSessionId'
-            ]
-        );
-
-        responseParserMock = jasmine.createSpyObj(
-            'responseParser',
-            ['getAdminStatusFromResponse']
-        );
-
-        /*
             Inject dependencies and configure mocks
          */
-        inject(function($controller, $q, $rootScope, _$log_, _$location_) {
-            $log = _$log_;
+        inject(function($controller, $q, $rootScope, _$location_) {
             $location = _$location_;
             $scope = $rootScope.$new();
             loginDeferred = $q.defer();
@@ -89,6 +64,7 @@ describe('LoginController', function() {
                 '$scope': $scope,
                 'restService': restServiceMock,
                 'sessionService': sessionServiceMock,
+                'alertService': alertServiceMock,
                 'responseParser': responseParserMock
             });
 
@@ -165,8 +141,7 @@ describe('LoginController', function() {
             loginDeferred.reject();
             $scope.$digest();
 
-            expect($log.debug.logs).toContain(['Login error']);
-            expect(loginController.loginError).toBeTruthy();
+            expect(alertServiceMock.showError).toHaveBeenCalled();
         });
 
         it('should execute loginFailed on tokenDeferred.reject', function() {
@@ -175,8 +150,7 @@ describe('LoginController', function() {
             tokenDeferred.reject();
             $scope.$digest();
 
-            expect($log.debug.logs).toContain(['Login error']);
-            expect(loginController.loginError).toBeTruthy();
+            expect(alertServiceMock.showError).toHaveBeenCalled();
         });
 
         it('should execute loginFailed on sessionDeferred.reject', function() {
@@ -186,8 +160,7 @@ describe('LoginController', function() {
             sessionDeferred.reject();
             $scope.$digest();
 
-            expect($log.debug.logs).toContain(['Login error']);
-            expect(loginController.loginError).toBeTruthy();
+            expect(alertServiceMock.showError).toHaveBeenCalled();
         });
     });
 
