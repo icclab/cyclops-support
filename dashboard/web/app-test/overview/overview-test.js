@@ -2,11 +2,6 @@ describe('OverviewController', function() {
     var $scope;
     var $location;
     var controller;
-    var restServiceMock;
-    var sessionServiceMock;
-    var usageDataServiceMock;
-    var alertServiceMock;
-    var dateUtilMock;
     var udrDeferred;
     var udrPromise;
 
@@ -71,39 +66,6 @@ describe('OverviewController', function() {
             Load module
          */
         module('dashboard.overview');
-
-        /*
-            Mocks
-         */
-        restServiceMock = jasmine.createSpyObj(
-            'restService',
-            ['getUdrData']
-        );
-
-        sessionServiceMock = jasmine.createSpyObj(
-            'sessionService',
-            ['getKeystoneId', 'setUserData']
-        );
-
-        usageDataServiceMock = jasmine.createSpyObj(
-            'usageDataService',
-            ['setRawData', 'notifyChartDataReady']
-        );
-
-        alertServiceMock = jasmine.createSpyObj(
-            'alertService',
-            ['showError']
-        );
-
-        dateUtilMock = jasmine.createSpyObj(
-            'dateUtil',
-            [
-                'getFormattedDateToday', 'getFormattedDateYesterday',
-                'getFormattedDate3DaysAgo', 'getFormattedDate1WeekAgo',
-                'getFormattedDate1MonthAgo', 'getFormattedDate1YearAgo',
-                'getFormattedTimeNow', 'getFormattedTime6HoursAgo'
-            ]
-        );
 
         /*
             Inject dependencies and configure mocks

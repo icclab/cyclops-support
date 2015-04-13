@@ -3,10 +3,6 @@ describe('LoginController', function() {
     var $scope;
     var $location;
     var loginController;
-    var restServiceMock;
-    var sessionServiceMock;
-    var alertServiceMock;
-    var responseParserMock;
     var loginDeferred;
     var tokenDeferred;
     var sessionDeferred;
@@ -45,32 +41,6 @@ describe('LoginController', function() {
             Load module
          */
         module('dashboard.login');
-
-        /*
-            Mocks
-         */
-        restServiceMock = jasmine.createSpyObj(
-            'restService',
-            ['sendLoginRequest', 'getTokenInfo', 'requestSessionToken']
-        );
-
-        sessionServiceMock = jasmine.createSpyObj(
-            'sessionService',
-            [
-                'setUsername', 'setAccessToken', 'setAdmin',
-                'setIdToken', 'setKeystoneId', 'setSessionId'
-            ]
-        );
-
-        alertServiceMock = jasmine.createSpyObj(
-            'alertService',
-            ['showError']
-        );
-
-        responseParserMock = jasmine.createSpyObj(
-            'responseParser',
-            ['getAdminStatusFromResponse']
-        );
 
         /*
             Inject dependencies and configure mocks

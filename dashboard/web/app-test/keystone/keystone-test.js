@@ -3,9 +3,6 @@ describe('KeystoneController', function() {
     var $scope;
     var $location;
     var keystoneController;
-    var restServiceMock;
-    var sessionServiceMock;
-    var alertServiceMock;
     var authDeferred;
     var sessionDeferred;
     var authPromise;
@@ -33,24 +30,6 @@ describe('KeystoneController', function() {
             Load module
          */
         module('dashboard.keystone');
-
-        /*
-            Mocks
-         */
-        restServiceMock = jasmine.createSpyObj(
-            'restService',
-            ['storeKeystoneId', 'sendKeystoneAuthRequest']
-        );
-
-        sessionServiceMock = jasmine.createSpyObj(
-            'sessionService',
-            ['getUsername', 'getKeystoneId', 'getSessionId', 'setKeystoneId']
-        );
-
-        alertServiceMock = jasmine.createSpyObj(
-            'alertService',
-            ['showError']
-        );
 
         /*
             Inject dependencies and configure mocks
