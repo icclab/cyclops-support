@@ -32,7 +32,9 @@
         this.chartSeries = undefined;
         this.chartOptions = {
             pointDot: false,
+            animation: false,
             bezierCurve : true,
+            showTooltips: false,
             bezierCurveTension : 0.4,
             pointHitDetectionRadius: 0
         };
