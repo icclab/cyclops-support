@@ -4,31 +4,37 @@ describe('RateController', function() {
     var restServiceMock;
     var sessionServiceMock;
     var rateDataServiceMock;
+    var meterselectionDataServiceMock;
     var alertServiceMock;
     var dateUtilMock;
-    var rateDeferred;
-    var ratePromise;
+    var deferred;
+    var promise;
 
     /*
         Fake Data
      */
     var fakeTimeNow = "12:00";
-    var fakeTimeLast6Hours = "06:00";
+    var fakeTime6HoursAgo = "06:00";
     var fakeDateToday = "2015-03-04";
-    var fakeFrom = "2015-03-03 00:00:00";
-    var fakeTo = "2015-03-04 23:59:59";
+    var fakeFrom = fakeDateToday + " " + fakeTime6HoursAgo;
+    var fakeTo = fakeDateToday + " " + fakeTimeNow;
     var fakeMeters = ["network.incoming.bytes", "cpu_util"];
     var fakeResponse = {
         data: {
             'test': 'abc'
         }
     };
+    var fakeFormattedMeters = {
+        'cpu_util': { enabled: true },
+        'network.incoming.bytes': { enabled: false },
+        'network.outgoing.bytes': { enabled: true },
+    };
+    var fakeSelectedMeterNames = ['cpu_util', 'network.outgoing.bytes'];
 
     /*
         Test setup
      */
     beforeEach(function() {
-
         /*
             Load module
          */
@@ -39,7 +45,7 @@ describe('RateController', function() {
          */
         restServiceMock = jasmine.createSpyObj(
             'restService',
-            ['getRateForMeter']
+            ['getRateForMeter', 'getUdrMeters']
         );
 
         sessionServiceMock = jasmine.createSpyObj(
@@ -52,6 +58,11 @@ describe('RateController', function() {
             ['setRawData', 'notifyChartDataReady']
         );
 
+        meterselectionDataServiceMock = jasmine.createSpyObj(
+            'meterselectionDataService',
+            ['setRawUdrData', 'getFormattedUdrData']
+        );
+
         alertServiceMock = jasmine.createSpyObj(
             'alertService',
             ['showError']
@@ -60,7 +71,7 @@ describe('RateController', function() {
         dateUtilMock = jasmine.createSpyObj(
             'dateUtil',
             [
-                'getFormattedDateToday', 'getFormattedTimeLastSixHours',
+                'getFormattedDateToday', 'getFormattedTime6HoursAgo',
                 'getFormattedTimeNow', 'getFormattedDateYesterday'
             ]
         );
@@ -70,13 +81,15 @@ describe('RateController', function() {
          */
         inject(function($controller, $q, $rootScope) {
             $scope = $rootScope.$new();
-            rateDeferred = $q.defer();
-            ratePromise = rateDeferred.promise;
+            deferred = $q.defer();
+            promise = deferred.promise;
 
-            restServiceMock.getRateForMeter.and.returnValue(ratePromise);
+            meterselectionDataServiceMock.getFormattedUdrData.and.returnValue(fakeFormattedMeters);
+            restServiceMock.getRateForMeter.and.returnValue(promise);
+            restServiceMock.getUdrMeters.and.returnValue(promise);
             dateUtilMock.getFormattedDateToday.and.returnValue(fakeDateToday);
             dateUtilMock.getFormattedTimeNow.and.returnValue(fakeTimeNow);
-            dateUtilMock.getFormattedTimeLastSixHours.and.returnValue(fakeTimeLast6Hours);
+            dateUtilMock.getFormattedTime6HoursAgo.and.returnValue(fakeTime6HoursAgo);
             spyOn($scope, '$broadcast');
 
             controller = $controller('RateController', {
@@ -84,6 +97,7 @@ describe('RateController', function() {
                 'restService': restServiceMock,
                 'sessionService': sessionServiceMock,
                 'rateDataService': rateDataServiceMock,
+                'meterselectionDataService': meterselectionDataServiceMock,
                 'alertService': alertServiceMock,
                 'dateUtil': dateUtilMock
             });
@@ -93,10 +107,10 @@ describe('RateController', function() {
     /*
         Tests
      */
-    describe('requestRates', function() {
+    describe('requestRatesForMeters', function() {
         it('should correctly call restService.getRateForMeter', function() {
-            controller.requestRates(fakeMeters, fakeFrom, fakeTo);
-            rateDeferred.resolve(fakeResponse);
+            controller.requestRatesForMeters(fakeMeters, fakeFrom, fakeTo);
+            deferred.resolve(fakeResponse);
             $scope.$digest();
 
             expect(restServiceMock.getRateForMeter)
@@ -106,9 +120,9 @@ describe('RateController', function() {
                 .toHaveBeenCalledWith(fakeMeters[1], fakeFrom, fakeTo);
         });
 
-        it('should execute loadUdrDataSuccess on rateDeferred.resolve', function() {
-            controller.requestRates(fakeMeters, fakeFrom, fakeTo);
-            rateDeferred.resolve(fakeResponse);
+        it('should execute success callback on deferred.resolve', function() {
+            controller.requestRatesForMeters(fakeMeters, fakeFrom, fakeTo);
+            deferred.resolve(fakeResponse);
             $scope.$digest();
 
             expect(rateDataServiceMock.setRawData)
@@ -117,9 +131,39 @@ describe('RateController', function() {
             expect(rateDataServiceMock.notifyChartDataReady).toHaveBeenCalled();
         });
 
-        it('should excute loadUdrDataFailed on rateDeferred.reject', function() {
-            controller.requestRates(fakeMeters, fakeFrom, fakeTo);
-            rateDeferred.reject();
+        it('should excute error callback on deferred.reject', function() {
+            controller.requestRatesForMeters(fakeMeters, fakeFrom, fakeTo);
+            deferred.reject();
+            $scope.$digest();
+
+            expect(alertServiceMock.showError).toHaveBeenCalled();
+        });
+    });
+
+    describe('loadMeterSelection', function() {
+        it('should correctly call restService.getUdrMeters', function() {
+            controller.loadMeterSelection();
+            expect(restServiceMock.getUdrMeters).toHaveBeenCalled();
+        });
+
+        it('should execute success callback on deferred.resolve', function() {
+            spyOn(controller, 'requestRatesForMeters');
+
+            controller.loadMeterSelection();
+            deferred.resolve(fakeResponse);
+            $scope.$digest();
+
+            expect(meterselectionDataServiceMock.setRawUdrData)
+                .toHaveBeenCalledWith(fakeResponse.data);
+            expect(meterselectionDataServiceMock.getFormattedUdrData)
+                .toHaveBeenCalled();
+            expect(controller.requestRatesForMeters)
+                .toHaveBeenCalledWith(fakeSelectedMeterNames, fakeFrom, fakeTo);
+        });
+
+        it('should excute error callback on deferred.reject', function() {
+            controller.loadMeterSelection();
+            deferred.reject();
             $scope.$digest();
 
             expect(alertServiceMock.showError).toHaveBeenCalled();

@@ -10,14 +10,14 @@
     */
     RateController.$inject = [
         '$scope', '$q', 'restService', 'sessionService', 'rateDataService',
-        'alertService', 'dateUtil'
+        'meterselectionDataService', 'alertService', 'dateUtil'
     ];
     function RateController(
             $scope, $q, restService, sessionService, rateDataService,
-            alertService, dateUtil) {
+            meterselectionDataService, alertService, dateUtil) {
         var me = this;
 
-        var loadRateDataSuccess = function(responses) {
+        var onLoadRateDataSuccess = function(responses) {
             for (var i = 0; i < responses.length; i++) {
                 var response = responses[i];
                 rateDataService.setRawData(response.data);
@@ -26,11 +26,35 @@
             rateDataService.notifyChartDataReady($scope);
         };
 
-        var loadRateDataFailed = function(reponse) {
+        var onLoadRateDataFailed = function(reponse) {
             alertService.showError("Requesting rate data failed");
         };
 
-        this.requestRates = function(meterNames, from, to) {
+        var onLoadMeterSelectionSuccess = function(response) {
+            meterselectionDataService.setRawUdrData(response.data);
+            var meters = meterselectionDataService.getFormattedUdrData();
+            var selectedMeterNames = [];
+
+            for(var meterName in meters) {
+                var meter = meters[meterName];
+
+                if(meter.enabled) {
+                    selectedMeterNames.push(meterName);
+                }
+            }
+
+            me.requestRatesForMeters(
+                selectedMeterNames,
+                dateUtil.getFormattedDateToday() + " " + dateUtil.getFormattedTime6HoursAgo(),
+                dateUtil.getFormattedDateToday() + " " + dateUtil.getFormattedTimeNow()
+            );
+        };
+
+        var onLoadMeterSelectionError = function(response) {
+            alertService.showError("Could not load selected meters");
+        };
+
+        this.requestRatesForMeters = function(meterNames, from, to) {
             var promises = [];
 
             for (var i = 0; i < meterNames.length; i++) {
@@ -38,18 +62,15 @@
                 promises.push(promise);
             }
 
-            $q.all(promises).then(loadRateDataSuccess, loadRateDataFailed);
+            $q.all(promises).then(onLoadRateDataSuccess, onLoadRateDataFailed);
         };
 
-        this.requestRates(
-            [
-                "network.incoming.bytes",
-                "network.outgoing.bytes",
-                "cpu_util"
-            ],
-            dateUtil.getFormattedDateYesterday() + " 00:00",
-            dateUtil.getFormattedDateToday() + " 23:59"
-        );
+        this.loadMeterSelection = function() {
+            restService.getUdrMeters()
+                .then(onLoadMeterSelectionSuccess, onLoadMeterSelectionError);
+        }
+
+        this.loadMeterSelection();
     };
 
 })();
