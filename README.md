@@ -15,10 +15,14 @@ For more in-depth documentation, see:
 Currently, the following features are implemented:
 * [User] Authentication / Authorisation via OpenAM
 * [User] Linking an account to OpenStack
-* [User] Displaying some usage data
+* [User] Dynamic Usage Charts
+* [User] Dynamic Rate Charts
+* [User] Alert Messages
 * [Admin] Listing users and admins
 * [Admin] Displaying list of all available meters
 * [Admin] Configuring UDR Microservice to use different set of meters
+* [Admin] User Management
+* [Admin] Configure Rate Microservice 
 
 ### Components & Libraries
   * <a href="https://angularjs.org">AngularJS</a>
