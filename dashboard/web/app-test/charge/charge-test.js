@@ -1,11 +1,6 @@
 describe('ChargeController', function() {
     var $scope;
     var controller;
-    var restServiceMock;
-    var sessionServiceMock;
-    var chargeDataServiceMock;
-    var alertServiceMock;
-    var dateUtilMock;
     var chargeDeferred;
     var chargePromise;
 
@@ -32,34 +27,6 @@ describe('ChargeController', function() {
             Load module
          */
         module('dashboard.charge');
-
-        /*
-            Mocks
-         */
-        restServiceMock = jasmine.createSpyObj(
-            'restService',
-            ['getChargeForUser']
-        );
-
-        sessionServiceMock = jasmine.createSpyObj(
-            'sessionService',
-            ['getKeystoneId', 'setUserData']
-        );
-
-        chargeDataServiceMock = jasmine.createSpyObj(
-            'chargeDataService',
-            ['setRawData']
-        );
-
-        alertServiceMock = jasmine.createSpyObj(
-            'alertService',
-            ['showError']
-        );
-
-        dateUtilMock = jasmine.createSpyObj(
-            'dateUtil',
-            ['getFormattedDateToday']
-        );
 
         /*
             Inject dependencies and configure mocks
