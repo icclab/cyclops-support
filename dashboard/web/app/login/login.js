@@ -9,14 +9,13 @@
         Controllers, Factories, Services, Directives
     */
     LoginController.$inject = [
-        '$log', '$location', 'sessionService', 'restService', 'responseParser'
+        '$location', 'sessionService', 'restService', 'alertService', 'responseParser'
     ];
     function LoginController(
-            $log, $location, sessionService, restService, responseParser) {
+            $location, sessionService, restService, alertService, responseParser) {
         var me = this;
         this.user = '';
         this.pwd = '';
-        this.loginError = false;
 
         /**
          * This method redirects to the overview page.
@@ -66,8 +65,9 @@
          * Private callback function. Will be called if the login fails.
          */
         var loginFailed = function(response) {
-            $log.debug("Login error");
-            me.loginError = true;
+            alertService.showError(
+                "Username or password is invalid. Please try again"
+            );
         };
 
         /**

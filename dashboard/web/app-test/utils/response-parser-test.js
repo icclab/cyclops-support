@@ -4,6 +4,28 @@ describe('ResponseParser', function() {
     /*
         Fake Data
      */
+    var fakeStaticMeterResponse = {
+        rate: {
+            "meter.name1": "5",
+            "meter.other.test": "0.5"
+        }
+    };
+
+    var fakeEmptyStaticMeterResponse = {
+        rate: null
+    };
+
+    var fakeStaticMeterList = [
+        {
+            name: "meter.name1",
+            rate: "5",
+        },
+        {
+            name: "meter.other.test",
+            rate: "0.5"
+        }
+    ];
+
     var fakeGroupResponse = {
         username: "CyclopsAdmin",
         uniqueMember: [
@@ -65,6 +87,18 @@ describe('ResponseParser', function() {
     /*
         Tests
      */
+    describe('getStaticRatingListFromResponse', function() {
+        it('should return a list of static meters', function() {
+            var res = responseParser.getStaticRatingListFromResponse(fakeStaticMeterResponse);
+            expect(res).toEqual(fakeStaticMeterList);
+        });
+
+        it('should correctly handle empty response', function() {
+            var res = responseParser.getStaticRatingListFromResponse(fakeEmptyStaticMeterResponse);
+            expect(res).toEqual([]);
+        });
+    });
+
     describe('getAdminListFromResponse', function() {
         it('should return a list of usernames', function() {
             var res = responseParser.getAdminListFromResponse(fakeGroupResponse);

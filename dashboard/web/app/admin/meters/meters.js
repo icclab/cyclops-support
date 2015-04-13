@@ -8,84 +8,60 @@
     /*
         Controllers, Factories, Services, Directives
     */
-    AdminMeterController.$inject = ['$log', 'restService', 'dateUtil'];
-    function AdminMeterController($log, restService, dateUtil) {
+    AdminMeterController.$inject = [
+        'restService', 'meterselectionDataService', 'alertService', 'dateUtil'
+    ];
+    function AdminMeterController(
+            restService, meterselectionDataService, alertService, dateUtil) {
         var me = this;
-        this.uniqueMeterMap = {};
+        this.meterMap = {};
 
         var loadKeystoneMeterSuccess = function(response) {
-            me.uniqueMeterMap = me.buildUniqueMeterMap(response.data);
+            meterselectionDataService.setRawOpenstackData(response.data);
             return restService.getUdrMeters();
         };
 
         var loadUdrMeterSuccess = function(response) {
+            meterselectionDataService.setRawUdrData(response.data);
             me.preselectMeters(response.data);
         };
 
         var loadMeterError = function(response) {
-            $log.debug("Error loading list of meters");
+            alertService.showError("Error loading list of meters");
         };
 
         var updateMeterSuccess = function(response) {
-            $log.debug("Meters successfully updated");
+            alertService.showSuccess("Meters successfully updated");
         };
 
         var updateMeterError = function(response) {
-            $log.debug("Updating meters failed");
+            alertService.showError("Updating meters failed");
         };
 
         this.preselectMeters = function(udrMeterResponse) {
-            var udrMeters = udrMeterResponse.points || [];
-            var columns = udrMeterResponse.columns || [];
-            var meterMap = me.uniqueMeterMap;
-            var indexName = columns.indexOf("metername");
-            var indexStatus = columns.indexOf("status");
+            var udrMeters = meterselectionDataService.getFormattedUdrData();
+            var meters = meterselectionDataService.getFormattedOpenstackData();
 
-            if(indexName == -1 || indexStatus == -1) {
-                return;
-            }
+            for(var meterName in udrMeters) {
+                var meter = udrMeters[meterName];
 
-            for(var i = 0; i < udrMeters.length; i++) {
-                var meter = udrMeters[i];
-                var meterName = meter[indexName];
-                var meterStatus = meter[indexStatus];
-
-                if(meterName in meterMap) {
-                    meterMap[meterName].selected = meterStatus == 1;
-                }
-            }
-        };
-
-        /**
-         * Builds a map of unique OpenStack Ceilometer meters.
-         *
-         * @param  {Array} allMeters Array of meter objects
-         * @return {Object}          Set of unique meters
-         */
-        this.buildUniqueMeterMap = function(allMeters) {
-            var meterMap = {};
-
-            for(var i = 0; i < allMeters.length; i++) {
-                var currentMeter = allMeters[i];
-                var currentMeterName = currentMeter.name;
-
-                if(!(currentMeterName in meterMap)) {
-                    meterMap[currentMeterName] = currentMeter;
+                if(meterName in meters) {
+                    meters[meterName].enabled = meter.enabled;
                 }
             }
 
-            return meterMap;
+            me.meterMap = meters;
         };
 
         /**
          * Toggles a meter based on the checkbox. The method will set the
-         * 'selected' property of a meter to true or false.
+         * 'enabled' property of a meter to true or false.
          *
          * @param  {String} meterName Name of the meter to toggle
          */
         this.toggleMeter = function(meterName) {
-            var meterMap = this.uniqueMeterMap;
-            meterMap[meterName].selected = !meterMap[meterName].selected;
+            var meterMap = this.meterMap;
+            meterMap[meterName].enabled = !meterMap[meterName].enabled;
         };
 
         /**
@@ -104,8 +80,8 @@
             ];
             points = [];
 
-            for(var meterName in this.uniqueMeterMap) {
-                var meter = this.uniqueMeterMap[meterName];
+            for(var meterName in me.meterMap) {
+                var meter = me.meterMap[meterName];
 
                 points.push([
                     timestamp,
@@ -113,7 +89,7 @@
                     meter.source,
                     meter.type,
                     meter.name,
-                    meter.selected ? 1 : 0
+                    meter.enabled ? 1 : 0
                 ]);
             }
 
@@ -125,7 +101,7 @@
         };
 
         this.updateUdrMeters = function() {
-            restService.updateUdrMeters(this.buildUdrRequest())
+            restService.updateUdrMeters(me.buildUdrRequest())
                 .then(updateMeterSuccess, updateMeterError);
         };
 

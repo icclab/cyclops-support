@@ -8,13 +8,29 @@
     /*
         Controllers, Factories, Services, Directives
     */
-   ChartDataService.$inject = ['dateUtil'];
-    function ChartDataService(dateUtil) {
-        var NUM_LABELS = 10;
-        var ERROR = { 'error': true };
-
+    ChartDataService.$inject = [
+        'dateUtil', 'usageDataService', 'rateDataService', 'chargeDataService'
+    ];
+    function ChartDataService(
+            dateUtil, usageDataService, rateDataService, chargeDataService) {
         var me = this;
-        var rawData = {};
+        var NUM_LABELS = 10;
+
+        //Default indices in case there is no column description
+        var DEFAULT_INDEX_TIME = 0;
+        var DEFAULT_INDEX_USAGE = 2;
+
+        this.getServiceDelegate = function(type) {
+            if(type == "usage") {
+                return usageDataService;
+            }
+            else if(type == "rate") {
+                return rateDataService;
+            }
+            else if(type == "charge") {
+                return chargeDataService;
+            }
+        };
 
         this.setLabelIfSpaceAvailable = function(
                 numPoints, pointIndex, numLabels, label) {
@@ -24,34 +40,34 @@
             return pointIndex % modulus == 0 ? label : "";
         };
 
-        this.setRawData = function(data) {
-            if(data && data.usage && data.usage.openstack) {
-                dataArray = data.usage.openstack;
-
-                for(var i = 0; i < dataArray.length; i++) {
-                    currentData = dataArray[i];
-                    rawData[currentData.name] = currentData;
-                }
-            }
-        };
-
-        this.getRawData = function() {
-            return rawData;
-        };
-
-        this.getCumulativeMeterData = function(meterName) {
+        this.getCumulativeMeterData = function(type, meterName) {
             try {
-                var value = rawData[meterName].points[0][1];
-                return { "data": value };
+                /*
+                    Cumulative meters can be treated as gauge meters, because
+                    the raw data is represented in the same way (many individual
+                    data points). We need to sum up the individual points to
+                    get the cumulative result.
+                 */
+                var gaugeData = me.getGaugeMeterData(type, meterName).data[0];
+                var cumulativeValue = 0;
+
+                for(var i = 0; i < gaugeData.length; i++) {
+                    cumulativeValue += gaugeData[i];
+                }
+
+                return { "data": cumulativeValue };
             }
             catch(err) {
-                return ERROR;
+                return { "data": 0 };
             }
         };
 
-        this.getGaugeMeterData = function(meterName) {
+        this.getGaugeMeterData = function(type, meterName) {
             try {
-                var dataPoints = rawData[meterName].points;
+                var service = me.getServiceDelegate(type);
+                var serviceData = service.getFormattedData();
+                var dataPoints = serviceData[meterName].points || [];
+                dataPoints.reverse();
                 var numPoints = dataPoints.length;
                 var dataX = [];
                 var dataY = [];
@@ -63,13 +79,13 @@
                         NUM_LABELS,
                         dateUtil.fromTimestamp(dataPoints[i][0])
                     ));
-                    dataY.push(dataPoints[i][2]);
+                    dataY.push(dataPoints[i][1]);
                 }
 
                 return { "labels": dataX, "data": [dataY] }
             }
             catch(err) {
-                return ERROR;
+                return { "labels": [], "data": [[]] };
             }
         };
     }

@@ -23,6 +23,8 @@ Currently, the following features are implemented:
 ### Components & Libraries
   * <a href="https://angularjs.org">AngularJS</a>
   * <a href="https://github.com/angular-ui/ui-router">AngularJS ui-router</a>
+  * <a href="https://github.com/Salakar/angular-toasty">angular-toasty</a>
+  * <a href="https://github.com/chieffancypants/angular-loading-bar">angular-loading-bar</a>
   * <a href="https://jasmine.github.io">Jasmine</a>
   * <a href="http://getbootstrap.com">Bootstrap</a>
   * <a href="http://startbootstrap.com/template-overviews/sb-admin-2">SB Admin 2 (Bootstrap Theme)</a>

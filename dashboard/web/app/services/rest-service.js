@@ -169,6 +169,60 @@
             var queryString = "?session_id=" + sessionId;
             return $http.get('/dashboard/rest/users' + queryString);
         };
+
+        /**
+         * This method gets the rate for a meter in a desired time frame
+         * from the dashboard backend
+         * @param  {String} meter Name of the desired meter
+         * @param  {String} from Timestamp in the format "YYYY-MM-DD HH:MM:SS"
+         * @param  {String} to Timestamp in the format "YYYY-MM-DD HH:MM:SS"
+         * @return {Promise}
+         */
+        this.getRateForMeter = function(meter, from, to) {
+            var query = "?resourcename=" + meter + "&from=" + from + "&to=" + to;
+            return $http.get('/dashboard/rest/rate' + query);
+        };
+
+        /**
+         * This method gets the charge for a use in a desired time frame
+         * from the dashboard backend
+         * @param  {String} userId Keystone User ID
+         * @param  {String} from Timestamp in the format "YYYY-MM-DD HH:MM:SS"
+         * @param  {String} to Timestamp in the format "YYYY-MM-DD HH:MM:SS"
+         * @return {Promise}
+         */
+        this.getChargeForUser = function(userId, from, to) {
+            var query = "?userid=" + userId + "&from=" + from + "&to=" + to;
+            return $http.get('/dashboard/rest/charge' + query);
+        };
+
+        /**
+         * This method gets the current rate policy from the RC microservice via
+         * the dashboard backend
+         * @return {Promise}
+         */
+        this.getActiveRatePolicy = function() {
+            return $http.get('/dashboard/rest/rate/status');
+        };
+
+        /**
+         * This method gets updates the rate policy on the RC microservice via
+         * the dashboard backend
+         * @param {Object} policyConfig New Policy Configuration
+         * @return {Promise}
+         */
+        this.setActiveRatePolicy = function(policyConfig) {
+            return $http.post('/dashboard/rest/rate/status', policyConfig);
+        };
+
+        this.updateAdmins = function(admins, sessionId) {
+            var putData = {
+                'admins': admins,
+                'sessionId': sessionId
+            };
+
+            return $http.put('/dashboard/rest/admins', putData);
+        };
     }
 
 })();
