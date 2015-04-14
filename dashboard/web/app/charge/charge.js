@@ -19,7 +19,7 @@
 
         var loadChargeDataSuccess = function(response) {
             chargeDataService.setRawData(response.data);
-            $scope.$broadcast('CHART_DATA_READY');
+            chargeDataService.notifyChartDataReady($scope);
         };
 
         var loadChargeDataFailed = function(reponse) {

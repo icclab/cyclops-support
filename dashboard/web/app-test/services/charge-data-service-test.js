@@ -1,9 +1,11 @@
 describe('ChargeDataService', function() {
     var service;
+    var scopeMock;
 
     /*
         Fake Data
      */
+    var fakeMeterName = "network.incoming.bytes";
     var fakeChartData = {
         charge: {
             columns: [
@@ -17,12 +19,23 @@ describe('ChargeDataService', function() {
     };
     var fakeFormattedChartData = {
         "network.incoming.bytes": {
+            name: fakeMeterName,
+            columns: ["time", "value"],
             points: [
-                [1427284499563, null, 611.87262],
-                [1427283899512, null, 165.3124],
-            ]
+                [1427284499563, 611.87262],
+                [1427283899512, 165.3124]
+            ],
+            enabled: true,
+            type: "gauge",
+            unit: ""
         }
     };
+    var fakeEventData = [{
+        name: fakeMeterName,
+        unit: "",
+        chartType: "gauge",
+        serviceType: "charge"
+    }];
 
     /*
         Test setup
@@ -33,6 +46,11 @@ describe('ChargeDataService', function() {
             Load module
          */
         module('dashboard.services');
+
+        scopeMock = jasmine.createSpyObj(
+            'scope',
+            ['$broadcast']
+        );
 
         /*
             Inject dependencies and configure mocks
@@ -48,13 +66,33 @@ describe('ChargeDataService', function() {
     describe('setRawData', function() {
         it('stores correctly formatted data', function() {
             service.setRawData(fakeChartData);
-            expect(service.getRawData())
-                .toEqual(fakeFormattedChartData);
+            expect(service.getFormattedData()).toEqual(fakeFormattedChartData);
         });
 
         it('ignores incorrectly formatted data', function() {
             service.setRawData(fakeChartData.usage);
-            expect(service.getRawData()).toEqual({});
+            expect(service.getFormattedData()).toEqual({});
+        });
+    });
+
+    describe('notifyChartDataReady', function() {
+        it('should broadcast CHART_DATA_READY', function() {
+            service.notifyChartDataReady(scopeMock);
+            expect(scopeMock.$broadcast).toHaveBeenCalledWith('CHART_DATA_READY', []);
+        });
+
+        it('should send chart information with event', function() {
+            service.setRawData(fakeChartData);
+            service.notifyChartDataReady(scopeMock);
+            expect(scopeMock.$broadcast)
+                .toHaveBeenCalledWith('CHART_DATA_READY', fakeEventData);
+        });
+    });
+
+    describe('getFormattedColumns', function() {
+        it('should correctly format columns', function() {
+            var res = service.getFormattedColumns();
+            expect(res).toEqual(["time", "value"]);
         });
     });
 });
