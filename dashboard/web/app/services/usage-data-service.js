@@ -78,7 +78,7 @@
                     var type = firstPoint[indexType];
                     var unit = firstPoint[indexUnit];
 
-                    var formattedColumns = me.formatColumns(currentData.columns);
+                    var formattedColumns = me.getFormattedColumns();
                     var formattedPoints = me.formatPoints(
                         currentData.points,
                         currentData.columns
@@ -133,17 +133,11 @@
         };
 
         /**
-         * Transforms the raw points to the following format:
+         * Returns the columns for the new data representation
          *
-         * [
-         *     "time",
-         *     "value"
-         * ]
-         *
-         * @param {Object} data Raw point data
          * @return {Array}
          */
-        this.formatColumns = function(rawColumns) {
+        this.getFormattedColumns = function(rawColumns) {
             var formattedColumns = ["time", "value"];
             return formattedColumns;
         };

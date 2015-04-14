@@ -71,14 +71,8 @@ describe('ChargeController', function() {
 
             expect(chargeDataServiceMock.setRawData)
                 .toHaveBeenCalledWith(fakeResponse.data);
-        });
 
-        it('should broadcast CHART_DATA_READY on chargeDeferred.resolve', function() {
-            controller.requestCharge(fakeUser, fakeFrom, fakeTo);
-            chargeDeferred.resolve(fakeResponse);
-            $scope.$digest();
-
-            expect($scope.$broadcast).toHaveBeenCalledWith('CHART_DATA_READY');
+            expect(chargeDataServiceMock.notifyChartDataReady).toHaveBeenCalled();
         });
 
         it('should excute loadUdrDataFailed on chargeDeferred.reject', function() {

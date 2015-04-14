@@ -36,9 +36,7 @@
             var selectedMeterNames = [];
 
             for(var meterName in meters) {
-                var meter = meters[meterName];
-
-                if(meter.enabled) {
+                if(meters[meterName].enabled) {
                     selectedMeterNames.push(meterName);
                 }
             }

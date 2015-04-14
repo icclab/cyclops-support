@@ -93,9 +93,9 @@ describe('RateDataService', function() {
         });
     });
 
-    describe('formatColumns', function() {
+    describe('getFormattedColumns', function() {
         it('should correctly format columns', function() {
-            var res = service.formatColumns(undefined);
+            var res = service.getFormattedColumns();
             expect(res).toEqual(["time", "value"]);
         });
     });
