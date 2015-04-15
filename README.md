@@ -15,8 +15,9 @@ For more in-depth documentation, see:
 Currently, the following features are implemented:
 * [User] Authentication / Authorisation via OpenAM
 * [User] Linking an account to OpenStack
-* [User] Dynamic Usage Charts
-* [User] Dynamic Rate Charts
+* [User] Dynamically created charts for usage data
+* [User] Dynamically created charts for rate data
+* [User] Dynamically created charts for charge data
 * [User] Alert Messages
 * [Admin] Listing users and admins
 * [Admin] Displaying list of all available meters
