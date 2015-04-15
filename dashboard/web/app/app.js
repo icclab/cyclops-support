@@ -38,7 +38,8 @@
       'dashboard.admin.users',
       'dashboard.admin.rate',
       'dashboard.charts',
-      'dashboard.filter'
+      'dashboard.filter',
+      'dashboard.notifications'
     ]).config([
         '$urlRouterProvider',
         '$logProvider',
@@ -379,4 +380,9 @@
         Filter Module Setup
     */
     angular.module('dashboard.filter', []);
+
+    /*
+        Notifications Module Setup
+    */
+    angular.module('dashboard.notifications', []);
 })();

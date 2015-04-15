@@ -5,7 +5,7 @@
                 <h3 class="panel-title">Please Sign In</h3>
             </div>
             <div class="panel-body">
-                <form role="form">
+                <form role="form" data-ng-submit="loginCtrl.login()">
                     <fieldset>
                         <div class="form-group">
                             <input data-ng-model="loginCtrl.user" class="form-control" placeholder="Username" name="username" type="text" autofocus>
@@ -18,7 +18,7 @@
                                 <input name="remember" type="checkbox" value="Remember Me">Remember Me
                             </label>
                         </div>
-                        <a data-ng-click="loginCtrl.login()" class="btn btn-lg btn-success btn-block">Login</a>
+                        <input type="submit" class="btn btn-lg btn-success btn-block" value="Login"></input>
                     </fieldset>
                 </form>
                 <a href="/openam/XUI/#register/">Register a new account</a>
