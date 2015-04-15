@@ -1,3 +1,20 @@
+/*
+ * Copyright (c) 2015. Zuercher Hochschule fuer Angewandte Wissenschaften
+ *  All Rights Reserved.
+ *
+ *     Licensed under the Apache License, Version 2.0 (the "License"); you may
+ *     not use this file except in compliance with the License. You may obtain
+ *     a copy of the License at
+ *
+ *          http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *     Unless required by applicable law or agreed to in writing, software
+ *     distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ *     WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ *     License for the specific language governing permissions and limitations
+ *     under the License.
+ */
+
 (function() {
     /*
         Module Setup
@@ -55,14 +72,6 @@
          *     }
          * }
          *
-         * The 'columns' array will be formatted as follows:
-         *
-         * [
-         *     "time",
-         *     "sequence_number",
-         *     "value"
-         * ]
-         *
          * The 'points' array will follow the order of the 'columns'
          *
          * @param {Object} data Raw response data
@@ -75,7 +84,7 @@
                     dataArray = data.rate[meterName];
                     formattedData[meterName] = {};
                     formattedData[meterName]["name"] = meterName;
-                    formattedData[meterName]["columns"] = me.formatColumns([]);
+                    formattedData[meterName]["columns"] = me.getFormattedColumns();
                     formattedData[meterName]["points"] = me.formatPoints(dataArray);
                     formattedData[meterName]["enabled"] = true;
                     formattedData[meterName]["type"] = "gauge";
@@ -108,17 +117,11 @@
         };
 
         /**
-         * Transforms the raw points to the following format:
+         * Returns the columns for the new data representation
          *
-         * [
-         *     "time",
-         *     "value"
-         * ]
-         *
-         * @param {Object} data Raw point data
          * @return {Array}
          */
-        this.formatColumns = function(rawColumns) {
+        this.getFormattedColumns = function(rawColumns) {
             var formattedColumns = ["time", "value"];
             return formattedColumns;
         };
