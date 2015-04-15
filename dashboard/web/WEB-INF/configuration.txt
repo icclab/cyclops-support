@@ -1,22 +1,22 @@
-OPENAM_ADMIN_GROUP_NAME==CyclopsAdmin
-OPENAM_ADMIN_USER_PATTERN==uid={{USERNAME}},ou=people,dc=openam,dc=forgerock,dc=org
-KEYSTONE_CYCLOPS_USERNAME==cyclops
-KEYSTONE_CYCLOPS_PASSWORD==1111
-KEYSTONE_CYCLOPS_DOMAIN==default
-OAUTH_CLIENT_NAME==dashboard
-OAUTH_CLIENT_PASS==1111
-OAUTH_SCOPE==openid profile keystoneid memberOf isMemberOf
-OAUTH_TOKEN_URL==http://openam.example.com/openam/oauth2/access_token
-OAUTH_TOKEN_INFO_URL==http://openam.example.com/openam/oauth2/tokeninfo
-OAUTH_USER_INFO_URL==http://openam.example.com/openam/oauth2/userinfo
-OPENAM_LIST_USERS_URL==http://openam.example.com/openam/json/users?_queryID=*
-OPENAM_LIST_ADMINS_URL==http://openam.example.com/openam/json/groups/CyclopsAdmin
-OPENAM_AUTH_URL==http://openam.example.com/openam/json/authenticate
-OPENAM_PROFILE_URL==http://openam.example.com/openam/json/users
-UDR_USAGE_URL==http://127.0.0.1:8080/udr/usage/users/
-UDR_METER_URL==http://127.0.0.1:8080/udr/meters
-RC_RATE_URL==http://127.0.0.1:8080/rc/rate
-RC_RATE_STATUS_URL==http://127.0.0.1:8080/rc/rate/status
-RC_CHARGE_URL==http://127.0.0.1:8080/rc/charge
-KEYSTONE_TOKEN_URL==http://127.0.0.1:5000/v3/auth/tokens
-KEYSTONE_METERS_URL==http://127.0.0.1:8777/v2/meters
+ OPENAM_ADMIN_GROUP_NAME==CyclopsAdmin
+ OPENAM_ADMIN_USER_PATTERN==uid={{USERNAME}},ou=people,dc=openam,dc=forgerock,dc=org
+ KEYSTONE_CYCLOPS_USERNAME==cyclops
+-KEYSTONE_CYCLOPS_PASSWORD==1111
+ KEYSTONE_CYCLOPS_DOMAIN==default
+ OAUTH_CLIENT_NAME==dashboard
+-OAUTH_CLIENT_PASS==1111
+ OAUTH_SCOPE==openid profile keystoneid memberOf isMemberOf
+-OAUTH_TOKEN_URL==http://openam.example.com/openam/oauth2/access_token
+-OAUTH_TOKEN_INFO_URL==http://openam.example.com/openam/oauth2/tokeninfo
+-OAUTH_USER_INFO_URL==http://openam.example.com/openam/oauth2/userinfo
+-OPENAM_LIST_USERS_URL==http://openam.example.com/openam/json/users?_queryID=*
+-OPENAM_LIST_ADMINS_URL==http://openam.example.com/openam/json/groups/CyclopsAdmin
+-OPENAM_AUTH_URL==http://openam.example.com/openam/json/authenticate
+-OPENAM_PROFILE_URL==http://openam.example.com/openam/json/users
+-UDR_USAGE_URL==http://127.0.0.1:8080/udr/usage/users/
+-UDR_METER_URL==http://127.0.0.1:8080/udr/meters
+-RC_RATE_URL==http://127.0.0.1:8080/rc/rate
+-RC_RATE_STATUS_URL==http://127.0.0.1:8080/rc/rate/status
+-RC_CHARGE_URL==http://127.0.0.1:8080/rc/charge
+-KEYSTONE_TOKEN_URL==http://127.0.0.1:5000/v3/auth/tokens
+-KEYSTONE_METERS_URL==http://127.0.0.1:8777/v2/meters
