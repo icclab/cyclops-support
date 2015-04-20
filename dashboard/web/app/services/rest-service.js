@@ -232,6 +232,12 @@
             return $http.post('/dashboard/rest/rate/status', policyConfig);
         };
 
+        /**
+         * This method updates the admin group in OpenAM via the dashboard backend
+         * @param  {Array} admins Array of Admin names
+         * @param  {String} sessionId OpenAM Admin Session ID
+         * @return {Promise}
+         */
         this.updateAdmins = function(admins, sessionId) {
             var putData = {
                 'admins': admins,
@@ -240,6 +246,15 @@
 
             return $http.put('/dashboard/rest/admins', putData);
         };
+
+        /**
+         * This method sends bill details to the dashboard backend for PDF generation
+         * @param  {Object} billDetails Object containing billing details
+         * @return {Promise}
+         */
+        this.createBillPDF = function(billDetails) {
+            return $http.post('/dashboard/rest/bills', billDetails);
+        }
     }
 
 })();

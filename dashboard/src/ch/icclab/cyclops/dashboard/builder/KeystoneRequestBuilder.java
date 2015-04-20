@@ -17,6 +17,7 @@
 
 package ch.icclab.cyclops.dashboard.builder;
 
+import ch.icclab.cyclops.dashboard.errorreporting.ErrorReporter;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -58,7 +59,7 @@ public class KeystoneRequestBuilder {
             wrapper.put("auth", auth);
 
         } catch (JSONException e) {
-            //TODO: error handling
+            ErrorReporter.reportException(e);
         }
 
         return new JsonRepresentation(wrapper);

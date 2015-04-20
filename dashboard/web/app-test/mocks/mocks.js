@@ -23,7 +23,7 @@ var restServiceMock = jasmine.createSpyObj(
         'updateUdrMeters', 'getKeystoneMeters', 'getUdrMeters',
         'getAdminGroupInfo', 'getAllUsers', 'getRateForMeter',
         'getChargeForUser', 'getActiveRatePolicy', 'setActiveRatePolicy',
-        'updateAdmins'
+        'updateAdmins', 'createBillPDF'
     ]
 );
 
@@ -42,7 +42,7 @@ var usageDataServiceMock = jasmine.createSpyObj(
     'usageDataService',
     [
         'notifyChartDataReady', 'setRawData', 'formatPoints',
-        'formatColumns', 'getFormattedData'
+        'getFormattedColumns', 'getFormattedData'
     ]
 );
 
@@ -50,7 +50,7 @@ var rateDataServiceMock = jasmine.createSpyObj(
     'rateDataService',
     [
         'notifyChartDataReady', 'setRawData', 'formatPoints',
-        'formatColumns', 'getFormattedData'
+        'getFormattedColumns', 'getFormattedData'
     ]
 );
 
@@ -58,7 +58,7 @@ var chargeDataServiceMock = jasmine.createSpyObj(
     'chargeDataService',
     [
         'notifyChartDataReady', 'setRawData', 'formatPoints',
-        'formatColumns', 'getFormattedData'
+        'getFormattedColumns', 'getFormattedData'
     ]
 );
 
@@ -67,6 +67,14 @@ var meterselectionDataServiceMock = jasmine.createSpyObj(
     [
         'setRawUdrData', 'setRawOpenstackData', 'getFormattedUdrData',
         'getFormattedOpenstackData'
+    ]
+);
+
+var billDataServiceMock = jasmine.createSpyObj(
+    'billDataService',
+    [
+        'setRawData', 'getFormattedData', 'formatPoints',
+        'getFormattedColumns'
     ]
 );
 

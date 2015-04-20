@@ -4,6 +4,8 @@ The **Cyclops Dashboard** is one of the support services as part of CYCLOPS - A 
 
 It is the place for users to check their usage data, connect to cloud providers and manage bills. Admins can use it to configure the different microservices and maintain user accounts.
 
+The dashboard interacts with the different micro service of <a href="http://icclab.github.io/cyclops">CYCLOPS</a>. The data for resource consumption visualization is gathered by the interaction with <a href="https://github.com/icclab/cyclops-udr">Usage Data Records Micro Service</a>. The coonfiguration of rate policy and generated charge for a user is accessed by the dashboard through that APIs of <a href="https://github.com/icclab/cyclops-rc">Rate & Charge Micro Service</a>.   
+
 ![](https://github.com/icclab/cyclops-support/blob/master/dashboard/doc/images/dashboard_menu.png)
 
 For more in-depth documentation, see:

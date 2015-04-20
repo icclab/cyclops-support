@@ -17,6 +17,7 @@
 
 package ch.icclab.cyclops.dashboard.udr;
 
+import ch.icclab.cyclops.dashboard.errorreporting.ErrorReporter;
 import ch.icclab.cyclops.dashboard.util.LoadConfiguration;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -60,9 +61,9 @@ public class Usage extends ServerResource{
             to = requestJson.getString("to");
 
         } catch (JSONException e) {
-            //TODO: error handling
+            ErrorReporter.reportException(e);
         } catch (IOException e) {
-            //TODO: error handling
+            ErrorReporter.reportException(e);
         }
 
         Form form = new Form();

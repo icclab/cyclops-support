@@ -15,19 +15,22 @@
  *     under the License.
  */
 
-describe('ChargeController', function() {
+describe('BillController', function() {
     var $scope;
     var controller;
-    var chargeDeferred;
-    var chargePromise;
+    var deferred;
+    var promise;
 
     /*
         Fake Data
      */
     var fakeDateToday = "2015-03-04";
+    var fakeUser = "192asdk";
     var fakeFrom = "2015-03-03 00:00:00";
     var fakeTo = "2015-03-04 23:59:59";
-    var fakeUser = "192asdk";
+    var fakePaidBill = { status: "paid" };
+    var fakeDueBill = { status: "due" };
+    var fakeRunningBill = { status: "running" };
     var fakeResponse = {
         data: {
             'test': 'abc'
@@ -42,25 +45,24 @@ describe('ChargeController', function() {
         /*
             Load module
          */
-        module('dashboard.charge');
+        module('dashboard.bills');
 
         /*
             Inject dependencies and configure mocks
          */
         inject(function($controller, $q, $rootScope) {
             $scope = $rootScope.$new();
-            chargeDeferred = $q.defer();
-            chargePromise = chargeDeferred.promise;
+            deferred = $q.defer();
+            promise = deferred.promise;
 
-            restServiceMock.getChargeForUser.and.returnValue(chargePromise);
+            restServiceMock.getChargeForUser.and.returnValue(promise);
             dateUtilMock.getFormattedDateToday.and.returnValue(fakeDateToday);
-            spyOn($scope, '$broadcast');
 
-            controller = $controller('ChargeController', {
+            controller = $controller('BillController', {
                 '$scope': $scope,
-                'restService': restServiceMock,
                 'sessionService': sessionServiceMock,
-                'chargeDataService': chargeDataServiceMock,
+                'restService': restServiceMock,
+                'billDataService': billDataServiceMock,
                 'alertService': alertServiceMock,
                 'dateUtil': dateUtilMock
             });
@@ -70,30 +72,43 @@ describe('ChargeController', function() {
     /*
         Tests
      */
+    describe('getClassForBill', function() {
+        it('should return "success" if bill is "paid"', function() {
+            expect(controller.getClassForBill(fakePaidBill)).toBe("success");
+        });
+
+        it('should return "info" if bill is "running"', function() {
+            expect(controller.getClassForBill(fakeRunningBill)).toBe("info");
+        });
+
+        it('should return "danger" if bill is "paid"', function() {
+            expect(controller.getClassForBill(fakeDueBill)).toBe("danger");
+        });
+    });
+
     describe('requestCharge', function() {
         it('should correctly call restService.getChargeForUser', function() {
             controller.requestCharge(fakeUser, fakeFrom, fakeTo);
-            chargeDeferred.resolve(fakeResponse);
+            deferred.resolve(fakeResponse);
             $scope.$digest();
 
             expect(restServiceMock.getChargeForUser)
                 .toHaveBeenCalledWith(fakeUser, fakeFrom, fakeTo);
         });
 
-        it('should execute loadUdrDataSuccess on chargeDeferred.resolve', function() {
+        it('should execute loadUdrDataSuccess on deferred.resolve', function() {
             controller.requestCharge(fakeUser, fakeFrom, fakeTo);
-            chargeDeferred.resolve(fakeResponse);
+            deferred.resolve(fakeResponse);
             $scope.$digest();
 
-            expect(chargeDataServiceMock.setRawData)
+            expect(billDataServiceMock.setRawData)
                 .toHaveBeenCalledWith(fakeResponse.data);
-
-            expect(chargeDataServiceMock.notifyChartDataReady).toHaveBeenCalled();
+            expect(billDataServiceMock.getFormattedData).toHaveBeenCalled();
         });
 
-        it('should excute loadUdrDataFailed on chargeDeferred.reject', function() {
+        it('should excute loadUdrDataFailed on deferred.reject', function() {
             controller.requestCharge(fakeUser, fakeFrom, fakeTo);
-            chargeDeferred.reject();
+            deferred.reject();
             $scope.$digest();
 
             expect(alertServiceMock.showError).toHaveBeenCalled();

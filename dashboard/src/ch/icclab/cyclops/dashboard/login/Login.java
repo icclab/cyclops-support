@@ -17,6 +17,7 @@
 
 package ch.icclab.cyclops.dashboard.login;
 
+import ch.icclab.cyclops.dashboard.errorreporting.ErrorReporter;
 import ch.icclab.cyclops.dashboard.util.LoadConfiguration;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -52,19 +53,21 @@ public class Login extends ServerResource{
      */
     @Post("json")
     public Representation login(Representation entity) {
+        String user = "";
+        String pass = "";
 
         try {
             JsonRepresentation represent = new JsonRepresentation(entity);
             JSONObject json = represent.getJsonObject();
-            String user = json.getString("username");
-            String pass = json.getString("password");
-            return sendRequest(user, pass);
+            user = json.getString("username");
+            pass = json.getString("password");
         } catch (IOException e) {
-            //TODO: error handling
+            ErrorReporter.reportException(e);
         } catch (JSONException e) {
-            //TODO: error handling
+            ErrorReporter.reportException(e);
         }
-        return new StringRepresentation("error");
+
+        return sendRequest(user, pass);
     }
 
     @Get("json")
