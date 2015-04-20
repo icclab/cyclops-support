@@ -102,6 +102,42 @@
       </library>
     </orderEntry>
     <orderEntry type="library" name="lib" level="project" />
+    <orderEntry type="module-library">
+      <library name="commons-logging-1.1.1">
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/web/WEB-INF/lib/commons-logging-1.1.1.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library name="fontbox-1.8.9">
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/web/WEB-INF/lib/fontbox-1.8.9.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library name="pdfbox-1.8.9">
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/web/WEB-INF/lib/pdfbox-1.8.9.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library name="amqp-client-3.5.1">
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/web/WEB-INF/lib/amqp-client-3.5.1.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
   </component>
 </module>
 

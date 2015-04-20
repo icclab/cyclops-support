@@ -17,6 +17,7 @@
 
 package ch.icclab.cyclops.dashboard.users;
 
+import ch.icclab.cyclops.dashboard.errorreporting.ErrorReporter;
 import ch.icclab.cyclops.dashboard.util.LoadConfiguration;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -99,9 +100,9 @@ public class Admin extends ServerResource{
             updateObject.put("uniquemember", uniqueMembers);
 
         } catch (JSONException e) {
-            //TODO: error handling
+            ErrorReporter.reportException(e);
         } catch (IOException e) {
-            //TODO: error handling
+            ErrorReporter.reportException(e);
         }
 
         String url = LoadConfiguration.configuration.get("OPENAM_LIST_ADMINS_URL");

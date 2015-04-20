@@ -18,6 +18,7 @@
 package ch.icclab.cyclops.dashboard.keystone;
 
 import ch.icclab.cyclops.dashboard.builder.KeystoneRequestBuilder;
+import ch.icclab.cyclops.dashboard.errorreporting.ErrorReporter;
 import ch.icclab.cyclops.dashboard.util.LoadConfiguration;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -67,9 +68,9 @@ public class KeystoneAssociation extends ServerResource{
             username = requestJson.getString("username");
             password = requestJson.getString("password");
         } catch (JSONException e) {
-            //TODO: error handling
+            ErrorReporter.reportException(e);
         } catch (IOException e) {
-            //TODO: error handling
+            ErrorReporter.reportException(e);
         }
 
         return sendRequest(username, password);
@@ -106,7 +107,7 @@ public class KeystoneAssociation extends ServerResource{
             response.put("keystoneId", id);
 
         } catch (Exception e) {
-            //TODO: error handling
+            ErrorReporter.reportException(e);
         }
 
         return new JsonRepresentation(response);
@@ -159,7 +160,7 @@ public class KeystoneAssociation extends ServerResource{
         try {
             data.put("keystoneid", keystoneId);
         } catch (JSONException e) {
-            //TODO: error handling
+            ErrorReporter.reportException(e);
         }
 
         return res.put(new JsonRepresentation(data), MediaType.APPLICATION_JSON);

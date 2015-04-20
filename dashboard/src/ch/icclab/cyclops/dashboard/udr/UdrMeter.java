@@ -17,6 +17,7 @@
 
 package ch.icclab.cyclops.dashboard.udr;
 
+import ch.icclab.cyclops.dashboard.errorreporting.ErrorReporter;
 import ch.icclab.cyclops.dashboard.util.LoadConfiguration;
 import org.restlet.ext.json.JsonRepresentation;
 import org.restlet.representation.Representation;
@@ -46,16 +47,15 @@ public class UdrMeter extends ServerResource {
     @Post("json")
     public Representation updateUdrMeters(Representation entity) {
         ClientResource res = new ClientResource(LoadConfiguration.configuration.get("UDR_METER_URL"));
-        JsonRepresentation rep;
+        Representation rep = null;
 
         try {
             rep = new JsonRepresentation(entity);
-            return res.post(rep);
         } catch (IOException e) {
-            //TODO: error handling
+            ErrorReporter.reportException(e);
         }
 
-        return new StringRepresentation("error");
+        return res.post(rep);
     }
 
 
