@@ -25,8 +25,8 @@ describe('ChargeController', function() {
         Fake Data
      */
     var fakeDateToday = "2015-03-04";
-    var fakeFrom = "2015-03-03 00:00:00";
-    var fakeTo = "2015-03-04 23:59:59";
+    var fakeFrom = "2015-03-04 00:00";
+    var fakeTo = "2015-03-04 23:59";
     var fakeUser = "192asdk";
     var fakeResponse = {
         data: {
@@ -38,6 +38,7 @@ describe('ChargeController', function() {
         Test setup
      */
     beforeEach(function() {
+        resetAllMocks();
 
         /*
             Load module
@@ -52,8 +53,10 @@ describe('ChargeController', function() {
             chargeDeferred = $q.defer();
             chargePromise = chargeDeferred.promise;
 
+            sessionServiceMock.getKeystoneId.and.returnValue(fakeUser);
             restServiceMock.getChargeForUser.and.returnValue(chargePromise);
             dateUtilMock.getFormattedDateToday.and.returnValue(fakeDateToday);
+            dateUtilMock.formatDateFromTimestamp.and.returnValue(fakeDateToday);
             spyOn($scope, '$broadcast');
 
             controller = $controller('ChargeController', {
@@ -97,6 +100,26 @@ describe('ChargeController', function() {
             $scope.$digest();
 
             expect(alertServiceMock.showError).toHaveBeenCalled();
+        });
+    });
+
+    describe('onDateChanged', function() {
+        it('should correctly call requestCharge', function() {
+            spyOn(controller, 'requestCharge');
+
+            controller.onDateChanged(fakeDateToday, fakeDateToday);
+
+            expect(controller.requestCharge)
+                .toHaveBeenCalledWith(fakeUser, fakeFrom, fakeTo);
+        });
+
+        it('should delegate dates to dateUtil for transformation', function() {
+            spyOn(controller, 'requestCharge');
+
+            controller.onDateChanged(1, 2);
+
+            expect(dateUtilMock.formatDateFromTimestamp).toHaveBeenCalledWith(1);
+            expect(dateUtilMock.formatDateFromTimestamp).toHaveBeenCalledWith(2);
         });
     });
 });

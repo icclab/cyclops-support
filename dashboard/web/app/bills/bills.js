@@ -164,11 +164,13 @@
                 .then(loadChargeDataSuccess, loadChargeDataFailed);
         };
 
+        /*
         this.requestCharge(
             sessionService.getKeystoneId(),
             dateUtil.getFormattedDateToday() + " 00:00:00",
             dateUtil.getFormattedDateToday() + " 23:59:59"
         );
+        */
     }
 
 })();

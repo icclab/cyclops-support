@@ -36,37 +36,8 @@
             dateUtil) {
 
         var me = this;
-        this.selectedDate;
-        this.dates = {
-            "last6Hours": {
-                "from": dateUtil.getFormattedDateToday() + " " + dateUtil.getFormattedTime6HoursAgo(),
-                "to": dateUtil.getFormattedDateToday() + " " + dateUtil.getFormattedTimeNow()
-            },
-            "today": {
-                "from": dateUtil.getFormattedDateToday() + " 00:00",
-                "to": dateUtil.getFormattedDateToday() + " 23:59"
-            },
-            "yesterday": {
-                "from": dateUtil.getFormattedDateYesterday() + " 00:00",
-                "to": dateUtil.getFormattedDateToday() + " 23:59"
-            },
-            "last3days": {
-                "from": dateUtil.getFormattedDate3DaysAgo() + " 00:00",
-                "to": dateUtil.getFormattedDateToday() + " 23:59"
-            },
-            "lastWeek": {
-                "from": dateUtil.getFormattedDate1WeekAgo() + " 00:00",
-                "to": dateUtil.getFormattedDateToday() + " 23:59"
-            },
-            "lastMonth": {
-                "from": dateUtil.getFormattedDate1MonthAgo() + " 00:00",
-                "to": dateUtil.getFormattedDateToday() + " 23:59"
-            },
-            "lastYear": {
-                "from": dateUtil.getFormattedDate1YearAgo() + " 00:00",
-                "to": dateUtil.getFormattedDateToday() + " 23:59"
-            }
-        };
+        this.dateFormat = "yyyy-MM-dd";
+        this.defaultDate = dateUtil.getFormattedDateToday();
 
         var loadUdrDataSuccess = function(response) {
             usageDataService.setRawData(response.data);
@@ -91,11 +62,11 @@
             $location.path("/cloudservices");
         };
 
-        this.onDateChanged = function() {
-            var sel = me.selectedDate || 'last6Hours';
-            var from = me.dates[sel].from;
-            var to = me.dates[sel].to;
-            me.updateCharts(from, to);
+        //https://docs.angularjs.org/guide/directive#creating-a-directive-that-wraps-other-elements
+        this.onDateChanged = function(from, to) {
+            var fromDate = dateUtil.formatDateFromTimestamp(from) + " 00:00";
+            var toDate = dateUtil.formatDateFromTimestamp(to) + " 23:59";
+            me.updateCharts(fromDate, toDate);
         };
 
         this.updateCharts = function(from, to) {
@@ -105,7 +76,10 @@
             }
         };
 
-        this.onDateChanged();
+        this.onDateChanged(
+            dateUtil.getFormattedDateToday(),
+            dateUtil.getFormattedDateToday()
+        );
     };
 
 })();

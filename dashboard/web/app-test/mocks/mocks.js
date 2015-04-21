@@ -14,7 +14,6 @@
  *     License for the specific language governing permissions and limitations
  *     under the License.
  */
-
 var restServiceMock = jasmine.createSpyObj(
     'restService',
     [
@@ -31,7 +30,7 @@ var sessionServiceMock = jasmine.createSpyObj(
     'sessionService',
     [
         'clearSession', 'getSessionId', 'getAccessToken', 'getIdToken',
-        'getUsername', 'getTokenType', 'getExpiration', '', 'getKeystoneId',
+        'getUsername', 'getTokenType', 'getExpiration', 'getKeystoneId',
         'setSessionId', 'setAccessToken', 'setIdToken', 'setUsername',
         'setTokenType', 'setExpiration', 'setKeystoneId', 'setAdmin',
         'isAdmin', 'isAuthenticated'
@@ -66,7 +65,7 @@ var meterselectionDataServiceMock = jasmine.createSpyObj(
     'meterselectionDataService',
     [
         'setRawUdrData', 'setRawOpenstackData', 'getFormattedUdrData',
-        'getFormattedOpenstackData'
+        'getFormattedOpenstackData', 'getSelectedMeterNames'
     ]
 );
 
@@ -96,11 +95,11 @@ var alertServiceMock = jasmine.createSpyObj(
 var dateUtilMock = jasmine.createSpyObj(
     'dateUtil',
     [
-        'getTimestamp', 'fromTimestamp', 'getFormattedTimeNow',
-        'getFormattedTime6HoursAgo', 'getFormattedDateTimeNow',
+        'getTimestamp', 'getFormattedTimeNow',
         'getFormattedDateToday', 'getFormattedDateYesterday',
-        'getFormattedDate3DaysAgo', 'getFormattedDate1WeekAgo',
-        'getFormattedDate1MonthAgo', 'getFormattedDate1YearAgo'
+        'formatDate', 'formatTime', 'formatDateTime',
+        'formatDateFromTimestamp', 'formatTimeFromTimestamp',
+        'formatDateTimeFromTimestamp', 'getFormattedDateTimeNow'
     ]
 );
 
@@ -111,3 +110,23 @@ var responseParserMock = jasmine.createSpyObj(
         'getUserListFromResponse', 'getAdminStatusFromResponse'
     ]
 );
+
+function resetMock(mockObject) {
+    for(var func in mockObject) {
+        mockObject[func].calls.reset();
+    }
+}
+
+function resetAllMocks() {
+    resetMock(restServiceMock);
+    resetMock(sessionServiceMock);
+    resetMock(usageDataServiceMock);
+    resetMock(rateDataServiceMock);
+    resetMock(chargeDataServiceMock);
+    resetMock(meterselectionDataServiceMock);
+    resetMock(billDataServiceMock);
+    resetMock(chartDataServiceMock);
+    resetMock(alertServiceMock);
+    resetMock(dateUtilMock);
+    resetMock(responseParserMock);
+}
