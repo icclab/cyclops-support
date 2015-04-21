@@ -24,11 +24,9 @@ describe('RateController', function() {
     /*
         Fake Data
      */
-    var fakeTimeNow = "12:00";
-    var fakeTime6HoursAgo = "06:00";
     var fakeDateToday = "2015-03-04";
-    var fakeFrom = fakeDateToday + " " + fakeTime6HoursAgo;
-    var fakeTo = fakeDateToday + " " + fakeTimeNow;
+    var fakeFrom = fakeDateToday + " 00:00";
+    var fakeTo = fakeDateToday + " 23:59";
     var fakeMeters = ["network.incoming.bytes", "cpu_util"];
     var fakeResponse = {
         data: {
@@ -63,8 +61,6 @@ describe('RateController', function() {
             restServiceMock.getRateForMeter.and.returnValue(promise);
             restServiceMock.getUdrMeters.and.returnValue(promise);
             dateUtilMock.getFormattedDateToday.and.returnValue(fakeDateToday);
-            dateUtilMock.getFormattedTimeNow.and.returnValue(fakeTimeNow);
-            dateUtilMock.getFormattedTime6HoursAgo.and.returnValue(fakeTime6HoursAgo);
             spyOn($scope, '$broadcast');
 
             controller = $controller('RateController', {

@@ -92,7 +92,7 @@ describe('ChartDataService', function() {
          */
         module('dashboard.services');
 
-        dateUtilMock.fromTimestamp.and.returnValue("12-Jan-15 13:33");
+        dateUtilMock.formatDateTimeFromTimestamp.and.returnValue("2015-01-01 13:33");
 
         module(function($provide) {
             $provide.value('dateUtil', dateUtilMock);
