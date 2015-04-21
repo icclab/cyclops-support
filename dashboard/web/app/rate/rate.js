@@ -60,8 +60,8 @@
 
             me.requestRatesForMeters(
                 selectedMeterNames,
-                dateUtil.getFormattedDateToday() + " " + dateUtil.getFormattedTime6HoursAgo(),
-                dateUtil.getFormattedDateToday() + " " + dateUtil.getFormattedTimeNow()
+                dateUtil.getFormattedDateToday() + " 00:00",
+                dateUtil.getFormattedDateToday() + " 23:59"
             );
         };
 

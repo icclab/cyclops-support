@@ -96,11 +96,11 @@ var alertServiceMock = jasmine.createSpyObj(
 var dateUtilMock = jasmine.createSpyObj(
     'dateUtil',
     [
-        'getTimestamp', 'fromTimestamp', 'getFormattedTimeNow',
-        'getFormattedTime6HoursAgo', 'getFormattedDateTimeNow',
+        'getTimestamp', 'getFormattedTimeNow',
         'getFormattedDateToday', 'getFormattedDateYesterday',
-        'getFormattedDate3DaysAgo', 'getFormattedDate1WeekAgo',
-        'getFormattedDate1MonthAgo', 'getFormattedDate1YearAgo'
+        'formatDate', 'formatTime', 'formatDateTime',
+        'formatDateFromTimestamp', 'formatTimeFromTimestamp',
+        'formatDateTimeFromTimestamp', 'getFormattedDateTimeNow'
     ]
 );
 

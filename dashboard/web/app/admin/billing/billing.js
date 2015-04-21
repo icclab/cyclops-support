@@ -34,9 +34,7 @@
             responseParser, dateUtil) {
         var me = this;
         this.users = [];
-        this.fromDate;
-        this.toDate;
-        this.dateFormat = "dd.MM.yy";
+        this.dateFormat = "yyyy/MM/dd";
 
         var onUsersLoadSuccess = function(response) {
             me.users = responseParser.getUserListFromResponse(response.data);

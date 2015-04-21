@@ -94,7 +94,7 @@
                         numPoints,
                         i,
                         NUM_LABELS,
-                        dateUtil.fromTimestamp(dataPoints[i][0])
+                        dateUtil.formatDateTimeFromTimestamp(dataPoints[i][0])
                     ));
                     dataY.push(dataPoints[i][1]);
                 }
