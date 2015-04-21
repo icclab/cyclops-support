@@ -44,6 +44,8 @@ describe('RateController', function() {
         Test setup
      */
     beforeEach(function() {
+        resetAllMocks();
+
         /*
             Load module
          */
@@ -58,6 +60,7 @@ describe('RateController', function() {
             promise = deferred.promise;
 
             meterselectionDataServiceMock.getFormattedUdrData.and.returnValue(fakeFormattedMeters);
+            meterselectionDataServiceMock.getSelectedMeterNames.and.returnValue(fakeSelectedMeterNames);
             restServiceMock.getRateForMeter.and.returnValue(promise);
             restServiceMock.getUdrMeters.and.returnValue(promise);
             dateUtilMock.getFormattedDateToday.and.returnValue(fakeDateToday);
@@ -126,7 +129,7 @@ describe('RateController', function() {
 
             expect(meterselectionDataServiceMock.setRawUdrData)
                 .toHaveBeenCalledWith(fakeResponse.data);
-            expect(meterselectionDataServiceMock.getFormattedUdrData)
+            expect(meterselectionDataServiceMock.getSelectedMeterNames)
                 .toHaveBeenCalled();
             expect(controller.requestRatesForMeters)
                 .toHaveBeenCalledWith(fakeSelectedMeterNames, fakeFrom, fakeTo);
@@ -138,6 +141,35 @@ describe('RateController', function() {
             $scope.$digest();
 
             expect(alertServiceMock.showError).toHaveBeenCalled();
+        });
+    });
+
+    describe('onDateChanged', function() {
+        it('should correctly call meterselectionDataService.getSelectedMeterNames', function() {
+            spyOn(controller, 'requestRatesForMeters');
+
+            controller.onDateChanged(fakeDateToday, fakeDateToday);
+
+            expect(meterselectionDataServiceMock.getSelectedMeterNames)
+                .toHaveBeenCalled();
+        });
+
+        it('should correctly call restService.requestCharge', function() {
+            spyOn(controller, 'requestRatesForMeters');
+
+            controller.onDateChanged(fakeDateToday, fakeDateToday);
+
+            expect(controller.requestRatesForMeters)
+                .toHaveBeenCalledWith(fakeSelectedMeterNames, fakeFrom, fakeTo);
+        });
+
+        it('should delegate dates to dateUtil for transformation', function() {
+            spyOn(controller, 'requestRatesForMeters');
+
+            controller.onDateChanged(1, 2);
+
+            expect(dateUtilMock.formatDateFromTimestamp).toHaveBeenCalledWith(1);
+            expect(dateUtilMock.formatDateFromTimestamp).toHaveBeenCalledWith(2);
         });
     });
 });

@@ -22,6 +22,7 @@ describe('XByteFilter', function() {
         Test setup
      */
     beforeEach(function() {
+        resetAllMocks();
 
         /*
             Load module
