@@ -33,6 +33,8 @@
             $scope, restService, sessionService, chargeDataService,
             alertService, dateUtil) {
         var me = this;
+        this.dateFormat = "yyyy-MM-dd";
+        this.defaultDate = dateUtil.getFormattedDateToday();
 
         var loadChargeDataSuccess = function(response) {
             chargeDataService.setRawData(response.data);
@@ -41,6 +43,13 @@
 
         var loadChargeDataFailed = function(reponse) {
             alertService.showError("Requesting charge data failed");
+        };
+
+        //https://docs.angularjs.org/guide/directive#creating-a-directive-that-wraps-other-elements
+        this.onDateChanged = function(from, to) {
+            var fromDate = dateUtil.formatDateFromTimestamp(from) + " 00:00";
+            var toDate = dateUtil.formatDateFromTimestamp(to) + " 23:59";
+            me.requestCharge(sessionService.getKeystoneId(), fromDate, toDate);
         };
 
         this.requestCharge = function(userId, from, to) {

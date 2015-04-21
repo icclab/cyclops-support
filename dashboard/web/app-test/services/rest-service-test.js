@@ -46,6 +46,7 @@ describe('RestService', function() {
         Test setup
      */
     beforeEach(function(){
+        resetAllMocks();
 
         /*
             Load module
