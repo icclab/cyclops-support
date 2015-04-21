@@ -33,6 +33,8 @@
             $scope, $q, restService, sessionService, rateDataService,
             meterselectionDataService, alertService, dateUtil) {
         var me = this;
+        this.dateFormat = "yyyy-MM-dd";
+        this.defaultDate = dateUtil.getFormattedDateToday();
 
         var onLoadRateDataSuccess = function(responses) {
             for (var i = 0; i < responses.length; i++) {
@@ -49,17 +51,10 @@
 
         var onLoadMeterSelectionSuccess = function(response) {
             meterselectionDataService.setRawUdrData(response.data);
-            var meters = meterselectionDataService.getFormattedUdrData();
-            var selectedMeterNames = [];
-
-            for(var meterName in meters) {
-                if(meters[meterName].enabled) {
-                    selectedMeterNames.push(meterName);
-                }
-            }
+            var meters = meterselectionDataService.getSelectedMeterNames();
 
             me.requestRatesForMeters(
-                selectedMeterNames,
+                meters,
                 dateUtil.getFormattedDateToday() + " 00:00",
                 dateUtil.getFormattedDateToday() + " 23:59"
             );
@@ -67,6 +62,14 @@
 
         var onLoadMeterSelectionError = function(response) {
             alertService.showError("Could not load selected meters");
+        };
+
+        //https://docs.angularjs.org/guide/directive#creating-a-directive-that-wraps-other-elements
+        this.onDateChanged = function(from, to) {
+            var fromDate = dateUtil.formatDateFromTimestamp(from) + " 00:00";
+            var toDate = dateUtil.formatDateFromTimestamp(to) + " 23:59";
+            var meters = meterselectionDataService.getSelectedMeterNames();
+            me.requestRatesForMeters(meters, fromDate, toDate);
         };
 
         this.requestRatesForMeters = function(meterNames, from, to) {

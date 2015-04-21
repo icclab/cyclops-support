@@ -33,18 +33,19 @@
 
     function onLink(scope, el, attr, controller) {
         scope.dateFormat = attr.dateFormat;
+        scope.defaultValue = attr.defaultValue;
 
-        scope.$watchGroup(['fromDate', 'toDate'], function() {
+        scope.$watchGroup(['fromDate', 'toDate'], function(newValues, oldValues) {
 
-            //Don't fire event if one date is still unselected
-            if(!scope.fromDate || !scope.toDate) {
+            //Don't fire event if no dates have been changed
+            if(angular.equals(newValues, oldValues)) {
                 return;
             }
 
             //https://docs.angularjs.org/guide/directive#creating-a-directive-that-wraps-other-elements
             scope.onDateChanged({
-                'from': scope.fromDate,
-                'to': scope.toDate
+                'from': scope.fromDate || scope.defaultValue,
+                'to': scope.toDate || scope.defaultValue
             });
         });
 
