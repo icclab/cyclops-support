@@ -5,3 +5,5 @@
 .dashboard-button-panel button {
     margin: 0.5em 1em 0.5em 1em;
 }
+
+.nav, .pagination, .carousel, .panel-title a { cursor: pointer; }
