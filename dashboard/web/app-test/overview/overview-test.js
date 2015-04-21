@@ -41,6 +41,7 @@ describe('OverviewController', function() {
         Test setup
      */
     beforeEach(function() {
+        resetAllMocks();
 
         /*
             Load module
@@ -152,6 +153,26 @@ describe('OverviewController', function() {
             controller.onDateChanged(fakeDateToday, fakeDateToday);
 
             expect(controller.updateCharts).toHaveBeenCalledWith(fakeFrom, fakeTo);
+        });
+    });
+
+    describe('onDateChanged', function() {
+        it('should correctly call updateCharts', function() {
+            spyOn(controller, 'updateCharts');
+
+            controller.onDateChanged(fakeDateToday, fakeDateToday);
+
+            expect(controller.updateCharts)
+                .toHaveBeenCalledWith(fakeFrom, fakeTo);
+        });
+
+        it('should delegate dates to dateUtil for transformation', function() {
+            spyOn(controller, 'updateCharts');
+
+            controller.onDateChanged(1, 2);
+
+            expect(dateUtilMock.formatDateFromTimestamp).toHaveBeenCalledWith(1);
+            expect(dateUtilMock.formatDateFromTimestamp).toHaveBeenCalledWith(2);
         });
     });
 });

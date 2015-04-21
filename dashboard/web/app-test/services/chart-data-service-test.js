@@ -86,6 +86,7 @@ describe('ChartDataService', function() {
         Test setup
      */
     beforeEach(function() {
+        resetAllMocks();
 
         /*
             Load module

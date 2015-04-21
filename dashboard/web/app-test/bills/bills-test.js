@@ -41,6 +41,7 @@ describe('BillController', function() {
         Test setup
      */
     beforeEach(function() {
+        resetAllMocks();
 
         /*
             Load module

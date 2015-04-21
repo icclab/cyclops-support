@@ -55,6 +55,7 @@ describe('RateDataService', function() {
         Test setup
      */
     beforeEach(function() {
+        resetAllMocks();
 
         /*
             Load module

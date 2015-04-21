@@ -55,6 +55,7 @@ describe('MeterselectionDataService', function() {
         Test setup
      */
     beforeEach(function() {
+        resetAllMocks();
 
         /*
             Load module

@@ -89,6 +89,7 @@ describe('UsageDataService', function() {
         Test setup
      */
     beforeEach(function() {
+        resetAllMocks();
 
         /*
             Load module
