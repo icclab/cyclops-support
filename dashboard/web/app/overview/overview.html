@@ -9,6 +9,7 @@
 <div data-ng-if="overviewCtrl.hasKeystoneId()" class="chart-container">
     <date-span-selection
         date-format="{{overviewCtrl.dateFormat}}"
-        on-date-changed="overviewCtrl.onDateChanged(from, to)"></date-span-selection>
+        on-date-changed="overviewCtrl.onDateChanged(from, to)"
+        default-value="{{overviewCtrl.defaultDate}}"></date-span-selection>
     <chart-container></chart-container>
 </div>

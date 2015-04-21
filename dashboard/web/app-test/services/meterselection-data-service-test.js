@@ -100,5 +100,12 @@ describe('MeterselectionDataService', function() {
             expect(service.getFormattedOpenstackData()).toEqual({});
         });
     });
+
+    describe('getSelectedMeterNames', function() {
+        it('returns array of selected meters', function() {
+            service.setRawUdrData(fakeMeterselectionData);
+            expect(service.getSelectedMeterNames()).toEqual(["cpu_util"]);
+        });
+    });
 });
 

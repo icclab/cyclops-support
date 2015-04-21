@@ -36,7 +36,8 @@
             dateUtil) {
 
         var me = this;
-        this.dateFormat = "yyyy/MM/dd";
+        this.dateFormat = "yyyy-MM-dd";
+        this.defaultDate = dateUtil.getFormattedDateToday();
 
         var loadUdrDataSuccess = function(response) {
             usageDataService.setRawData(response.data);
@@ -63,9 +64,9 @@
 
         //https://docs.angularjs.org/guide/directive#creating-a-directive-that-wraps-other-elements
         this.onDateChanged = function(from, to) {
-            var from = dateUtil.formatDateFromTimestamp(from) + " 00:00";
-            var to = dateUtil.formatDateFromTimestamp(to) + " 23:59";
-            me.updateCharts(from, to);
+            var fromDate = dateUtil.formatDateFromTimestamp(from) + " 00:00";
+            var toDate = dateUtil.formatDateFromTimestamp(to) + " 23:59";
+            me.updateCharts(fromDate, toDate);
         };
 
         this.updateCharts = function(from, to) {
@@ -76,7 +77,7 @@
         };
 
         this.onDateChanged(
-            dateUtil.getFormattedDateYesterday(),
+            dateUtil.getFormattedDateToday(),
             dateUtil.getFormattedDateToday()
         );
     };
