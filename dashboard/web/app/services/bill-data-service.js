@@ -63,15 +63,7 @@
                     var meterUsage = meter[indexUsage];
                     var meterPrice = meter[indexPrice];
 
-                    if(meterName in formattedData) {
-                        var newUsage = formattedData[meterName].price + meterUsage;
-                        var newPrice = formattedData[meterName].price + meterPrice;
-
-                        formattedData[meterName].usage = newUsage;
-                        formattedData[meterName].price = newPrice;
-                        formattedData[meterName].rate = newPrice / newUsage;
-                    }
-                    else {
+                    if(!(meterName in formattedData)) {
                         formattedData[meterName] = {
                             resource: meterName,
                             unit: "",
@@ -81,10 +73,15 @@
                             discount: 0
                         };
                     }
+
+                    var newUsage = formattedData[meterName].usage + meterUsage;
+                    var newPrice = formattedData[meterName].price + meterPrice;
+
+                    formattedData[meterName].usage = newUsage;
+                    formattedData[meterName].price = newPrice;
+                    formattedData[meterName].rate = newPrice / newUsage;
                 }
             }
-
-            console.log(formattedData);
         };
 
         /**

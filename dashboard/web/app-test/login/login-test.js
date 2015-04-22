@@ -16,10 +16,9 @@
  */
 
 describe('LoginController', function() {
-    var $log;
     var $scope;
     var $location;
-    var loginController;
+    var controller;
     var loginDeferred;
     var tokenDeferred;
     var sessionDeferred;
@@ -78,7 +77,7 @@ describe('LoginController', function() {
             restServiceMock.requestSessionToken.and.returnValue(sessionPromise);
             responseParserMock.getAdminStatusFromResponse.and.returnValue(true);
 
-            loginController = $controller('LoginController', {
+            controller = $controller('LoginController', {
                 '$scope': $scope,
                 'restService': restServiceMock,
                 'sessionService': sessionServiceMock,
@@ -86,8 +85,8 @@ describe('LoginController', function() {
                 'responseParser': responseParserMock
             });
 
-            loginController.user = fakeUser;
-            loginController.pwd = fakePass;
+            controller.user = fakeUser;
+            controller.pwd = fakePass;
         });
     });
 
@@ -96,14 +95,14 @@ describe('LoginController', function() {
      */
     describe('login', function() {
         it('should correctly call restService.sendLoginRequest', function() {
-            loginController.login();
+            controller.login();
 
             expect(restServiceMock.sendLoginRequest)
                 .toHaveBeenCalled();
         });
 
         it('should correctly call restService.getTokenInfo', function() {
-            loginController.login();
+            controller.login();
             loginDeferred.resolve(fakeLoginResponse);
             $scope.$digest();
 
@@ -112,7 +111,7 @@ describe('LoginController', function() {
         });
 
         it('should execute loginSuccess on loginDeferred.resolve', function() {
-            loginController.login();
+            controller.login();
             loginDeferred.resolve(fakeLoginResponse);
             $scope.$digest();
 
@@ -127,7 +126,7 @@ describe('LoginController', function() {
         });
 
         it('should execute tokenInfoSuccess on tokenInfoDeferred.resolve', function() {
-            loginController.login();
+            controller.login();
             loginDeferred.resolve(fakeLoginResponse);
             tokenDeferred.resolve(fakeTokenResponse);
             $scope.$digest();
@@ -142,8 +141,8 @@ describe('LoginController', function() {
         });
 
         it('should execute sessionInfoSuccess on sessionInfoDeferred.resolve', function() {
-            spyOn(loginController, 'showOverview');
-            loginController.login();
+            spyOn(controller, 'showOverview');
+            controller.login();
             loginDeferred.resolve(fakeLoginResponse);
             tokenDeferred.resolve(fakeTokenResponse);
             sessionDeferred.resolve(fakeSessionResponse);
@@ -151,11 +150,11 @@ describe('LoginController', function() {
 
             expect(sessionServiceMock.setKeystoneId)
                 .toHaveBeenCalledWith(fakeTokenResponse.data.keystoneid);
-            expect(loginController.showOverview).toHaveBeenCalled();
+            expect(controller.showOverview).toHaveBeenCalled();
         });
 
         it('should execute loginFailed on loginDeferred.reject', function() {
-            loginController.login();
+            controller.login();
             loginDeferred.reject();
             $scope.$digest();
 
@@ -163,7 +162,7 @@ describe('LoginController', function() {
         });
 
         it('should execute loginFailed on tokenDeferred.reject', function() {
-            loginController.login();
+            controller.login();
             loginDeferred.resolve(fakeLoginResponse);
             tokenDeferred.reject();
             $scope.$digest();
@@ -172,7 +171,7 @@ describe('LoginController', function() {
         });
 
         it('should execute loginFailed on sessionDeferred.reject', function() {
-            loginController.login();
+            controller.login();
             loginDeferred.resolve(fakeLoginResponse);
             tokenDeferred.resolve(fakeTokenResponse);
             sessionDeferred.reject();
@@ -184,7 +183,7 @@ describe('LoginController', function() {
 
     describe('showOverview', function() {
         it('should redirect to /overview', function() {
-            loginController.showOverview();
+            controller.showOverview();
             expect($location.url()).toBe('/overview');
         });
     });

@@ -26,15 +26,18 @@
         Controllers, Factories, Services, Directives
     */
     AdminBillingController.$inject = [
-        '$scope', 'sessionService', 'restService', 'billDataService', 'alertService',
+        'sessionService', 'restService', 'billDataService', 'alertService',
         'responseParser', 'dateUtil'
     ];
     function AdminBillingController(
-            $scope, sessionService, restService, billDataService, alertService,
+            sessionService, restService, billDataService, alertService,
             responseParser, dateUtil) {
         var me = this;
         this.users = [];
-        this.dateFormat = "yyyy/MM/dd";
+        this.dateFormat = "yyyy-MM-dd";
+        this.defaultDate = dateUtil.getFormattedDateToday();
+        this.fromDate = undefined;
+        this.toDate = undefined;
 
         var onUsersLoadSuccess = function(response) {
             me.users = responseParser.getUserListFromResponse(response.data);
@@ -44,14 +47,49 @@
             alertService.showError("Could not fetch list of users");
         };
 
+        var onUserInfoLoadSuccess = function(response) {
+            var responseData = response.data;
+            var keystoneIdField = responseData.keystoneid || [];
+            var userId = keystoneIdField[0] || 0;
+            return restService.getChargeForUser(userId, me.fromDate, me.toDate);
+        };
+
+        var onUserBillDetailsLoadSuccess = function(response) {
+            billDataService.setRawData(response.data);
+            var billData = billDataService.getFormattedData();
+            return restService.createBillPDF(billData);
+        };
+
+        var onBillGenerateSuccess = function(response) {
+            alertService.showSuccess("Bill successfully created");
+        };
+
+        var onBillGenerateError = function(response) {
+            alertService.showError("Could not generate bill");
+        };
+
         //https://docs.angularjs.org/guide/directive#creating-a-directive-that-wraps-other-elements
         this.onDateChanged = function(from, to) {
-            console.log(arguments);
+            me.fromDate = dateUtil.formatDateFromTimestamp(from) + " 00:00";
+            me.toDate = dateUtil.formatDateFromTimestamp(to) + " 23:59";
         };
 
         this.getAllUsers = function() {
             restService.getAllUsers(sessionService.getSessionId())
                 .then(onUsersLoadSuccess, onUsersLoadError);
+        };
+
+        this.generateBill = function(user) {
+            if(!me.fromDate || !me.toDate) {
+                alertService.showError("No date span selected");
+            }
+            else {
+                var sessionId = sessionService.getSessionId();
+                restService.getUserInfo(user, sessionId)
+                    .then(onUserInfoLoadSuccess)
+                    .then(onUserBillDetailsLoadSuccess)
+                    .then(onBillGenerateSuccess, onBillGenerateError);
+            }
         };
 
         this.getAllUsers();

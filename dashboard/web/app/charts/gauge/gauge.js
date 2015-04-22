@@ -51,6 +51,10 @@
             pointDot: false,
             animation: false,
             bezierCurve : true,
+            scaleLineWidth: 1,
+            scaleShowGridLines: false,
+            scaleShowVerticalLines: false,
+            scaleShowHorizontalLines: false,
             showTooltips: false,
             bezierCurveTension : 0.4,
             pointHitDetectionRadius: 0

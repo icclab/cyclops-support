@@ -254,7 +254,17 @@
          */
         this.createBillPDF = function(billDetails) {
             return $http.post('/dashboard/rest/bills', billDetails);
-        }
+        };
+
+        /**
+         * This method loads user information from OpenAM via the dashboard backend
+         * @param  {String} username Username whose details will be read
+         * @param  {String} adminSessionId Admin Session ID from OpenAM
+         * @return {Promise}
+         */
+        this.getUserInfo = function(username, adminSessionId) {
+            return $http.get('/dashboard/rest/users/' + username + "?session_id=" + adminSessionId);
+        };
     }
 
 })();
