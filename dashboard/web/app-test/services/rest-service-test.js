@@ -41,6 +41,11 @@ describe('RestService', function() {
         'admins': fakeAdmins,
         'sessionId': fakeSessionId
     };
+    var fakeBillDetails = {
+        "cpu_util": {
+            price: 5
+        }
+    };
 
     /*
         Test setup
@@ -77,6 +82,8 @@ describe('RestService', function() {
         $httpBackend.whenGET("/dashboard/rest/users" + fakeSessionQuery).respond(200);
         $httpBackend.whenGET("/dashboard/rest/admins" + fakeSessionQuery).respond(200);
         $httpBackend.whenPUT("/dashboard/rest/admins").respond(200);
+        $httpBackend.whenPOST("/dashboard/rest/bills").respond(200);
+        $httpBackend.whenGET("/dashboard/rest/users/" + fakeUser + fakeSessionQuery).respond(200);
     });
 
     /*
@@ -234,6 +241,22 @@ describe('RestService', function() {
                 'sessionId': fakeSessionId
             });
             restService.updateAdmins(fakeAdmins, fakeSessionId);
+            $httpBackend.flush();
+        });
+    });
+
+    describe('createBillPDF', function() {
+        it('should send complete POST request', function() {
+            $httpBackend.expectPOST("/dashboard/rest/bills", fakeBillDetails);
+            restService.createBillPDF(fakeBillDetails);
+            $httpBackend.flush();
+        });
+    });
+
+    describe('getUserInfo', function() {
+        it('should send complete GET request', function() {
+            $httpBackend.expectGET("/dashboard/rest/users/" + fakeUser + fakeSessionQuery);
+            restService.getUserInfo(fakeUser, fakeSessionId);
             $httpBackend.flush();
         });
     });
