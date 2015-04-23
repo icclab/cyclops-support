@@ -86,33 +86,4 @@ describe('BillController', function() {
             expect(controller.getClassForBill(fakeDueBill)).toBe("danger");
         });
     });
-
-    describe('requestCharge', function() {
-        it('should correctly call restService.getChargeForUser', function() {
-            controller.requestCharge(fakeUser, fakeFrom, fakeTo);
-            deferred.resolve(fakeResponse);
-            $scope.$digest();
-
-            expect(restServiceMock.getChargeForUser)
-                .toHaveBeenCalledWith(fakeUser, fakeFrom, fakeTo);
-        });
-
-        it('should execute loadUdrDataSuccess on deferred.resolve', function() {
-            controller.requestCharge(fakeUser, fakeFrom, fakeTo);
-            deferred.resolve(fakeResponse);
-            $scope.$digest();
-
-            expect(billDataServiceMock.setRawData)
-                .toHaveBeenCalledWith(fakeResponse.data);
-            expect(billDataServiceMock.getFormattedData).toHaveBeenCalled();
-        });
-
-        it('should excute loadUdrDataFailed on deferred.reject', function() {
-            controller.requestCharge(fakeUser, fakeFrom, fakeTo);
-            deferred.reject();
-            $scope.$digest();
-
-            expect(alertServiceMock.showError).toHaveBeenCalled();
-        });
-    });
 });

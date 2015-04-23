@@ -26,11 +26,11 @@
         Controllers, Factories, Services, Directives
     */
     AdminBillingController.$inject = [
-        'sessionService', 'restService', 'billDataService', 'alertService',
+        '$q', 'sessionService', 'restService', 'billDataService', 'alertService',
         'responseParser', 'dateUtil'
     ];
     function AdminBillingController(
-            sessionService, restService, billDataService, alertService,
+            $q, sessionService, restService, billDataService, alertService,
             responseParser, dateUtil) {
         var me = this;
         this.users = [];
@@ -39,44 +39,88 @@
         this.fromDate = undefined;
         this.toDate = undefined;
 
-        var onUsersLoadSuccess = function(response) {
-            me.users = responseParser.getUserListFromResponse(response.data);
+        this.getKeystoneIdForUser = function(username, sessionId) {
+            var deferred = $q.defer();
+
+            restService.getUserInfo(username, sessionId).then(
+                function(response) {
+                    var responseData = response.data;
+                    var keystoneIdField = responseData.keystoneid || [];
+                    var userId = keystoneIdField[0];
+
+                    if(userId) {
+                        deferred.resolve({
+                            userId: userId,
+                            from: me.fromDate,
+                            to: me.toDate
+                        });
+                    }
+                    else {
+                        deferred.reject("User does not have a cloud account assigned");
+                    }
+                },
+                function() {
+                    deferred.reject("Could not load user information");
+                }
+            );
+
+            return deferred.promise;
         };
 
-        var onUsersLoadError = function(response) {
-            alertService.showError("Could not fetch list of users");
+        this.getBillItems = function(params) {
+            var deferred = $q.defer();
+            var from = params.from + " 00:00";
+            var to = params.to + " 23:59";
+
+            restService.getChargeForUser(params.userId, from, to).then(
+                function(response) {
+                    billDataService.setRawData(response.data);
+                    var billItems = billDataService.getFormattedData();
+                    deferred.resolve({
+                        userId: params.userId,
+                        from: params.from,
+                        to: params.to,
+                        billItems: billItems
+                    });
+                },
+                function() {
+                    deferred.reject("Could not load charge data for user");
+                }
+            );
+
+            return deferred.promise;
         };
 
-        var onUserInfoLoadSuccess = function(response) {
-            var responseData = response.data;
-            var keystoneIdField = responseData.keystoneid || [];
-            var userId = keystoneIdField[0] || 0;
-            return restService.getChargeForUser(userId, me.fromDate, me.toDate);
-        };
+        this.generateBillPDF = function(params) {
+            var deferred = $q.defer();
 
-        var onUserBillDetailsLoadSuccess = function(response) {
-            billDataService.setRawData(response.data);
-            var billData = billDataService.getFormattedData();
-            return restService.createBillPDF(billData);
-        };
+            restService.createBillPDF(params.userId, params.from, params.to, params.billItems).then(
+                function() {
+                    deferred.resolve("Bill successfully created");
+                },
+                function() {
+                    deferred.reject("Could not generate bill");
+                }
+            );
 
-        var onBillGenerateSuccess = function(response) {
-            alertService.showSuccess("Bill successfully created");
-        };
-
-        var onBillGenerateError = function(response) {
-            alertService.showError("Could not generate bill");
+            return deferred.promise;
         };
 
         //https://docs.angularjs.org/guide/directive#creating-a-directive-that-wraps-other-elements
         this.onDateChanged = function(from, to) {
-            me.fromDate = dateUtil.formatDateFromTimestamp(from) + " 00:00";
-            me.toDate = dateUtil.formatDateFromTimestamp(to) + " 23:59";
+            me.fromDate = dateUtil.formatDateFromTimestamp(from);
+            me.toDate = dateUtil.formatDateFromTimestamp(to);
         };
 
         this.getAllUsers = function() {
-            restService.getAllUsers(sessionService.getSessionId())
-                .then(onUsersLoadSuccess, onUsersLoadError);
+            restService.getAllUsers(sessionService.getSessionId()).then(
+                function(response) {
+                    me.users = responseParser.getUserListFromResponse(response.data);
+                },
+                function() {
+                    alertService.showError("Could not fetch list of users");
+                }
+            );
         };
 
         this.generateBill = function(user) {
@@ -85,10 +129,17 @@
             }
             else {
                 var sessionId = sessionService.getSessionId();
-                restService.getUserInfo(user, sessionId)
-                    .then(onUserInfoLoadSuccess)
-                    .then(onUserBillDetailsLoadSuccess)
-                    .then(onBillGenerateSuccess, onBillGenerateError);
+
+                me.getKeystoneIdForUser(user, sessionId)
+                    .then(me.getBillItems)
+                    .then(me.generateBillPDF).then(
+                        function(msg) {
+                            alertService.showSuccess(msg);
+                        },
+                        function(msg) {
+                            alertService.showError(msg);
+                        }
+                    );
             }
         };
 

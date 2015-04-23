@@ -40,7 +40,7 @@ import java.util.HashMap;
 
 public class BillGenerator {
 
-    public void createPDF(Bill bill) {
+    public void createPDF(String path, Bill bill) {
         PDDocument document = new PDDocument();
         PDPage page = new PDPage();
         document.addPage(page);
@@ -52,12 +52,11 @@ public class BillGenerator {
             drawBillDetail(contentStream, bill.getInfo());
             drawItemizedDetail(contentStream, bill.getUsage(), bill.getRates(), bill.getUnits(), bill.getDiscounts());
             contentStream.close();
-            document.save("/Users/beni_std/Desktop/test-file.pdf");
+            document.save(path);
             document.close();
         } catch (Exception ex) {
             System.err.println("Exception caught!" + ex);
         }
-        System.out.println("Bill Generated!");
     }
 
     /**
