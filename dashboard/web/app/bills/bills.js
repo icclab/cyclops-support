@@ -145,10 +145,6 @@
             return sum;
         };
 
-        this.showDetails = function(bill) {
-            console.log(bill);
-        };
-
         var loadChargeDataSuccess = function(response) {
             billDataService.setRawData(response.data);
             var billData = billDataService.getFormattedData();
@@ -158,19 +154,6 @@
         var loadChargeDataFailed = function(reponse) {
             alertService.showError("Requesting charge data failed");
         };
-
-        this.requestCharge = function(userId, from, to) {
-            restService.getChargeForUser(userId, from, to)
-                .then(loadChargeDataSuccess, loadChargeDataFailed);
-        };
-
-        /*
-        this.requestCharge(
-            sessionService.getKeystoneId(),
-            dateUtil.getFormattedDateToday() + " 00:00:00",
-            dateUtil.getFormattedDateToday() + " 23:59:59"
-        );
-        */
     }
 
 })();
