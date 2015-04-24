@@ -103,6 +103,7 @@ describe('AdminBillingController', function() {
             controller = $controller('AdminBillingController', {
                 '$scope': $scope,
                 '$q': $q,
+                '$modal': modalMock,
                 'sessionService': sessionServiceMock,
                 'restService': restServiceMock,
                 'billDataService': billDataServiceMock,
@@ -206,6 +207,17 @@ describe('AdminBillingController', function() {
             expect(controller.generateBillPDF).toHaveBeenCalledWith(fakePromiseResult);
         });
 
+        it('should show modal on third deferred.resolve', function() {
+            controller.generateBill(fakeUser);
+
+            userInfoDeferred.resolve(fakePromiseResult);
+            billDetailsDeferred.resolve(fakePromiseResult);
+            billDeferred.resolve(fakePromiseResult);
+            $scope.$apply();
+
+            expect(modalMock.open).toHaveBeenCalled();
+        });
+
         it('should display success message on third deferred.resolve', function() {
             controller.generateBill(fakeUser);
 
@@ -295,6 +307,7 @@ describe('AdminBillingController', function() {
         });
 
         it('should resolve the deferred if rest call is successful', function() {
+            spyOn(window, 'Blob');
             var promise = controller.generateBillPDF(fakePromiseResult);
 
             billDeferred.resolve(fakeUserInfoResponse);
