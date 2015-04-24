@@ -111,6 +111,19 @@ var responseParserMock = jasmine.createSpyObj(
     ]
 );
 
+var modalMock = jasmine.createSpyObj(
+    '$modal',
+    [
+        'open'
+    ]
+);
+
+//Mocking the URL class used for PDFs
+var URL = jasmine.createSpyObj(
+    'URL',
+    ['createObjectURL']
+);
+
 function resetMock(mockObject) {
     for(var func in mockObject) {
         mockObject[func].calls.reset();

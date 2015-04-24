@@ -26,18 +26,32 @@
         Controllers, Factories, Services, Directives
     */
     AdminBillingController.$inject = [
-        '$q', 'sessionService', 'restService', 'billDataService', 'alertService',
-        'responseParser', 'dateUtil'
+        '$q', '$sce', '$modal', 'sessionService', 'restService', 'billDataService',
+        'alertService', 'responseParser', 'dateUtil'
     ];
     function AdminBillingController(
-            $q, sessionService, restService, billDataService, alertService,
-            responseParser, dateUtil) {
+            $q, $sce, $modal, sessionService, restService, billDataService,
+            alertService, responseParser, dateUtil) {
         var me = this;
         this.users = [];
         this.dateFormat = "yyyy-MM-dd";
         this.defaultDate = dateUtil.getFormattedDateToday();
-        this.fromDate = undefined;
-        this.toDate = undefined;
+        this.fromDate = me.defaultDate;
+        this.toDate = me.defaultDate;
+
+        this.openModal = function () {
+            var modalInstance = $modal.open({
+                templateUrl: 'modals/pdf-modal.html',
+                controller: 'PdfModalController',
+                controllerAs: 'pdfModalCtrl',
+                size: 'lg',
+                resolve: {
+                    pdf: function () {
+                        return me.pdf;
+                    }
+                }
+            });
+        };
 
         this.getKeystoneIdForUser = function(username, sessionId) {
             var deferred = $q.defer();
@@ -95,7 +109,10 @@
             var deferred = $q.defer();
 
             restService.createBillPDF(params.userId, params.from, params.to, params.billItems).then(
-                function() {
+                function(response) {
+                    var file = new Blob([response.data], {type: 'application/pdf'});
+                    var fileURL = URL.createObjectURL(file);
+                    me.pdf = $sce.trustAsResourceUrl(fileURL);
                     deferred.resolve("Bill successfully created");
                 },
                 function() {
@@ -134,6 +151,7 @@
                     .then(me.getBillItems)
                     .then(me.generateBillPDF).then(
                         function(msg) {
+                            me.openModal();
                             alertService.showSuccess(msg);
                         },
                         function(msg) {

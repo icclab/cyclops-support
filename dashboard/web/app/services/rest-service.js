@@ -260,7 +260,7 @@
                 items: billDetails
             };
 
-            return $http.post('/dashboard/rest/bills', postData);
+            return $http.post('/dashboard/rest/bills', postData, {responseType:'arraybuffer'});
         };
 
         /**
