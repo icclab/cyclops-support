@@ -101,7 +101,6 @@
         <SOURCES />
       </library>
     </orderEntry>
-    <orderEntry type="library" name="lib" level="project" />
     <orderEntry type="module-library">
       <library name="commons-logging-1.1.1">
         <CLASSES>
@@ -136,6 +135,18 @@
         </CLASSES>
         <JAVADOC />
         <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="library" name="lib" level="project" />
+    <orderEntry type="module-library">
+      <library name="sqlite-jdbc-3.8.7">
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/web/WEB-INF/lib/sqlite-jdbc-3.8.7.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES>
+          <root url="jar://$MODULE_DIR$/web/WEB-INF/lib/sqlite-jdbc-3.8.7.jar!/" />
+        </SOURCES>
       </library>
     </orderEntry>
   </component>

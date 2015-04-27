@@ -52,6 +52,14 @@
                 me.chartName
             ).data;
         };
+
+        this.useByteFilter = function() {
+            return me.chartDataUnit == "B";
+        };
+
+        this.useHourFilter = function() {
+            return me.chartDataUnit == "ns";
+        };
     }
 
 })();
