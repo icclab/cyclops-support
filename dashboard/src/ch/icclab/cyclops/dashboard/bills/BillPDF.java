@@ -21,7 +21,6 @@ import ch.icclab.cyclops.dashboard.errorreporting.ErrorReporter;
 import ch.icclab.cyclops.dashboard.util.LoadConfiguration;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.restlet.data.Form;
 import org.restlet.data.MediaType;
 import org.restlet.ext.json.JsonRepresentation;
 import org.restlet.representation.FileRepresentation;
