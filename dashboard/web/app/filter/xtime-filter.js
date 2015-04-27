@@ -31,24 +31,28 @@
         return function(ns) {
             ns = ns || 0;
             var base = 1000;
+            var oneSecond = Math.pow(base, 3);
             var lowUnits = ["μs", "ms", "s"];
 
+            //For values lower than 1 microsecond, no need to calculate anything
             if(ns < base) {
                 return ns + " ns";
             }
 
-            if(ns < Math.pow(base, 3)) {
+            //Do the calculations for all units that can be divided by 1000
+            if(ns < oneSecond) {
                 var exp = Math.floor(Math.log(ns) / Math.log(base));
                 var pre = lowUnits[exp-1];
                 var roundedValue = Math.round((ns / Math.pow(base, exp)) * 100) / 100;
                 return roundedValue + " " + pre;
             }
 
-            //If code gets to this point, we have a unit >= seconds
-            var sumSeconds = ns / Math.pow(base, 3);
-            var hours   = Math.floor(sumSeconds / 3600);
-            var minutes = Math.floor((sumSeconds - (hours * 3600)) / 60);
-            var seconds = sumSeconds - (hours * 3600) - (minutes * 60);
+            //If code gets to this point, we have a unit >= seconds that need
+            //special treatment
+            var totalSeconds = ns / oneSecond;
+            var hours   = Math.floor(totalSeconds / 3600);
+            var minutes = Math.floor((totalSeconds - (hours * 3600)) / 60);
+            var seconds = totalSeconds - (hours * 3600) - (minutes * 60);
 
             if(hours >= 1) {
                 var decimalMinutes = Math.round((minutes / 60) * 100) / 100;
