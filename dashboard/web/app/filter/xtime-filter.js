@@ -47,8 +47,8 @@
                 return roundedValue + " " + pre;
             }
 
-            //If code gets to this point, we have a unit >= seconds that need
-            //special treatment
+            //If the code gets to this point, we have a unit >= seconds that
+            //needs special treatment
             var totalSeconds = ns / oneSecond;
             var hours   = Math.floor(totalSeconds / 3600);
             var minutes = Math.floor((totalSeconds - (hours * 3600)) / 60);
