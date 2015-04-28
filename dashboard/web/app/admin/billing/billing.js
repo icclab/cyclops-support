@@ -60,11 +60,15 @@
                 function(response) {
                     var responseData = response.data;
                     var keystoneIdField = responseData.keystoneid || [];
+                    var firstNameField = responseData.givenName || [];
+                    var lastNameField = responseData.sn || [];
                     var userId = keystoneIdField[0];
 
                     if(userId) {
                         deferred.resolve({
                             userId: userId,
+                            firstName: firstNameField[0] || "",
+                            lastName: lastNameField[0] || "",
                             from: me.fromDate,
                             to: me.toDate
                         });
@@ -89,13 +93,8 @@
             restService.getChargeForUser(params.userId, from, to).then(
                 function(response) {
                     billDataService.setRawData(response.data);
-                    var billItems = billDataService.getFormattedData();
-                    deferred.resolve({
-                        userId: params.userId,
-                        from: params.from,
-                        to: params.to,
-                        billItems: billItems
-                    });
+                    params.billItems = billDataService.getFormattedData();
+                    deferred.resolve(params);
                 },
                 function() {
                     deferred.reject("Could not load charge data for user");
@@ -108,7 +107,7 @@
         this.generateBillPDF = function(params) {
             var deferred = $q.defer();
 
-            restService.createBillPDF(params.userId, params.from, params.to, params.billItems).then(
+            restService.createBillPDF(params).then(
                 function(response) {
                     var file = new Blob([response.data], {type: 'application/pdf'});
                     var fileURL = URL.createObjectURL(file);
