@@ -17,8 +17,11 @@
 
 package ch.icclab.cyclops.dashboard.application;
 
+import ch.icclab.cyclops.dashboard.bills.BillInformation;
 import ch.icclab.cyclops.dashboard.bills.BillPDF;
 import ch.icclab.cyclops.dashboard.charge.Charge;
+import ch.icclab.cyclops.dashboard.database.DatabaseHelper;
+import ch.icclab.cyclops.dashboard.database.DatabaseInteractionException;
 import ch.icclab.cyclops.dashboard.errorreporting.ErrorReporter;
 import ch.icclab.cyclops.dashboard.keystone.KeystoneAssociation;
 import ch.icclab.cyclops.dashboard.keystone.KeystoneMeter;
@@ -59,7 +62,17 @@ public class DashboardApplication extends Application {
         router.attach("/users", User.class);
         router.attach("/users/{user}", UserInfo.class);
         router.attach("/admins", Admin.class);
-        router.attach("/bills", BillPDF.class);
+        router.attach("/bills", BillInformation.class);
+        router.attach("/bills/pdf", BillPDF.class);
+
+        DatabaseHelper dbHelper = new DatabaseHelper();
+        try {
+            dbHelper.createDatabaseIfNotExists();
+        }
+        catch (DatabaseInteractionException e) {
+            ErrorReporter.reportException(e);
+        }
+
         return router;
     }
 

@@ -24,17 +24,22 @@ describe('BillController', function() {
     /*
         Fake Data
      */
-    var fakeDateToday = "2015-03-04";
-    var fakeUser = "192asdk";
-    var fakeFrom = "2015-03-03 00:00:00";
-    var fakeTo = "2015-03-04 23:59:59";
+    var fakeKeystoneId = "asdl";
     var fakePaidBill = { status: "paid" };
     var fakeDueBill = { status: "due" };
     var fakeRunningBill = { status: "running" };
-    var fakeResponse = {
-        data: {
-            'test': 'abc'
+    var fakeBills = [
+        {
+            from: "2015-04-28",
+            to: "2015-04-29"
+        },
+        {
+            from: "2015-04-25",
+            to: "2015-04-27"
         }
+    ];
+    var fakeBillResponse = {
+        data: fakeBills
     };
 
     /*
@@ -56,8 +61,8 @@ describe('BillController', function() {
             deferred = $q.defer();
             promise = deferred.promise;
 
-            restServiceMock.getChargeForUser.and.returnValue(promise);
-            dateUtilMock.getFormattedDateToday.and.returnValue(fakeDateToday);
+            sessionServiceMock.getKeystoneId.and.returnValue(fakeKeystoneId);
+            restServiceMock.getBills.and.returnValue(promise);
 
             controller = $controller('BillController', {
                 '$scope': $scope,
@@ -87,28 +92,24 @@ describe('BillController', function() {
         });
     });
 
-    describe('requestCharge', function() {
-        it('should correctly call restService.getChargeForUser', function() {
-            controller.requestCharge(fakeUser, fakeFrom, fakeTo);
-            deferred.resolve(fakeResponse);
-            $scope.$digest();
-
-            expect(restServiceMock.getChargeForUser)
-                .toHaveBeenCalledWith(fakeUser, fakeFrom, fakeTo);
+    describe('getBills', function() {
+        it('should correctly call restService.getBills', function() {
+            controller.getBills(fakeKeystoneId);
+            expect(restServiceMock.getBills).toHaveBeenCalledWith(fakeKeystoneId);
         });
 
-        it('should execute loadUdrDataSuccess on deferred.resolve', function() {
-            controller.requestCharge(fakeUser, fakeFrom, fakeTo);
-            deferred.resolve(fakeResponse);
+        it('should execute success callback on deferred.resolve', function() {
+            controller.getBills(fakeKeystoneId);
+
+            deferred.resolve(fakeBillResponse);
             $scope.$digest();
 
-            expect(billDataServiceMock.setRawData)
-                .toHaveBeenCalledWith(fakeResponse.data);
-            expect(billDataServiceMock.getFormattedData).toHaveBeenCalled();
+            expect(controller.bills).toEqual(fakeBills);
         });
 
-        it('should excute loadUdrDataFailed on deferred.reject', function() {
-            controller.requestCharge(fakeUser, fakeFrom, fakeTo);
+        it('should execute error callback on deferred.reject', function() {
+            controller.getBills(fakeKeystoneId);
+
             deferred.reject();
             $scope.$digest();
 

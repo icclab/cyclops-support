@@ -29,16 +29,20 @@ describe('AdminBillingController', function() {
         Fake Data
      */
     var fakeUser = "testUser";
+    var fakeKeystoneId = "asdk123kas";
     var fakeDate = "2015-02-03";
     var fakeFromDateTime = fakeDate + " 00:00";
     var fakeToDateTime = fakeDate + " 23:59";
     var fakeSessionId = "1234";
     var fakeUsers = ['user1', 'user2'];
     var fakeUserInfo = {
-        keystoneid: ["asdk123kas"]
+        keystoneid: [ fakeKeystoneId ]
     };
     var fakeUserInfoResponse = {
         data: fakeUserInfo
+    };
+    var fakeUserInfoResponseNoId = {
+        data: {}
     };
     var fakeUserResponse = {
         data: {
@@ -56,6 +60,12 @@ describe('AdminBillingController', function() {
             resource: 'network.incoming.bytes',
             price: 3
         }
+    };
+    var fakePromiseResult = {
+        userId: fakeKeystoneId,
+        from: fakeDate,
+        to: fakeDate,
+        billItems: fakeBillData
     };
 
     /*
@@ -92,6 +102,8 @@ describe('AdminBillingController', function() {
 
             controller = $controller('AdminBillingController', {
                 '$scope': $scope,
+                '$q': $q,
+                '$modal': modalMock,
                 'sessionService': sessionServiceMock,
                 'restService': restServiceMock,
                 'billDataService': billDataServiceMock,
@@ -146,70 +158,73 @@ describe('AdminBillingController', function() {
 
             controller.onDateChanged(fakeDate, fakeDate);
 
-            expect(controller.fromDate).toBe(fakeFromDateTime);
-            expect(controller.toDate).toBe(fakeToDateTime);
+            expect(controller.fromDate).toBe(fakeDate);
+            expect(controller.toDate).toBe(fakeDate);
         });
     });
 
     describe('generateBill', function() {
-        it('should correctly call restService.getUserInfo() if dates selected', function() {
-            controller.fromDate = fakeFromDateTime;
-            controller.toDate = fakeToDateTime;
+        beforeEach(function() {
+            controller.fromDate = fakeDate;
+            controller.toDate = fakeDate;
+            spyOn(controller, 'getKeystoneIdForUser').and.returnValue(userInfoPromise);
+            spyOn(controller, 'getBillItems').and.returnValue(billDetailsPromise);
+            spyOn(controller, 'generateBillPDF').and.returnValue(billPromise);
+        });
+
+        it('should show error if no dates are selected', function() {
+            controller.fromDate = undefined;
+            controller.toDate = undefined;
 
             controller.generateBill(fakeUser);
 
-            expect(restServiceMock.getUserInfo)
+            expect(alertServiceMock.showError).toHaveBeenCalled();
+        });
+
+        it('should correctly call getKeystoneIdForUser if dates are selected', function() {
+            controller.generateBill(fakeUser);
+
+            expect(controller.getKeystoneIdForUser)
                 .toHaveBeenCalledWith(fakeUser, fakeSessionId);
         });
 
-        it('should not call restService.getUserInfo() if no dates selected', function() {
+        it('should call getBillItems on first deferred.resolve', function() {
             controller.generateBill(fakeUser);
-            expect(restServiceMock.getUserInfo)
-                .not.toHaveBeenCalledWith(fakeUser, fakeSessionId);
+
+            userInfoDeferred.resolve(fakePromiseResult);
+            $scope.$apply();
+
+            expect(controller.getBillItems).toHaveBeenCalledWith(fakePromiseResult);
         });
 
-        it('should execute first success callback on first deferred.resolve', function() {
-            controller.fromDate = fakeFromDateTime;
-            controller.toDate = fakeToDateTime;
-
+        it('should call generateBillPDF on second deferred.resolve', function() {
             controller.generateBill(fakeUser);
 
-            userInfoDeferred.resolve(fakeUserInfoResponse);
-            $scope.$digest();
+            userInfoDeferred.resolve(fakePromiseResult);
+            billDetailsDeferred.resolve(fakePromiseResult);
+            $scope.$apply();
 
-            expect(restServiceMock.getChargeForUser).toHaveBeenCalledWith(
-                fakeUserInfo.keystoneid[0],
-                fakeFromDateTime,
-                fakeToDateTime
-            );
+            expect(controller.generateBillPDF).toHaveBeenCalledWith(fakePromiseResult);
         });
 
-        it('should execute second success callback on second deferred.resolve', function() {
-            controller.fromDate = fakeFromDateTime;
-            controller.toDate = fakeToDateTime;
-
+        it('should show modal on third deferred.resolve', function() {
             controller.generateBill(fakeUser);
 
-            userInfoDeferred.resolve(fakeUserInfoResponse);
-            billDetailsDeferred.resolve(fakeBillDetailsResponse);
-            $scope.$digest();
+            userInfoDeferred.resolve(fakePromiseResult);
+            billDetailsDeferred.resolve(fakePromiseResult);
+            billDeferred.resolve(fakePromiseResult);
+            $scope.$apply();
 
-            expect(billDataServiceMock.setRawData)
-                .toHaveBeenCalledWith(fakeBillDetailsResponse.data);
-            expect(billDataServiceMock.getFormattedData).toHaveBeenCalled();
-            expect(restServiceMock.createBillPDF).toHaveBeenCalledWith(fakeBillData);
+            expect(modalMock.open).toHaveBeenCalled();
         });
 
-        it('should execute third success callback on third deferred.resolve', function() {
-            controller.fromDate = fakeFromDateTime;
-            controller.toDate = fakeToDateTime;
-
+        it('should display success message on third deferred.resolve', function() {
             controller.generateBill(fakeUser);
 
-            userInfoDeferred.resolve(fakeUserInfoResponse);
-            billDetailsDeferred.resolve(fakeBillDetailsResponse);
-            billDeferred.resolve(fakeBillResponse);
-            $scope.$digest();
+            userInfoDeferred.resolve(fakePromiseResult);
+            billDetailsDeferred.resolve(fakePromiseResult);
+            billDeferred.resolve(fakePromiseResult);
+            $scope.$apply();
 
             expect(alertServiceMock.showSuccess).toHaveBeenCalled();
         });
@@ -221,6 +236,93 @@ describe('AdminBillingController', function() {
             $scope.$digest();
 
             expect(alertServiceMock.showError).toHaveBeenCalled();
+        });
+    });
+
+    describe('getKeystoneIdForUser', function() {
+        it('should correclty call restService.getUserInfo', function() {
+            controller.getKeystoneIdForUser(fakeUser, fakeSessionId);
+            expect(restServiceMock.getUserInfo).toHaveBeenCalledWith(fakeUser, fakeSessionId);
+        });
+
+        it('should resolve the deferred if userId available', function() {
+            var promise = controller.getKeystoneIdForUser(fakeUser, fakeSessionId);
+
+            userInfoDeferred.resolve(fakeUserInfoResponse);
+            $scope.$apply();
+
+            expect(promise.$$state.status).toBe(1);
+        });
+
+        it('should reject the deferred if no userId available', function() {
+            var promise = controller.getKeystoneIdForUser(fakeUser, fakeSessionId);
+
+            userInfoDeferred.resolve(fakeUserInfoResponseNoId);
+            $scope.$apply();
+
+            expect(promise.$$state.status).toBe(2);
+        });
+
+        it('should reject the deferred if rest call fails', function() {
+            var promise = controller.getKeystoneIdForUser(fakeUser, fakeSessionId);
+
+            userInfoDeferred.reject();
+            $scope.$apply();
+
+            expect(promise.$$state.status).toBe(2);
+        });
+    });
+
+    describe('getBillItems', function() {
+        it('should correclty call restService.getChargeForUser', function() {
+            controller.getBillItems(fakePromiseResult);
+            expect(restServiceMock.getChargeForUser)
+                .toHaveBeenCalledWith(fakeKeystoneId, fakeFromDateTime, fakeToDateTime);
+        });
+
+        it('should resolve the deferred if rest call is successful', function() {
+            var promise = controller.getBillItems(fakePromiseResult);
+
+            billDetailsDeferred.resolve(fakeUserInfoResponse);
+            $scope.$apply();
+
+            expect(promise.$$state.status).toBe(1);
+        });
+
+        it('should reject the deferred if rest call fails', function() {
+            var promise = controller.getBillItems(fakePromiseResult);
+
+            billDetailsDeferred.reject();
+            $scope.$apply();
+
+            expect(promise.$$state.status).toBe(2);
+        });
+    });
+
+    describe('generateBillPDF', function() {
+        it('should correclty call restService.createBillPDF', function() {
+            controller.generateBillPDF(fakePromiseResult);
+            expect(restServiceMock.createBillPDF)
+                .toHaveBeenCalledWith(fakePromiseResult);
+        });
+
+        it('should resolve the deferred if rest call is successful', function() {
+            spyOn(window, 'Blob');
+            var promise = controller.generateBillPDF(fakePromiseResult);
+
+            billDeferred.resolve(fakeUserInfoResponse);
+            $scope.$apply();
+
+            expect(promise.$$state.status).toBe(1);
+        });
+
+        it('should reject the deferred if rest call fails', function() {
+            var promise = controller.generateBillPDF(fakePromiseResult);
+
+            billDeferred.reject();
+            $scope.$apply();
+
+            expect(promise.$$state.status).toBe(2);
         });
     });
 });
