@@ -87,8 +87,15 @@ public class Bill {
 
         try {
             cal.setTime(sdf.parse(date));
+            int month = cal.get(Calendar.MONTH) + 1;
+            String monthString = String.valueOf(month);
+
+            if(month < 10) {
+                monthString = "0" + monthString;
+            }
+
             info.put("bill-start-year", String.valueOf(cal.get(Calendar.YEAR)));
-            info.put("bill-start-month", String.valueOf(cal.get(Calendar.MONTH) + 1));
+            info.put("bill-start-month", monthString);
             info.put("period-start-date", String.valueOf(cal.get(Calendar.DAY_OF_MONTH)));
         } catch (ParseException ex) {
             //TOOD: error handling
@@ -101,8 +108,14 @@ public class Bill {
 
         try {
             cal.setTime(sdf.parse(date));
+            int month = cal.get(Calendar.MONTH) + 1;
+            String monthString = String.valueOf(month);
+
+            if(month < 10) {
+                monthString = "0" + monthString;
+            }
             info.put("bill-end-year", String.valueOf(cal.get(Calendar.YEAR)));
-            info.put("bill-end-month", String.valueOf(cal.get(Calendar.MONTH) + 1));
+            info.put("bill-end-month", monthString);
             info.put("period-end-date", String.valueOf(cal.get(Calendar.DAY_OF_MONTH)));
         } catch (ParseException ex) {
             //TOOD: error handling

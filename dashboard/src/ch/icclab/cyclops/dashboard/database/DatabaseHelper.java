@@ -54,4 +54,69 @@ public class DatabaseHelper {
             throw new DatabaseInteractionException("SQL Exception", e);
         }
     }
+
+    public ResultSet getBillsForUser(String userId) throws DatabaseInteractionException {
+        try {
+            Connection c = openConnection();
+            PreparedStatement stmt = c.prepareStatement("SELECT * FROM bills WHERE userId = ?");
+            stmt.setString(1, userId);
+            ResultSet resultSet = stmt.executeQuery();
+            c.close();
+
+            return resultSet;
+        }
+        catch (ClassNotFoundException e) {
+            throw new DatabaseInteractionException("SQLite class not found", e);
+        }
+        catch (SQLException e) {
+            throw new DatabaseInteractionException("SQL Exception", e);
+        }
+    }
+
+    public boolean existsBill(String userId, Bill bill) throws DatabaseInteractionException {
+        try {
+            Connection c = openConnection();
+            PreparedStatement stmt = c.prepareStatement("SELECT * FROM bills WHERE userId = ? AND fromDate = ? AND toDate = ?");
+            stmt.setString(1, userId);
+            stmt.setString(2, bill.getFromDate());
+            stmt.setString(3, bill.getToDate());
+            ResultSet resultSet = stmt.executeQuery();
+            c.close();
+            return resultSet.isBeforeFirst();
+        }
+        catch (ClassNotFoundException e) {
+            throw new DatabaseInteractionException("SQLite class not found", e);
+        }
+        catch (SQLException e) {
+            throw new DatabaseInteractionException("SQL Exception", e);
+        }
+    }
+
+    public String getBillPath(String userId, Bill bill) throws DatabaseInteractionException {
+        try {
+            Connection c = openConnection();
+            PreparedStatement stmt = c.prepareStatement("SELECT billPDF FROM bills WHERE userId = ? AND fromDate = ? AND toDate = ?");
+            stmt.setString(1, userId);
+            stmt.setString(2, bill.getFromDate());
+            stmt.setString(3, bill.getToDate());
+            ResultSet resultSet = stmt.executeQuery();
+
+            if(resultSet.next()) {
+                String pdfPath = resultSet.getString("billPDF");
+                c.close();
+                return pdfPath;
+            }
+            else {
+                c.close();
+                throw new DatabaseInteractionException("No rows found");
+            }
+
+        }
+        catch (ClassNotFoundException e) {
+            throw new DatabaseInteractionException("SQLite class not found", e);
+        }
+        catch (SQLException e) {
+            throw new DatabaseInteractionException("SQL Exception", e);
+        }
+    }
 }

@@ -33,11 +33,13 @@ import org.restlet.resource.ServerResource;
 import java.io.File;
 import java.io.IOException;
 import java.util.Iterator;
+import java.util.UUID;
 
 public class BillPDF extends ServerResource {
     @Post
     public Representation createPDF(Representation entity) {
         Bill bill = new Bill();
+        DatabaseHelper dbHelper = new DatabaseHelper();
 
         try {
             JsonRepresentation represent = new JsonRepresentation(entity);
@@ -53,13 +55,14 @@ public class BillPDF extends ServerResource {
             bill.setToDate(to);
             bill.setRecipientName(firstName, lastName);
 
-            String basePath = LoadConfiguration.configuration.get("BILLING_PDF_PATH");
-            String filename = removeSlashes(userId) + "_" + removeSlashes(from) + "_" + removeSlashes(to) + ".pdf";
-            String path = basePath + "/" + filename;
-            File pdfFile = new File(path);
-
             //If PDF doesn't exist yet, create it
-            if(!pdfFile.exists()) {
+            if(!dbHelper.existsBill(userId, bill)) {
+                System.out.println("Bill does not exist yet");
+                String basePath = LoadConfiguration.configuration.get("BILLING_PDF_PATH");
+                String filename = UUID.randomUUID() + ".pdf";
+                String path = basePath + "/" + filename;
+                File pdfFile = new File(path);
+
                 Iterator<?> keys = billDetails.keys();
 
                 while( keys.hasNext() ) {
@@ -74,12 +77,15 @@ public class BillPDF extends ServerResource {
 
                 BillGenerator billGen = new BillGenerator();
                 billGen.createPDF(path, bill);
+                dbHelper.addBill(userId, path, bill);
+                return new FileRepresentation(pdfFile, MediaType.APPLICATION_PDF, 0);
             }
-
-            DatabaseHelper dbHelper = new DatabaseHelper();
-            dbHelper.addBill(userId, path, bill);
-
-            return new FileRepresentation(pdfFile, MediaType.APPLICATION_PDF, 0);
+            else {
+                System.out.println("Bill already exists");
+                String dbPdfPath = dbHelper.getBillPath(userId, bill);
+                System.out.println("Bill Path: " + dbPdfPath);
+                return new FileRepresentation(new File(dbPdfPath), MediaType.APPLICATION_PDF, 0);
+            }
 
         } catch (JSONException e) {
             ErrorReporter.reportException(e);
@@ -90,9 +96,5 @@ public class BillPDF extends ServerResource {
         }
 
         return null;
-    }
-
-    private String removeSlashes(String input) {
-        return input.replace("/", "").replace("\\", "");
     }
 }
