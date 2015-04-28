@@ -303,7 +303,7 @@ describe('AdminBillingController', function() {
         it('should correclty call restService.createBillPDF', function() {
             controller.generateBillPDF(fakePromiseResult);
             expect(restServiceMock.createBillPDF)
-                .toHaveBeenCalledWith(fakeKeystoneId, fakeDate, fakeDate, fakeBillData);
+                .toHaveBeenCalledWith(fakePromiseResult);
         });
 
         it('should resolve the deferred if rest call is successful', function() {

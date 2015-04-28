@@ -1,36 +1,57 @@
 package ch.icclab.cyclops.dashboard.database;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
+import ch.icclab.cyclops.dashboard.bills.Bill;
+import ch.icclab.cyclops.dashboard.util.LoadConfiguration;
+
+import java.sql.*;
 
 public class DatabaseHelper {
-    private static Connection connection;
-
-    public static Connection openConnection() {
-        if(connection == null) {
-            try {
-                Class.forName("org.sqlite.JDBC");
-                connection = DriverManager.getConnection("jdbc:sqlite:test.db");
-            }
-            catch(ClassNotFoundException cnfex) {
-                //TODO: exception handling
-            }
-            catch (SQLException sqlex) {
-                //TODO: exception handling
-            }
-        }
-
-        return connection;
+    private Connection openConnection() throws ClassNotFoundException, SQLException {
+        Class.forName("org.sqlite.JDBC");
+        String dbPath = LoadConfiguration.configuration.get("BILLING_DB_PATH");
+        return DriverManager.getConnection("jdbc:sqlite:" + dbPath + "/bills.db");
     }
 
-    public static void closeConnection() {
-        if(connection != null) {
-            try {
-                connection.close();
-            } catch (SQLException e) {
-                //TODO: exception handling
-            }
+    public void createDatabaseIfNotExists() throws DatabaseInteractionException {
+        try {
+            Connection c = openConnection();
+            Statement stmt = c.createStatement();
+            String sql = "CREATE TABLE IF NOT EXISTS bills" +
+                    "(ID INTEGER PRIMARY KEY," +
+                    " userId        TEXT    NOT NULL, " +
+                    " billPDF       TEXT    NOT NULL, " +
+                    " fromDate      TEXT    NOT NULL, " +
+                    " toDate        TEXT    NOT NULL, " +
+                    " created TIMESTAMP DEFAULT CURRENT_TIMESTAMP)";
+            stmt.executeUpdate(sql);
+            stmt.close();
+            c.close();
+        }
+        catch (ClassNotFoundException e) {
+            throw new DatabaseInteractionException("SQLite class not found", e);
+        }
+        catch (SQLException e) {
+            throw new DatabaseInteractionException("SQL Exception", e);
+        }
+    }
+
+    public void addBill(String userId, String pdfPath, Bill bill) throws DatabaseInteractionException {
+        try {
+            Connection c = openConnection();
+            PreparedStatement stmt = c.prepareStatement("INSERT INTO bills (ID, userId, billPDF, fromDate, toDate) VALUES (NULL, ?, ?, ?, ?)");
+            stmt.setString(1, userId);
+            stmt.setString(2, pdfPath);
+            stmt.setString(3, bill.getFromDate());
+            stmt.setString(4, bill.getToDate());
+            stmt.executeUpdate();
+            c.close();
+
+        }
+        catch (ClassNotFoundException e) {
+            throw new DatabaseInteractionException("SQLite class not found", e);
+        }
+        catch (SQLException e) {
+            throw new DatabaseInteractionException("SQL Exception", e);
         }
     }
 }

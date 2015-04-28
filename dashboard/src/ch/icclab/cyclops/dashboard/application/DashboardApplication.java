@@ -19,6 +19,8 @@ package ch.icclab.cyclops.dashboard.application;
 
 import ch.icclab.cyclops.dashboard.bills.BillPDF;
 import ch.icclab.cyclops.dashboard.charge.Charge;
+import ch.icclab.cyclops.dashboard.database.DatabaseHelper;
+import ch.icclab.cyclops.dashboard.database.DatabaseInteractionException;
 import ch.icclab.cyclops.dashboard.errorreporting.ErrorReporter;
 import ch.icclab.cyclops.dashboard.keystone.KeystoneAssociation;
 import ch.icclab.cyclops.dashboard.keystone.KeystoneMeter;
@@ -39,6 +41,7 @@ import org.restlet.Restlet;
 import org.restlet.routing.Router;
 
 import java.io.IOException;
+import java.sql.SQLException;
 
 public class DashboardApplication extends Application {
     @Override
@@ -60,6 +63,15 @@ public class DashboardApplication extends Application {
         router.attach("/users/{user}", UserInfo.class);
         router.attach("/admins", Admin.class);
         router.attach("/bills", BillPDF.class);
+
+        DatabaseHelper dbHelper = new DatabaseHelper();
+        try {
+            dbHelper.createDatabaseIfNotExists();
+        }
+        catch (DatabaseInteractionException e) {
+            ErrorReporter.reportException(e);
+        }
+
         return router;
     }
 

@@ -17,6 +17,8 @@
 
 package ch.icclab.cyclops.dashboard.bills;
 
+import ch.icclab.cyclops.dashboard.database.DatabaseHelper;
+import ch.icclab.cyclops.dashboard.database.DatabaseInteractionException;
 import ch.icclab.cyclops.dashboard.errorreporting.ErrorReporter;
 import ch.icclab.cyclops.dashboard.util.LoadConfiguration;
 import org.json.JSONException;
@@ -43,7 +45,13 @@ public class BillPDF extends ServerResource {
             String userId = billJson.getString("userId");
             String from = billJson.getString("from");
             String to = billJson.getString("to");
-            JSONObject billDetails = billJson.getJSONObject("items");
+            String firstName = billJson.getString("firstName");
+            String lastName = billJson.getString("lastName");
+            JSONObject billDetails = billJson.getJSONObject("billItems");
+
+            bill.setFromDate(from);
+            bill.setToDate(to);
+            bill.setRecipientName(firstName, lastName);
 
             String basePath = LoadConfiguration.configuration.get("BILLING_PDF_PATH");
             String filename = removeSlashes(userId) + "_" + removeSlashes(from) + "_" + removeSlashes(to) + ".pdf";
@@ -68,11 +76,16 @@ public class BillPDF extends ServerResource {
                 billGen.createPDF(path, bill);
             }
 
+            DatabaseHelper dbHelper = new DatabaseHelper();
+            dbHelper.addBill(userId, path, bill);
+
             return new FileRepresentation(pdfFile, MediaType.APPLICATION_PDF, 0);
 
         } catch (JSONException e) {
             ErrorReporter.reportException(e);
         } catch (IOException e) {
+            ErrorReporter.reportException(e);
+        } catch (DatabaseInteractionException e) {
             ErrorReporter.reportException(e);
         }
 

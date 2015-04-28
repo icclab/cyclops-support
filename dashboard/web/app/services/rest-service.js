@@ -252,15 +252,8 @@
          * @param  {Object} billDetails Object containing billing details
          * @return {Promise}
          */
-        this.createBillPDF = function(userId, from, to, billDetails) {
-            var postData = {
-                userId: userId,
-                from: from,
-                to: to,
-                items: billDetails
-            };
-
-            return $http.post('/dashboard/rest/bills', postData, {responseType:'arraybuffer'});
+        this.createBillPDF = function(billDetails) {
+            return $http.post('/dashboard/rest/bills', billDetails, {responseType:'arraybuffer'});
         };
 
         /**

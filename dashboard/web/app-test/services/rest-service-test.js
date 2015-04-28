@@ -254,7 +254,7 @@ describe('RestService', function() {
     describe('createBillPDF', function() {
         it('should send complete POST request', function() {
             $httpBackend.expectPOST("/dashboard/rest/bills", fakeBill);
-            restService.createBillPDF(fakeUser, fakeFrom, fakeTo, fakeBillItems);
+            restService.createBillPDF(fakeBill);
             $httpBackend.flush();
         });
     });
