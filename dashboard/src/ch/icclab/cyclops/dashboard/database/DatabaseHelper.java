@@ -4,6 +4,8 @@ import ch.icclab.cyclops.dashboard.bills.Bill;
 import ch.icclab.cyclops.dashboard.util.LoadConfiguration;
 
 import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public class DatabaseHelper {
     private Connection openConnection() throws ClassNotFoundException, SQLException {
@@ -55,15 +57,25 @@ public class DatabaseHelper {
         }
     }
 
-    public ResultSet getBillsForUser(String userId) throws DatabaseInteractionException {
+    public List<Bill> getBillsForUser(String userId) throws DatabaseInteractionException {
+        List<Bill> bills = new ArrayList<Bill>();
+
         try {
             Connection c = openConnection();
             PreparedStatement stmt = c.prepareStatement("SELECT * FROM bills WHERE userId = ?");
             stmt.setString(1, userId);
             ResultSet resultSet = stmt.executeQuery();
+
+            while(resultSet.next()) {
+                Bill bill = new Bill();
+                bill.setFromDate(resultSet.getString("fromDate"));
+                bill.setToDate(resultSet.getString("toDate"));
+                bills.add(bill);
+            }
+
             c.close();
 
-            return resultSet;
+            return bills;
         }
         catch (ClassNotFoundException e) {
             throw new DatabaseInteractionException("SQLite class not found", e);
@@ -81,8 +93,9 @@ public class DatabaseHelper {
             stmt.setString(2, bill.getFromDate());
             stmt.setString(3, bill.getToDate());
             ResultSet resultSet = stmt.executeQuery();
+            boolean hasBills = resultSet.isBeforeFirst();
             c.close();
-            return resultSet.isBeforeFirst();
+            return hasBills;
         }
         catch (ClassNotFoundException e) {
             throw new DatabaseInteractionException("SQLite class not found", e);

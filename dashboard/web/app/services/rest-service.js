@@ -253,7 +253,7 @@
          * @return {Promise}
          */
         this.createBillPDF = function(billDetails) {
-            return $http.post('/dashboard/rest/bills', billDetails, {responseType:'arraybuffer'});
+            return $http.post('/dashboard/rest/bills/pdf', billDetails, {responseType:'arraybuffer'});
         };
 
         /**
@@ -264,6 +264,10 @@
          */
         this.getUserInfo = function(username, adminSessionId) {
             return $http.get('/dashboard/rest/users/' + username + "?session_id=" + adminSessionId);
+        };
+
+        this.getBills = function(userId) {
+            return $http.get('/dashboard/rest/bills?user_id=' + userId);
         };
     }
 

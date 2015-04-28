@@ -88,7 +88,7 @@ describe('RestService', function() {
         $httpBackend.whenGET("/dashboard/rest/users" + fakeSessionQuery).respond(200);
         $httpBackend.whenGET("/dashboard/rest/admins" + fakeSessionQuery).respond(200);
         $httpBackend.whenPUT("/dashboard/rest/admins").respond(200);
-        $httpBackend.whenPOST("/dashboard/rest/bills").respond(200);
+        $httpBackend.whenPOST("/dashboard/rest/bills/pdf").respond(200);
         $httpBackend.whenGET("/dashboard/rest/users/" + fakeUser + fakeSessionQuery).respond(200);
     });
 
@@ -253,7 +253,7 @@ describe('RestService', function() {
 
     describe('createBillPDF', function() {
         it('should send complete POST request', function() {
-            $httpBackend.expectPOST("/dashboard/rest/bills", fakeBill);
+            $httpBackend.expectPOST("/dashboard/rest/bills/pdf", fakeBill);
             restService.createBillPDF(fakeBill);
             $httpBackend.flush();
         });

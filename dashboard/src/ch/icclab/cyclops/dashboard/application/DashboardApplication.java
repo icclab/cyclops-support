@@ -17,6 +17,7 @@
 
 package ch.icclab.cyclops.dashboard.application;
 
+import ch.icclab.cyclops.dashboard.bills.BillInformation;
 import ch.icclab.cyclops.dashboard.bills.BillPDF;
 import ch.icclab.cyclops.dashboard.charge.Charge;
 import ch.icclab.cyclops.dashboard.database.DatabaseHelper;
@@ -41,7 +42,6 @@ import org.restlet.Restlet;
 import org.restlet.routing.Router;
 
 import java.io.IOException;
-import java.sql.SQLException;
 
 public class DashboardApplication extends Application {
     @Override
@@ -62,7 +62,8 @@ public class DashboardApplication extends Application {
         router.attach("/users", User.class);
         router.attach("/users/{user}", UserInfo.class);
         router.attach("/admins", Admin.class);
-        router.attach("/bills", BillPDF.class);
+        router.attach("/bills", BillInformation.class);
+        router.attach("/bills/pdf", BillPDF.class);
 
         DatabaseHelper dbHelper = new DatabaseHelper();
         try {

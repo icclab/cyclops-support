@@ -31,96 +31,15 @@
     function BillController(sessionService, restService, billDataService,
             alertService, dateUtil) {
         var me = this;
+        this.bills = [];
 
-        /**
-         * Objects in the following form:
-         *
-         * {
-         *     title: "bill_title",
-         *     status: "running"/"due"/"paid"
-         *     from: "from_date",
-         *     to: "to_date",
-         *     items: [
-         *         {
-         *             resource: "resource_name",
-         *             unit: "unit_name",
-         *             usage: "usage_value",
-         *             rate: "rate_Value",
-         *             charge: "charge_value"
-         *         }
-         *     ]
-         * }
-         *
-         * @type {Array}
-         */
-        this.bills = [
-            {
-                title: "2014/12",
-                status: "running",
-                from: "2014-12-01",
-                to: "2014-12-31",
-                items: [
-                    {
-                        resource: "cpu",
-                        unit: "ns",
-                        usage: "14261423871",
-                        rate: "1.28E-8",
-                        charge: 182.55
-                    },
-                    {
-                        resource: "network.bytes.out",
-                        unit: "B",
-                        usage: "2261523811",
-                        rate: "1.2E-6",
-                        charge: 2713.85
-                    }
-                ]
-            },
-            {
-                title: "2014/11",
-                status: "due",
-                from: "2014-11-01",
-                to: "2014-11-30",
-                items: [
-                    {
-                        resource: "cpu",
-                        unit: "ns",
-                        usage: "14261423871",
-                        rate: "1.28E-8",
-                        charge: 182.55
-                    },
-                    {
-                        resource: "network.bytes.out",
-                        unit: "B",
-                        usage: "2261523811",
-                        rate: "1.2E-6",
-                        charge: 444
-                    }
-                ]
-            },
-            {
-                title: "2014/10",
-                status: "paid",
-                from: "2014-10-01",
-                to: "2014-10-31",
-                items: [
-                    {
-                        resource: "cpu",
-                        unit: "ns",
-                        usage: "14261423871",
-                        rate: "1.28E-8",
-                        charge: 182.55
-                    },
-                    {
-                        resource: "network.bytes.out",
-                        unit: "B",
-                        usage: "2261523811",
-                        rate: "1.2E-6",
-                        charge: 1243.85
-                    }
-                ]
-            }
-        ];
+        var loadBillsSuccess = function(response) {
+            me.bills = response.data;
+        };
+
+        var loadBillsError = function() {
+            alertService.showError("Could not load bills");
+        }
 
         this.getClassForBill = function(bill) {
             if(bill.status == "paid") {
@@ -133,27 +52,12 @@
             return "info";
         };
 
-        this.getTotalCostForBill = function(bill) {
-            var billItems = bill.items || [];
-            var sum = 0;
-
-            for (var i = 0; i < billItems.length; i++) {
-                var charge = billItems[i].charge || 0;
-                sum += charge;
-            };
-
-            return sum;
+        this.getBills = function() {
+            restService.getBills(sessionService.getKeystoneId())
+                .then(loadBillsSuccess, loadBillsError);
         };
 
-        var loadChargeDataSuccess = function(response) {
-            billDataService.setRawData(response.data);
-            var billData = billDataService.getFormattedData();
-            restService.createBillPDF(billData);
-        };
-
-        var loadChargeDataFailed = function(reponse) {
-            alertService.showError("Requesting charge data failed");
-        };
+        this.getBills();
     }
 
 })();
