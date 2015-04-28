@@ -27,15 +27,20 @@ import org.restlet.data.MediaType;
 import org.restlet.ext.json.JsonRepresentation;
 import org.restlet.representation.FileRepresentation;
 import org.restlet.representation.Representation;
+import org.restlet.resource.Get;
 import org.restlet.resource.Post;
 import org.restlet.resource.ServerResource;
-
 import java.io.File;
 import java.io.IOException;
 import java.util.Iterator;
 import java.util.UUID;
 
 public class BillPDF extends ServerResource {
+    @Get
+    public Representation getBillPDF() {
+        return null;
+    }
+
     @Post
     public Representation createPDF(Representation entity) {
         Bill bill = new Bill();
@@ -81,9 +86,7 @@ public class BillPDF extends ServerResource {
                 return new FileRepresentation(pdfFile, MediaType.APPLICATION_PDF, 0);
             }
             else {
-                System.out.println("Bill already exists");
                 String dbPdfPath = dbHelper.getBillPath(userId, bill);
-                System.out.println("Bill Path: " + dbPdfPath);
                 return new FileRepresentation(new File(dbPdfPath), MediaType.APPLICATION_PDF, 0);
             }
 
