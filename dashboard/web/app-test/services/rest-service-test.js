@@ -41,10 +41,16 @@ describe('RestService', function() {
         'admins': fakeAdmins,
         'sessionId': fakeSessionId
     };
-    var fakeBillDetails = {
+    var fakeBillItems = {
         "cpu_util": {
             price: 5
         }
+    };
+    var fakeBill = {
+        userId: fakeUser,
+        from: fakeFrom,
+        to: fakeTo,
+        items: fakeBillItems
     };
 
     /*
@@ -82,7 +88,7 @@ describe('RestService', function() {
         $httpBackend.whenGET("/dashboard/rest/users" + fakeSessionQuery).respond(200);
         $httpBackend.whenGET("/dashboard/rest/admins" + fakeSessionQuery).respond(200);
         $httpBackend.whenPUT("/dashboard/rest/admins").respond(200);
-        $httpBackend.whenPOST("/dashboard/rest/bills").respond(200);
+        $httpBackend.whenPOST("/dashboard/rest/bills/pdf").respond(200);
         $httpBackend.whenGET("/dashboard/rest/users/" + fakeUser + fakeSessionQuery).respond(200);
     });
 
@@ -247,8 +253,8 @@ describe('RestService', function() {
 
     describe('createBillPDF', function() {
         it('should send complete POST request', function() {
-            $httpBackend.expectPOST("/dashboard/rest/bills", fakeBillDetails);
-            restService.createBillPDF(fakeBillDetails);
+            $httpBackend.expectPOST("/dashboard/rest/bills/pdf", fakeBill);
+            restService.createBillPDF(fakeBill);
             $httpBackend.flush();
         });
     });

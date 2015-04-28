@@ -42,7 +42,8 @@
       'dashboard.charts',
       'dashboard.filter',
       'dashboard.notifications',
-      'dashboard.directives'
+      'dashboard.directives',
+      'dashboard.modals'
     ]).config([
         '$urlRouterProvider',
         '$logProvider',
@@ -421,4 +422,9 @@
         Directives Module Setup
     */
     angular.module('dashboard.directives', []);
+
+    /*
+        Modals Module Setup
+    */
+    angular.module('dashboard.modals', []);
 })();

@@ -22,7 +22,7 @@ var restServiceMock = jasmine.createSpyObj(
         'updateUdrMeters', 'getKeystoneMeters', 'getUdrMeters',
         'getAdminGroupInfo', 'getAllUsers', 'getRateForMeter',
         'getChargeForUser', 'getActiveRatePolicy', 'setActiveRatePolicy',
-        'updateAdmins', 'createBillPDF', 'getUserInfo'
+        'updateAdmins', 'createBillPDF', 'getUserInfo', 'getBills'
     ]
 );
 
@@ -109,6 +109,19 @@ var responseParserMock = jasmine.createSpyObj(
         'getStaticRatingListFromResponse', 'getAdminListFromResponse',
         'getUserListFromResponse', 'getAdminStatusFromResponse'
     ]
+);
+
+var modalMock = jasmine.createSpyObj(
+    '$modal',
+    [
+        'open'
+    ]
+);
+
+//Mocking the URL class used for PDFs
+var URL = jasmine.createSpyObj(
+    'URL',
+    ['createObjectURL']
 );
 
 function resetMock(mockObject) {

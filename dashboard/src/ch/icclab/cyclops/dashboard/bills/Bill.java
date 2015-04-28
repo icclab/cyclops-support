@@ -17,6 +17,9 @@
 
 package ch.icclab.cyclops.dashboard.bills;
 
+import java.util.Calendar;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.HashMap;
 
 public class Bill {
@@ -37,21 +40,10 @@ public class Bill {
         /*
             Debug
          */
-        info.put("person-name", "Random Guy");
         info.put("org-name", "InIT Service Engineering");
         info.put("address-line1", "Obere Kirchgasse 2");
         info.put("address-line2", "CH Winterthur - 8401");
-        info.put("bill-start-month", "December");
-        info.put("bill-end-month", "December");
-        info.put("bill-start-year", "2014");
-        info.put("bill-end-year", "2014");
-        info.put("period-start-date", "01");
-        info.put("period-end-date", "31");
         info.put("payment-date", "15/01/2015");
-    }
-
-    public void addInfoField(String key, String value) {
-        info.put(key, value);
     }
 
     public void addItem(String meterName, Long usage, Double rate, String unit) {
@@ -87,5 +79,62 @@ public class Bill {
 
     public HashMap<String, Double> getDiscounts() {
         return discounts;
+    }
+
+    public void setFromDate(String date) {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        Calendar cal = Calendar.getInstance();
+
+        try {
+            cal.setTime(sdf.parse(date));
+            int month = cal.get(Calendar.MONTH) + 1;
+            String monthString = String.valueOf(month);
+
+            if(month < 10) {
+                monthString = "0" + monthString;
+            }
+
+            info.put("bill-start-year", String.valueOf(cal.get(Calendar.YEAR)));
+            info.put("bill-start-month", monthString);
+            info.put("period-start-date", String.valueOf(cal.get(Calendar.DAY_OF_MONTH)));
+        } catch (ParseException ex) {
+            //TOOD: error handling
+        }
+    }
+
+    public void setToDate(String date) {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        Calendar cal = Calendar.getInstance();
+
+        try {
+            cal.setTime(sdf.parse(date));
+            int month = cal.get(Calendar.MONTH) + 1;
+            String monthString = String.valueOf(month);
+
+            if(month < 10) {
+                monthString = "0" + monthString;
+            }
+            info.put("bill-end-year", String.valueOf(cal.get(Calendar.YEAR)));
+            info.put("bill-end-month", monthString);
+            info.put("period-end-date", String.valueOf(cal.get(Calendar.DAY_OF_MONTH)));
+        } catch (ParseException ex) {
+            //TOOD: error handling
+        }
+    }
+
+    public String getFromDate() {
+        return info.get("bill-start-year") + "-" + info.get("bill-start-month") + "-" + info.get("period-start-date");
+    }
+
+    public String getToDate() {
+        return info.get("bill-end-year") + "-" + info.get("bill-end-month") + "-" + info.get("period-end-date");
+    }
+
+    public void setRecipientName(String firstName, String lastName) {
+        info.put("person-name", firstName + " " + lastName);
+    }
+
+    public String getRecipientName() {
+        return info.get("person-name");
     }
 }
