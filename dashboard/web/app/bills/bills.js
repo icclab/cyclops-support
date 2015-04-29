@@ -44,6 +44,7 @@
         };
 
         var loadPdfSuccess = function(response) {
+            //https://stackoverflow.com/questions/21628378/angularjs-display-blob-pdf-in-an-angular-app
             var file = new Blob([response.data], {type: 'application/pdf'});
             var fileURL = URL.createObjectURL(file);
             pdf = $sce.trustAsResourceUrl(fileURL);
@@ -62,7 +63,6 @@
                 size: 'lg',
                 resolve: {
                     pdf: function () {
-                        console.log("resolve fn");
                         return pdf;
                     }
                 }

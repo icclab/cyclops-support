@@ -48,7 +48,7 @@ public class BillGenerator {
         try {
             PDPageContentStream contentStream = new PDPageContentStream(document, page);
             drawHeader(contentStream);
-            drawFooter(document, contentStream, "/Users/harh/Desktop/logo.png");
+            drawFooter(document, contentStream, "logo.png");
             drawBillDetail(contentStream, bill.getInfo());
             drawItemizedDetail(contentStream, bill.getUsage(), bill.getRates(), bill.getUnits(), bill.getDiscounts());
             contentStream.close();
@@ -69,6 +69,8 @@ public class BillGenerator {
      */
     private void drawFooter(PDDocument document, PDPageContentStream contentStream, String logoFile) throws IOException {
         //loading the logo image now
+
+        /*
         BufferedImage img = null;
         img = ImageIO.read(new File(logoFile));
 
@@ -77,6 +79,7 @@ public class BillGenerator {
             PDXObjectImage ximage = new PDJpeg(document, img);
             contentStream.drawImage(ximage, 20, 20);
         }
+        */
 
         contentStream.drawLine(10, 80, 600, 80);
         contentStream.beginText();
