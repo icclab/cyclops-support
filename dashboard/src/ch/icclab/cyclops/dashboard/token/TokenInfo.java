@@ -39,10 +39,6 @@ public class TokenInfo extends ServerResource{
      */
     @Get
     public Representation userinfo(){
-
-        /*
-        curl http://public.example.com:8080/openam/oauth2/tokeninfo?access_token=263b07ec-d986-4799-805a-6b71a17f9283
-         */
         Form query = getRequest().getResourceRef().getQueryAsForm();
         String queryString = "?access_token=" + query.getFirstValue("access_token", "");
         ClientResource clientResource = new ClientResource(LoadConfiguration.configuration.get("OAUTH_TOKEN_INFO_URL") + queryString);

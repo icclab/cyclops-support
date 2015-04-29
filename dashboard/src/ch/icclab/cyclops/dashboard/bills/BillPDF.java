@@ -21,32 +21,53 @@ import ch.icclab.cyclops.dashboard.database.DatabaseHelper;
 import ch.icclab.cyclops.dashboard.database.DatabaseInteractionException;
 import ch.icclab.cyclops.dashboard.errorreporting.ErrorReporter;
 import ch.icclab.cyclops.dashboard.util.LoadConfiguration;
-import org.json.JSONException;
 import org.json.JSONObject;
+import org.restlet.data.Form;
 import org.restlet.data.MediaType;
 import org.restlet.ext.json.JsonRepresentation;
 import org.restlet.representation.FileRepresentation;
 import org.restlet.representation.Representation;
 import org.restlet.resource.Get;
 import org.restlet.resource.Post;
+import org.restlet.resource.ResourceException;
 import org.restlet.resource.ServerResource;
 import java.io.File;
-import java.io.IOException;
 import java.util.Iterator;
 import java.util.UUID;
 
 public class BillPDF extends ServerResource {
     @Get
     public Representation getBillPDF() {
-        return null;
+        try {
+            DatabaseHelper dbHelper = new DatabaseHelper();
+            Form query = getRequest().getResourceRef().getQueryAsForm();
+            Bill bill = new Bill();
+
+            String userId = query.getFirstValue("user_id", "");
+            String from = query.getFirstValue("from", "");
+            String to = query.getFirstValue("to", "");
+
+            bill.setFromDate(from);
+            bill.setToDate(to);
+
+            String dbPdfPath = dbHelper.getBillPath(userId, bill);
+            return new FileRepresentation(new File(dbPdfPath), MediaType.APPLICATION_PDF, 0);
+        }
+        catch(DatabaseInteractionException e) {
+            ErrorReporter.reportException(e);
+            throw new ResourceException(404);
+        }
+        catch(Exception e) {
+            ErrorReporter.reportException(e);
+            throw new ResourceException(500);
+        }
     }
 
-    @Post
+    @Post("json")
     public Representation createPDF(Representation entity) {
-        Bill bill = new Bill();
-        DatabaseHelper dbHelper = new DatabaseHelper();
-
         try {
+            Bill bill = new Bill();
+            DatabaseHelper dbHelper = new DatabaseHelper();
             JsonRepresentation represent = new JsonRepresentation(entity);
             JSONObject billJson = represent.getJsonObject();
             String userId = billJson.getString("userId");
@@ -89,15 +110,14 @@ public class BillPDF extends ServerResource {
                 String dbPdfPath = dbHelper.getBillPath(userId, bill);
                 return new FileRepresentation(new File(dbPdfPath), MediaType.APPLICATION_PDF, 0);
             }
-
-        } catch (JSONException e) {
-            ErrorReporter.reportException(e);
-        } catch (IOException e) {
-            ErrorReporter.reportException(e);
-        } catch (DatabaseInteractionException e) {
-            ErrorReporter.reportException(e);
         }
-
-        return null;
+        catch (DatabaseInteractionException e) {
+            ErrorReporter.reportException(e);
+            throw new ResourceException(404);
+        }
+        catch (Exception e) {
+            ErrorReporter.reportException(e);
+            throw new ResourceException(500);
+        }
     }
 }

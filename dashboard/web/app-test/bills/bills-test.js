@@ -28,6 +28,10 @@ describe('BillController', function() {
     var fakePaidBill = { status: "paid" };
     var fakeDueBill = { status: "due" };
     var fakeRunningBill = { status: "running" };
+    var fakeBill = {
+        from: "2015-04-28",
+        to: "2015-04-29"
+    };
     var fakeBills = [
         {
             from: "2015-04-28",
@@ -40,6 +44,9 @@ describe('BillController', function() {
     ];
     var fakeBillResponse = {
         data: fakeBills
+    };
+    var fakePdfResponse = {
+        data: undefined
     };
 
     /*
@@ -63,9 +70,11 @@ describe('BillController', function() {
 
             sessionServiceMock.getKeystoneId.and.returnValue(fakeKeystoneId);
             restServiceMock.getBills.and.returnValue(promise);
+            restServiceMock.getBillPDF.and.returnValue(promise);
 
             controller = $controller('BillController', {
                 '$scope': $scope,
+                '$modal': modalMock,
                 'sessionService': sessionServiceMock,
                 'restService': restServiceMock,
                 'billDataService': billDataServiceMock,
@@ -105,6 +114,35 @@ describe('BillController', function() {
             $scope.$digest();
 
             expect(controller.bills).toEqual(fakeBills);
+        });
+
+        it('should execute error callback on deferred.reject', function() {
+            controller.getBills(fakeKeystoneId);
+
+            deferred.reject();
+            $scope.$digest();
+
+            expect(alertServiceMock.showError).toHaveBeenCalled();
+        });
+    });
+
+    describe('showDetails', function() {
+        it('should correctly call restService.getBillPDF', function() {
+            controller.showDetails(fakeBill);
+            expect(restServiceMock.getBillPDF)
+                .toHaveBeenCalledWith(fakeKeystoneId, fakeBill.from, fakeBill.to);
+        });
+
+        it('should execute success callback on deferred.resolve', function() {
+            spyOn(window, 'Blob');
+            spyOn(controller, 'openModal');
+
+            controller.showDetails(fakeBill);
+
+            deferred.resolve(fakePdfResponse);
+            $scope.$digest();
+
+            expect(controller.openModal).toHaveBeenCalledWith(fakePdfResponse.data);
         });
 
         it('should execute error callback on deferred.reject', function() {

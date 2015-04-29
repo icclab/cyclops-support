@@ -26,12 +26,14 @@
         Controllers, Factories, Services, Directives
     */
     BillController.$inject = [
-        'sessionService', 'restService', 'billDataService', 'alertService', 'dateUtil'
+        '$sce', '$modal', 'sessionService', 'restService', 'billDataService',
+        'alertService', 'dateUtil'
     ];
-    function BillController(sessionService, restService, billDataService,
+    function BillController($sce, $modal, sessionService, restService, billDataService,
             alertService, dateUtil) {
         var me = this;
         this.bills = [];
+        this.pdf;
 
         var loadBillsSuccess = function(response) {
             me.bills = response.data;
@@ -39,7 +41,33 @@
 
         var loadBillsError = function() {
             alertService.showError("Could not load bills");
-        }
+        };
+
+        var loadPdfSuccess = function(response) {
+            //https://stackoverflow.com/questions/21628378/angularjs-display-blob-pdf-in-an-angular-app
+            var file = new Blob([response.data], {type: 'application/pdf'});
+            var fileURL = URL.createObjectURL(file);
+            pdf = $sce.trustAsResourceUrl(fileURL);
+            me.openModal(pdf);
+        };
+
+        var loadPdfError = function() {
+            alertService.showError("Could not load PDF file");
+        };
+
+        this.openModal = function (pdf) {
+            var modalInstance = $modal.open({
+                templateUrl: 'modals/pdf-modal.html',
+                controller: 'PdfModalController',
+                controllerAs: 'pdfModalCtrl',
+                size: 'lg',
+                resolve: {
+                    pdf: function () {
+                        return pdf;
+                    }
+                }
+            });
+        };
 
         this.getClassForBill = function(bill) {
             if(bill.status == "paid") {
@@ -50,6 +78,12 @@
             }
 
             return "info";
+        };
+
+        this.showDetails = function(bill) {
+            var userId = sessionService.getKeystoneId();
+            restService.getBillPDF(userId, bill.from, bill.to)
+                .then(loadPdfSuccess, loadPdfError);
         };
 
         this.getBills = function() {

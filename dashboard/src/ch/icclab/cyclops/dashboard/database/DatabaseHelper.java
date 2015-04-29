@@ -4,6 +4,7 @@ import ch.icclab.cyclops.dashboard.bills.Bill;
 import ch.icclab.cyclops.dashboard.util.LoadConfiguration;
 
 import java.sql.*;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -30,10 +31,10 @@ public class DatabaseHelper {
             c.close();
         }
         catch (ClassNotFoundException e) {
-            throw new DatabaseInteractionException("SQLite class not found", e);
+            throw new DatabaseInteractionException(e.getMessage(), e);
         }
         catch (SQLException e) {
-            throw new DatabaseInteractionException("SQL Exception", e);
+            throw new DatabaseInteractionException(e.getMessage(), e);
         }
     }
 
@@ -50,10 +51,10 @@ public class DatabaseHelper {
 
         }
         catch (ClassNotFoundException e) {
-            throw new DatabaseInteractionException("SQLite class not found", e);
+            throw new DatabaseInteractionException(e.getMessage(), e);
         }
         catch (SQLException e) {
-            throw new DatabaseInteractionException("SQL Exception", e);
+            throw new DatabaseInteractionException(e.getMessage(), e);
         }
     }
 
@@ -78,10 +79,13 @@ public class DatabaseHelper {
             return bills;
         }
         catch (ClassNotFoundException e) {
-            throw new DatabaseInteractionException("SQLite class not found", e);
+            throw new DatabaseInteractionException(e.getMessage(), e);
         }
         catch (SQLException e) {
-            throw new DatabaseInteractionException("SQL Exception", e);
+            throw new DatabaseInteractionException(e.getMessage(), e);
+        }
+        catch (ParseException e) {
+            throw new DatabaseInteractionException(e.getMessage(), e);
         }
     }
 
@@ -98,10 +102,10 @@ public class DatabaseHelper {
             return hasBills;
         }
         catch (ClassNotFoundException e) {
-            throw new DatabaseInteractionException("SQLite class not found", e);
+            throw new DatabaseInteractionException(e.getMessage(), e);
         }
         catch (SQLException e) {
-            throw new DatabaseInteractionException("SQL Exception", e);
+            throw new DatabaseInteractionException(e.getMessage(), e);
         }
     }
 
@@ -126,10 +130,10 @@ public class DatabaseHelper {
 
         }
         catch (ClassNotFoundException e) {
-            throw new DatabaseInteractionException("SQLite class not found", e);
+            throw new DatabaseInteractionException(e.getMessage(), e);
         }
         catch (SQLException e) {
-            throw new DatabaseInteractionException("SQL Exception", e);
+            throw new DatabaseInteractionException(e.getMessage(), e);
         }
     }
 }

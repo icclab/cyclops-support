@@ -24,7 +24,7 @@ import org.restlet.resource.Get;
 import org.restlet.resource.ServerResource;
 
 public class Rate extends ServerResource {
-    @Get("json")
+    @Get
     public Representation getRate() {
         String query = getRequest().getResourceRef().getQuery();
         String url = LoadConfiguration.configuration.get("RC_RATE_URL") + "?" + query;
