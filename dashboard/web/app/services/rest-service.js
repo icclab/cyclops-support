@@ -268,7 +268,7 @@
 
         this.getBillPDF = function(userId, from, to) {
             var queryString = "?user_id=" + userId + "&from=" + from + "&to=" + to;
-            return $http.get('/dashboard/rest/bills/pdf' + queryString);
+            return $http.get('/dashboard/rest/bills/pdf' + queryString, {responseType:'arraybuffer'});
         };
 
         this.getBills = function(userId) {
