@@ -48,34 +48,31 @@ public class Usage extends ServerResource{
      * @return  A representation of the untouched response
      */
     @Post("json")
-    public Representation getUsageData(Representation entity) {
-        String userId = "";
-        String from = "";
-        String to = "";
-
+    public Representation getUsageData(Representation entity) throws Exception {
         try {
             JsonRepresentation represent = new JsonRepresentation(entity);
             JSONObject requestJson = represent.getJsonObject();
-            userId = requestJson.getString("keystoneId");
-            from = requestJson.getString("from");
-            to = requestJson.getString("to");
+            String userId = requestJson.getString("keystoneId");
+            String from = requestJson.getString("from");
+            String to = requestJson.getString("to");
 
-        } catch (JSONException e) {
-            ErrorReporter.reportException(e);
-        } catch (IOException e) {
-            ErrorReporter.reportException(e);
+            Form form = new Form();
+            form.add("from", from);
+            form.add("to", to);
+
+            String url = LoadConfiguration.configuration.get("UDR_USAGE_URL") + userId + "?" + form.getQueryString();
+            ClientResource clientResource = new ClientResource(url);
+            ChallengeScheme scheme = new ChallengeScheme("Bearer", "Bearer");
+
+            //TODO: use real Token
+
+            ChallengeResponse challenge = new ChallengeResponse(scheme, "Bearer", "test");
+            clientResource.setChallengeResponse(challenge);
+            return clientResource.get();
         }
-
-        Form form = new Form();
-        form.add("from", from);
-        form.add("to", to);
-
-        String url = LoadConfiguration.configuration.get("UDR_USAGE_URL") + userId + "?" + form.getQueryString();
-        ClientResource clientResource = new ClientResource(url);
-        ChallengeScheme scheme = new ChallengeScheme("Bearer", "Bearer");
-        //TODO: use real Token
-        ChallengeResponse challenge = new ChallengeResponse(scheme, "Bearer", "test");
-        clientResource.setChallengeResponse(challenge);
-        return clientResource.get();
+        catch (Exception e) {
+            ErrorReporter.reportException(e);
+            throw e;
+        }
     }
 }

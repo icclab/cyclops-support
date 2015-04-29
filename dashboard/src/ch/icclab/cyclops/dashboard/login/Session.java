@@ -50,28 +50,18 @@ public class Session extends ServerResource{
      * @return  A representation of the untouched response
      */
     @Post("json")
-    public Representation login(Representation entity) {
-        String user = "";
-        String pass = "";
-
+    public Representation login(Representation entity) throws Exception{
         try {
             JsonRepresentation represent = new JsonRepresentation(entity);
             JSONObject json = represent.getJsonObject();
-            user = json.getString("username");
-            pass = json.getString("password");
-        } catch (IOException e) {
-            ErrorReporter.reportException(e);
-        } catch (JSONException e) {
-            ErrorReporter.reportException(e);
+            String user = json.getString("username");
+            String pass = json.getString("password");
+            return sendRequest(user, pass);
         }
-        
-        return sendRequest(user, pass);
-    }
-
-    @Get("json")
-    public Representation loginTest() {
-        //For debugging, replace "user" and "pass"
-        return sendRequest("user", "pass");
+        catch (Exception e) {
+            ErrorReporter.reportException(e);
+            throw e;
+        }
     }
 
     private Representation sendRequest(String username, String password) {

@@ -18,7 +18,9 @@
 package ch.icclab.cyclops.dashboard.keystone;
 
 import ch.icclab.cyclops.dashboard.builder.KeystoneRequestBuilder;
+import ch.icclab.cyclops.dashboard.errorreporting.ErrorReporter;
 import ch.icclab.cyclops.dashboard.util.LoadConfiguration;
+import org.json.JSONException;
 import org.restlet.data.Header;
 import org.restlet.data.MediaType;
 import org.restlet.ext.json.JsonRepresentation;
@@ -45,33 +47,41 @@ public class KeystoneMeter extends ServerResource{
      *
      * @return  A representation of the untouched response
      */
-    @Get("json")
-    public Representation getKeystoneMeters() {
-        String authUrl = LoadConfiguration.configuration.get("KEYSTONE_TOKEN_URL");
-        String meterUrl = LoadConfiguration.configuration.get("KEYSTONE_METERS_URL");// + "?q.field=user_id&q.value=x";
-        JsonRepresentation authBody = KeystoneRequestBuilder.buildKeystoneAuthRequestBody(
-                LoadConfiguration.configuration.get("KEYSTONE_CYCLOPS_USERNAME"),
-                LoadConfiguration.configuration.get("KEYSTONE_CYCLOPS_PASSWORD"),
-                LoadConfiguration.configuration.get("KEYSTONE_CYCLOPS_DOMAIN")
-        );
+    @Get
+    public Representation getKeystoneMeters() throws Exception {
+        try {
+            String authUrl = LoadConfiguration.configuration.get("KEYSTONE_TOKEN_URL");
+            String meterUrl = LoadConfiguration.configuration.get("KEYSTONE_METERS_URL");// + "?q.field=user_id&q.value=x";
 
-        ClientResource authResource = new ClientResource(authUrl);
-        ClientResource meterResource = new ClientResource(meterUrl);
-        authResource.post(authBody, MediaType.APPLICATION_JSON);
-        Series<Header> responseHeaders =
-                (Series<Header>) authResource.getResponseAttributes().get("org.restlet.http.headers");
-        String subjectToken = responseHeaders.getFirstValue("X-Subject-Token");
+            JsonRepresentation authBody = KeystoneRequestBuilder.buildKeystoneAuthRequestBody(
+                    LoadConfiguration.configuration.get("KEYSTONE_CYCLOPS_USERNAME"),
+                    LoadConfiguration.configuration.get("KEYSTONE_CYCLOPS_PASSWORD"),
+                    LoadConfiguration.configuration.get("KEYSTONE_CYCLOPS_DOMAIN")
+            );
 
-        Series<Header> requestHeaders =
-                (Series<Header>) meterResource.getRequestAttributes().get("org.restlet.http.headers");
+            ClientResource authResource = new ClientResource(authUrl);
+            ClientResource meterResource = new ClientResource(meterUrl);
+            authResource.post(authBody, MediaType.APPLICATION_JSON);
+            Series<Header> responseHeaders =
+                    (Series<Header>) authResource.getResponseAttributes().get("org.restlet.http.headers");
+            String subjectToken = responseHeaders.getFirstValue("X-Subject-Token");
 
-        if (requestHeaders == null) {
-            requestHeaders = new Series<Header>(Header.class);
-            meterResource.getRequestAttributes().put("org.restlet.http.headers", requestHeaders);
+            Series<Header> requestHeaders =
+                    (Series<Header>) meterResource.getRequestAttributes().get("org.restlet.http.headers");
+
+            if (requestHeaders == null) {
+                requestHeaders = new Series<Header>(Header.class);
+                meterResource.getRequestAttributes().put("org.restlet.http.headers", requestHeaders);
+            }
+
+            requestHeaders.set("X-Auth-Token", subjectToken);
+
+            return meterResource.get(MediaType.APPLICATION_JSON);
+
         }
-
-        requestHeaders.set("X-Auth-Token", subjectToken);
-
-        return meterResource.get(MediaType.APPLICATION_JSON);
+        catch (Exception e) {
+            ErrorReporter.reportException(e);
+            throw e;
+        }
     }
 }

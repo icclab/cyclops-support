@@ -30,7 +30,7 @@ import org.restlet.resource.ServerResource;
 import java.io.IOException;
 
 public class RateStatus extends ServerResource {
-    @Get("json")
+    @Get
     public Representation getRateStatus() {
         String query = getRequest().getResourceRef().getQuery();
         String url = LoadConfiguration.configuration.get("RC_RATE_STATUS_URL") + "?" + query;
@@ -39,16 +39,14 @@ public class RateStatus extends ServerResource {
     }
 
     @Post("json")
-    public Representation updateRateStatus(Representation entity) {
-        ClientResource res = new ClientResource(LoadConfiguration.configuration.get("RC_RATE_URL"));
-        JsonRepresentation rep = null;
-
+    public Representation updateRateStatus(Representation entity) throws IOException {
         try {
-            rep = new JsonRepresentation(entity);
+            ClientResource res = new ClientResource(LoadConfiguration.configuration.get("RC_RATE_URL"));
+            JsonRepresentation rep = new JsonRepresentation(entity);
+            return res.post(rep);
         } catch (IOException e) {
             ErrorReporter.reportException(e);
+            throw e;
         }
-
-        return res.post(rep);
     }
 }
