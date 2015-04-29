@@ -81,45 +81,25 @@ public class Bill {
         return discounts;
     }
 
-    public void setFromDate(String date) {
+    public void setFromDate(String date) throws ParseException {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
         Calendar cal = Calendar.getInstance();
 
-        try {
-            cal.setTime(sdf.parse(date));
-            int month = cal.get(Calendar.MONTH) + 1;
-            String monthString = String.valueOf(month);
-
-            if(month < 10) {
-                monthString = "0" + monthString;
-            }
-
-            info.put("bill-start-year", String.valueOf(cal.get(Calendar.YEAR)));
-            info.put("bill-start-month", monthString);
-            info.put("period-start-date", String.valueOf(cal.get(Calendar.DAY_OF_MONTH)));
-        } catch (ParseException ex) {
-            //TOOD: error handling
-        }
+        cal.setTime(sdf.parse(date));
+        info.put("bill-start-year", String.valueOf(cal.get(Calendar.YEAR)));
+        info.put("bill-start-month", padToDoubleDigits(cal.get(Calendar.MONTH) + 1));
+        info.put("period-start-date", padToDoubleDigits(cal.get(Calendar.DAY_OF_MONTH)));
     }
 
-    public void setToDate(String date) {
+    public void setToDate(String date) throws ParseException{
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
         Calendar cal = Calendar.getInstance();
 
-        try {
-            cal.setTime(sdf.parse(date));
-            int month = cal.get(Calendar.MONTH) + 1;
-            String monthString = String.valueOf(month);
+        cal.setTime(sdf.parse(date));
+        info.put("bill-end-year", String.valueOf(cal.get(Calendar.YEAR)));
+        info.put("bill-end-month", padToDoubleDigits(cal.get(Calendar.MONTH) + 1));
+        info.put("period-end-date", padToDoubleDigits(cal.get(Calendar.DAY_OF_MONTH)));
 
-            if(month < 10) {
-                monthString = "0" + monthString;
-            }
-            info.put("bill-end-year", String.valueOf(cal.get(Calendar.YEAR)));
-            info.put("bill-end-month", monthString);
-            info.put("period-end-date", String.valueOf(cal.get(Calendar.DAY_OF_MONTH)));
-        } catch (ParseException ex) {
-            //TOOD: error handling
-        }
     }
 
     public String getFromDate() {
@@ -136,5 +116,10 @@ public class Bill {
 
     public String getRecipientName() {
         return info.get("person-name");
+    }
+
+    private String padToDoubleDigits(int i) {
+        String numStr = String.valueOf(i);
+        return i < 10 ? "0" + numStr : numStr;
     }
 }

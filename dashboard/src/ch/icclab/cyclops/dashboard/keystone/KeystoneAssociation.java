@@ -36,133 +36,65 @@ import java.io.IOException;
  */
 public class KeystoneAssociation extends ServerResource{
     @Post("json")
-    public Representation getKeystoneUserId(Representation entity) {
-        /*
-       Content-Type: application/json
-
-       {
-           "auth": {
-               "identity": {
-                   "methods": [
-                       "password"
-                   ],
-                   "password": {
-                       "user": {
-                           "domain": {
-                               "name": "default"
-                           },
-                           "name": "yyy",
-                           "password": "xxx"
-                       }
-                   }
-               }
-           }
-       }
-        */
-        String username = "";
-        String password = "";
-
+    public Representation getKeystoneUserId(Representation entity) throws Exception {
         try {
             JsonRepresentation represent = new JsonRepresentation(entity);
             JSONObject requestJson = represent.getJsonObject();
-            username = requestJson.getString("username");
-            password = requestJson.getString("password");
-        } catch (JSONException e) {
-            ErrorReporter.reportException(e);
-        } catch (IOException e) {
-            ErrorReporter.reportException(e);
+            String username = requestJson.getString("username");
+            String password = requestJson.getString("password");
+            return sendRequest(username, password);
         }
-
-        return sendRequest(username, password);
-    }
-
-    @Get
-    public Representation getKeystoneUserIdTest() {
-        //For debugging, replace "user" and "pass"
-        return sendRequest("user", "pass");
-    }
-
-    private Representation findUserId(Representation rep) {
-        /*
-        {
-            "token":{
-                "user":{
-                    "domain":{  },
-                    "id":"abc",
-                    "name":"xyz"
-                },
-            }
-        }
-         */
-        JSONObject response = new JSONObject();
-
-        try {
-            JsonRepresentation jsonRep = new JsonRepresentation(rep);
-            JSONObject wrapper = jsonRep.getJsonObject();
-            String id = wrapper
-                    .getJSONObject("token")
-                    .getJSONObject("user")
-                    .getString("id");
-
-            response.put("keystoneId", id);
-
-        } catch (Exception e) {
+        catch (Exception e) {
             ErrorReporter.reportException(e);
+            throw e;
         }
-
-        return new JsonRepresentation(response);
-    }
-
-    private Representation sendRequest(String username, String pwd) {
-        JsonRepresentation body = KeystoneRequestBuilder.buildKeystoneAuthRequestBody(username, pwd, "default");
-        ClientResource clientResource = new ClientResource(LoadConfiguration.configuration.get("KEYSTONE_TOKEN_URL"));
-        return findUserId(clientResource.post(body, MediaType.APPLICATION_JSON));
     }
 
     @Put("json")
-    public Representation storeKeystoneUserId(Representation entity) {
-        /*
-        curl
-            --request PUT
-            --header "iplanetDirectoryPro: AQIC5wM2LY4Sfcyw6mmdgkdqMsFgwwViWRRdZtkz_lHA-wU.*AAJTSQACMDEAAlNLABMxNzAwMzU0MDA1NjY1MDY4MTEy*"
-            --header "Content-Type: application/json"
-            --data '{ "keystoneid": "2" }'
-            http://public.example.com:8080/openam/json/users/trui3
-         */
-        String username = "";
-        String keystoneId = "";
-        String sessionId = "";
-
+    public Representation storeKeystoneUserId(Representation entity) throws Exception {
         try {
             JsonRepresentation represent = new JsonRepresentation(entity);
             JSONObject requestJson = represent.getJsonObject();
-            username = requestJson.getString("username");
-            keystoneId = requestJson.getString("keystoneId");
-            sessionId = requestJson.getString("sessionId");
-        } catch (JSONException e) {
-            //TODO: error handling
-        } catch (IOException e) {
-            //TODO: error handling
-        }
+            String username = requestJson.getString("username");
+            String keystoneId = requestJson.getString("keystoneId");
+            String sessionId = requestJson.getString("sessionId");
 
-        ClientResource res = new ClientResource(LoadConfiguration.configuration.get("OPENAM_PROFILE_URL") + "/" + username);
-        Series<Header> headers = (Series<Header>) res.getRequestAttributes().get("org.restlet.http.headers");
+            ClientResource res = new ClientResource(LoadConfiguration.configuration.get("OPENAM_PROFILE_URL") + "/" + username);
+            Series<Header> headers = (Series<Header>) res.getRequestAttributes().get("org.restlet.http.headers");
 
-        if (headers == null) {
-            headers = new Series<Header>(Header.class);
-            res.getRequestAttributes().put("org.restlet.http.headers", headers);
-        }
+            if (headers == null) {
+                headers = new Series<Header>(Header.class);
+                res.getRequestAttributes().put("org.restlet.http.headers", headers);
+            }
 
-        headers.set("iPlanetDirectoryPro", sessionId);
+            headers.set("iPlanetDirectoryPro", sessionId);
 
-        JSONObject data = new JSONObject();
-
-        try {
+            JSONObject data = new JSONObject();
             data.put("keystoneid", keystoneId);
-        } catch (JSONException e) {
-            ErrorReporter.reportException(e);
+            return res.put(new JsonRepresentation(data), MediaType.APPLICATION_JSON);
         }
+        catch (Exception e) {
+            ErrorReporter.reportException(e);
+            throw e;
+        }
+    }
 
-        return res.put(new JsonRepresentation(data), MediaType.APPLICATION_JSON);
+    private Representation findUserId(Representation rep) throws JSONException, IOException {
+        JSONObject response = new JSONObject();
+        JsonRepresentation jsonRep = new JsonRepresentation(rep);
+        JSONObject wrapper = jsonRep.getJsonObject();
+        String id = wrapper
+                .getJSONObject("token")
+                .getJSONObject("user")
+                .getString("id");
+
+        response.put("keystoneId", id);
+        return new JsonRepresentation(response);
+    }
+
+    private Representation sendRequest(String username, String pwd) throws JSONException, IOException {
+        JsonRepresentation body = KeystoneRequestBuilder.buildKeystoneAuthRequestBody(username, pwd, "default");
+        ClientResource clientResource = new ClientResource(LoadConfiguration.configuration.get("KEYSTONE_TOKEN_URL"));
+        return findUserId(clientResource.post(body, MediaType.APPLICATION_JSON));
     }
 }

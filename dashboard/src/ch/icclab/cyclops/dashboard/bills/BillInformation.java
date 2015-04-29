@@ -19,20 +19,21 @@ package ch.icclab.cyclops.dashboard.bills;
 
 import ch.icclab.cyclops.dashboard.database.DatabaseHelper;
 import ch.icclab.cyclops.dashboard.database.DatabaseInteractionException;
+import ch.icclab.cyclops.dashboard.errorreporting.ErrorReporter;
 import org.json.JSONArray;
-import org.json.JSONException;
 import org.json.JSONObject;
 import org.restlet.data.Form;
 import org.restlet.ext.json.JsonRepresentation;
 import org.restlet.representation.Representation;
 import org.restlet.resource.Get;
+import org.restlet.resource.ResourceException;
 import org.restlet.resource.ServerResource;
 
 import java.util.List;
 
 public class BillInformation extends ServerResource {
     @Get
-    public Representation getBills() {
+    public Representation getBills() throws Exception {
         Form query = getRequest().getResourceRef().getQueryAsForm();
         String userId = query.getFirstValue("user_id", "");
         JSONArray jsonBills = new JSONArray();
@@ -49,12 +50,16 @@ public class BillInformation extends ServerResource {
                 jsonBills.put(billJson);
             }
 
-        } catch (DatabaseInteractionException e) {
-            //TODO: error handling
-        } catch (JSONException e) {
-            //TODO: error handling
-        }
+            return result;
 
-        return result;
+        }
+        catch (DatabaseInteractionException e) {
+            ErrorReporter.reportException(e);
+            throw new ResourceException(404);
+        }
+        catch (Exception e) {
+            ErrorReporter.reportException(e);
+            throw e;
+        }
     }
 }
