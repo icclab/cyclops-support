@@ -248,6 +248,16 @@
         };
 
         /**
+         * This method loads user information from OpenAM via the dashboard backend
+         * @param  {String} username Username whose details will be read
+         * @param  {String} adminSessionId Admin Session ID from OpenAM
+         * @return {Promise}
+         */
+        this.getUserInfo = function(username, adminSessionId) {
+            return $http.get('/dashboard/rest/users/' + username + "?session_id=" + adminSessionId);
+        };
+
+        /**
          * This method sends bill details to the dashboard backend for PDF generation
          * @param  {Object} billDetails Object containing billing details
          * @return {Promise}
@@ -256,14 +266,9 @@
             return $http.post('/dashboard/rest/bills/pdf', billDetails, {responseType:'arraybuffer'});
         };
 
-        /**
-         * This method loads user information from OpenAM via the dashboard backend
-         * @param  {String} username Username whose details will be read
-         * @param  {String} adminSessionId Admin Session ID from OpenAM
-         * @return {Promise}
-         */
-        this.getUserInfo = function(username, adminSessionId) {
-            return $http.get('/dashboard/rest/users/' + username + "?session_id=" + adminSessionId);
+        this.getBillPDF = function(userId, from, to) {
+            var queryString = "?user_id=" + userId + "&from=" + from + "&to=" + to;
+            return $http.get('/dashboard/rest/bills/pdf' + queryString, {responseType:'arraybuffer'});
         };
 
         this.getBills = function(userId) {

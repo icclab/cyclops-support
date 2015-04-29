@@ -109,6 +109,7 @@
 
             restService.createBillPDF(params).then(
                 function(response) {
+                    //https://stackoverflow.com/questions/21628378/angularjs-display-blob-pdf-in-an-angular-app
                     var file = new Blob([response.data], {type: 'application/pdf'});
                     var fileURL = URL.createObjectURL(file);
                     me.pdf = $sce.trustAsResourceUrl(fileURL);

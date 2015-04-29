@@ -21,11 +21,7 @@ import ch.icclab.cyclops.dashboard.errorreporting.ErrorReporter;
 import ch.icclab.cyclops.dashboard.util.LoadConfiguration;
 import org.restlet.ext.json.JsonRepresentation;
 import org.restlet.representation.Representation;
-import org.restlet.representation.StringRepresentation;
-import org.restlet.resource.ClientResource;
-import org.restlet.resource.Get;
-import org.restlet.resource.Post;
-import org.restlet.resource.ServerResource;
+import org.restlet.resource.*;
 
 import java.io.IOException;
 
@@ -46,16 +42,14 @@ public class UdrMeter extends ServerResource {
      */
     @Post("json")
     public Representation updateUdrMeters(Representation entity) {
-        ClientResource res = new ClientResource(LoadConfiguration.configuration.get("UDR_METER_URL"));
-        Representation rep = null;
-
         try {
-            rep = new JsonRepresentation(entity);
-        } catch (IOException e) {
+            ClientResource res = new ClientResource(LoadConfiguration.configuration.get("UDR_METER_URL"));
+            Representation rep = new JsonRepresentation(entity);
+            return res.post(rep);
+        } catch (Exception e) {
             ErrorReporter.reportException(e);
+            throw new ResourceException(500);
         }
-
-        return res.post(rep);
     }
 
 
@@ -64,7 +58,7 @@ public class UdrMeter extends ServerResource {
      *
      * @return  A representation of the untouched response
      */
-    @Get("json")
+    @Get
     public Representation getUdrMeters() {
         ClientResource res = new ClientResource(LoadConfiguration.configuration.get("UDR_METER_URL"));
         return res.get();

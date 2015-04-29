@@ -24,7 +24,7 @@ import org.restlet.resource.Get;
 import org.restlet.resource.ServerResource;
 
 public class Charge extends ServerResource {
-    @Get("json")
+    @Get
     public Representation getCharge() {
         String query = getRequest().getResourceRef().getQuery();
         String url = LoadConfiguration.configuration.get("RC_CHARGE_URL") + "?" + query;

@@ -28,6 +28,7 @@ import org.restlet.ext.json.JsonRepresentation;
 import org.restlet.representation.Representation;
 import org.restlet.resource.ClientResource;
 import org.restlet.resource.Post;
+import org.restlet.resource.ResourceException;
 import org.restlet.resource.ServerResource;
 
 import java.io.IOException;
@@ -49,33 +50,30 @@ public class Usage extends ServerResource{
      */
     @Post("json")
     public Representation getUsageData(Representation entity) {
-        String userId = "";
-        String from = "";
-        String to = "";
-
         try {
             JsonRepresentation represent = new JsonRepresentation(entity);
             JSONObject requestJson = represent.getJsonObject();
-            userId = requestJson.getString("keystoneId");
-            from = requestJson.getString("from");
-            to = requestJson.getString("to");
+            String userId = requestJson.getString("keystoneId");
+            String from = requestJson.getString("from");
+            String to = requestJson.getString("to");
 
-        } catch (JSONException e) {
-            ErrorReporter.reportException(e);
-        } catch (IOException e) {
-            ErrorReporter.reportException(e);
+            Form form = new Form();
+            form.add("from", from);
+            form.add("to", to);
+
+            String url = LoadConfiguration.configuration.get("UDR_USAGE_URL") + userId + "?" + form.getQueryString();
+            ClientResource clientResource = new ClientResource(url);
+            ChallengeScheme scheme = new ChallengeScheme("Bearer", "Bearer");
+
+            //TODO: use real Token
+
+            ChallengeResponse challenge = new ChallengeResponse(scheme, "Bearer", "test");
+            clientResource.setChallengeResponse(challenge);
+            return clientResource.get();
         }
-
-        Form form = new Form();
-        form.add("from", from);
-        form.add("to", to);
-
-        String url = LoadConfiguration.configuration.get("UDR_USAGE_URL") + userId + "?" + form.getQueryString();
-        ClientResource clientResource = new ClientResource(url);
-        ChallengeScheme scheme = new ChallengeScheme("Bearer", "Bearer");
-        //TODO: use real Token
-        ChallengeResponse challenge = new ChallengeResponse(scheme, "Bearer", "test");
-        clientResource.setChallengeResponse(challenge);
-        return clientResource.get();
+        catch (Exception e) {
+            ErrorReporter.reportException(e);
+            throw new ResourceException(500);
+        }
     }
 }
