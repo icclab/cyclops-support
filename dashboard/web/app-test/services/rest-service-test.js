@@ -35,6 +35,8 @@ describe('RestService', function() {
     var fakeChargeQuery = "?userid="+fakeUser+"&from="+fakeFrom+"&to="+fakeTo;
     var fakeAccessQuery = "?access_token=" + fakeAccessToken;
     var fakeSessionQuery = "?session_id=" + fakeSessionId;
+    var fakeUserIdQuery = "?user_id=" + fakeUser;
+    var fakeBillQuery = "?user_id=" + fakeUser + "&from=" + fakeFrom + "&to=" + fakeTo;
     var fakePolicyConfig = { rate_policy:'dynamic' };
     var fakeAdmins = ['test1', 'user2'];
     var fakeUpdatedAdmins = {
@@ -88,7 +90,9 @@ describe('RestService', function() {
         $httpBackend.whenGET("/dashboard/rest/users" + fakeSessionQuery).respond(200);
         $httpBackend.whenGET("/dashboard/rest/admins" + fakeSessionQuery).respond(200);
         $httpBackend.whenPUT("/dashboard/rest/admins").respond(200);
+        $httpBackend.whenGET("/dashboard/rest/bills" + fakeUserIdQuery).respond(200);
         $httpBackend.whenPOST("/dashboard/rest/bills/pdf").respond(200);
+        $httpBackend.whenGET("/dashboard/rest/bills/pdf" + fakeBillQuery).respond(200);
         $httpBackend.whenGET("/dashboard/rest/users/" + fakeUser + fakeSessionQuery).respond(200);
     });
 
@@ -251,6 +255,14 @@ describe('RestService', function() {
         });
     });
 
+    describe('getUserInfo', function() {
+        it('should send complete GET request', function() {
+            $httpBackend.expectGET("/dashboard/rest/users/" + fakeUser + fakeSessionQuery);
+            restService.getUserInfo(fakeUser, fakeSessionId);
+            $httpBackend.flush();
+        });
+    });
+
     describe('createBillPDF', function() {
         it('should send complete POST request', function() {
             $httpBackend.expectPOST("/dashboard/rest/bills/pdf", fakeBill);
@@ -259,10 +271,18 @@ describe('RestService', function() {
         });
     });
 
-    describe('getUserInfo', function() {
+    describe('getBillPDF', function() {
         it('should send complete GET request', function() {
-            $httpBackend.expectGET("/dashboard/rest/users/" + fakeUser + fakeSessionQuery);
-            restService.getUserInfo(fakeUser, fakeSessionId);
+            $httpBackend.expectGET("/dashboard/rest/bills/pdf" + fakeBillQuery);
+            restService.getBillPDF(fakeUser, fakeFrom, fakeTo);
+            $httpBackend.flush();
+        });
+    });
+
+    describe('getBills', function() {
+        it('should send complete GET request', function() {
+            $httpBackend.expectGET("/dashboard/rest/bills" + fakeUserIdQuery);
+            restService.getBills(fakeUser);
             $httpBackend.flush();
         });
     });
