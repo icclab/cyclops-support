@@ -36,7 +36,7 @@ import java.io.IOException;
  */
 public class KeystoneAssociation extends ServerResource{
     @Post("json")
-    public Representation getKeystoneUserId(Representation entity) throws Exception {
+    public Representation getKeystoneUserId(Representation entity) {
         try {
             JsonRepresentation represent = new JsonRepresentation(entity);
             JSONObject requestJson = represent.getJsonObject();
@@ -46,12 +46,12 @@ public class KeystoneAssociation extends ServerResource{
         }
         catch (Exception e) {
             ErrorReporter.reportException(e);
-            throw e;
+            throw new ResourceException(500);
         }
     }
 
     @Put("json")
-    public Representation storeKeystoneUserId(Representation entity) throws Exception {
+    public Representation storeKeystoneUserId(Representation entity) {
         try {
             JsonRepresentation represent = new JsonRepresentation(entity);
             JSONObject requestJson = represent.getJsonObject();
@@ -75,7 +75,7 @@ public class KeystoneAssociation extends ServerResource{
         }
         catch (Exception e) {
             ErrorReporter.reportException(e);
-            throw e;
+            throw new ResourceException(500);
         }
     }
 

@@ -22,10 +22,7 @@ import ch.icclab.cyclops.dashboard.util.LoadConfiguration;
 import org.restlet.ext.json.JsonRepresentation;
 import org.restlet.representation.Representation;
 import org.restlet.representation.StringRepresentation;
-import org.restlet.resource.ClientResource;
-import org.restlet.resource.Get;
-import org.restlet.resource.Post;
-import org.restlet.resource.ServerResource;
+import org.restlet.resource.*;
 
 import java.io.IOException;
 
@@ -39,14 +36,15 @@ public class RateStatus extends ServerResource {
     }
 
     @Post("json")
-    public Representation updateRateStatus(Representation entity) throws IOException {
+    public Representation updateRateStatus(Representation entity) {
         try {
             ClientResource res = new ClientResource(LoadConfiguration.configuration.get("RC_RATE_URL"));
             JsonRepresentation rep = new JsonRepresentation(entity);
             return res.post(rep);
-        } catch (IOException e) {
+        }
+        catch (IOException e) {
             ErrorReporter.reportException(e);
-            throw e;
+            throw new ResourceException(500);
         }
     }
 }

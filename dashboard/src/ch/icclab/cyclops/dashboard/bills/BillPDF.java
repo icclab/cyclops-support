@@ -37,19 +37,19 @@ import java.util.UUID;
 
 public class BillPDF extends ServerResource {
     @Get
-    public Representation getBillPDF() throws Exception {
-        DatabaseHelper dbHelper = new DatabaseHelper();
-        Form query = getRequest().getResourceRef().getQueryAsForm();
-        Bill bill = new Bill();
-
-        String userId = query.getFirstValue("user_id", "");
-        String from = query.getFirstValue("from", "");
-        String to = query.getFirstValue("to", "");
-
-        bill.setFromDate(from);
-        bill.setToDate(to);
-
+    public Representation getBillPDF() {
         try {
+            DatabaseHelper dbHelper = new DatabaseHelper();
+            Form query = getRequest().getResourceRef().getQueryAsForm();
+            Bill bill = new Bill();
+
+            String userId = query.getFirstValue("user_id", "");
+            String from = query.getFirstValue("from", "");
+            String to = query.getFirstValue("to", "");
+
+            bill.setFromDate(from);
+            bill.setToDate(to);
+
             String dbPdfPath = dbHelper.getBillPath(userId, bill);
             return new FileRepresentation(new File(dbPdfPath), MediaType.APPLICATION_PDF, 0);
         }
@@ -57,14 +57,17 @@ public class BillPDF extends ServerResource {
             ErrorReporter.reportException(e);
             throw new ResourceException(404);
         }
+        catch(Exception e) {
+            ErrorReporter.reportException(e);
+            throw new ResourceException(500);
+        }
     }
 
     @Post("json")
-    public Representation createPDF(Representation entity) throws Exception {
-        Bill bill = new Bill();
-        DatabaseHelper dbHelper = new DatabaseHelper();
-
+    public Representation createPDF(Representation entity) {
         try {
+            Bill bill = new Bill();
+            DatabaseHelper dbHelper = new DatabaseHelper();
             JsonRepresentation represent = new JsonRepresentation(entity);
             JSONObject billJson = represent.getJsonObject();
             String userId = billJson.getString("userId");
@@ -114,7 +117,7 @@ public class BillPDF extends ServerResource {
         }
         catch (Exception e) {
             ErrorReporter.reportException(e);
-            throw e;
+            throw new ResourceException(500);
         }
     }
 }

@@ -33,7 +33,7 @@ import java.util.List;
 
 public class BillInformation extends ServerResource {
     @Get
-    public Representation getBills() throws Exception {
+    public Representation getBills() {
         Form query = getRequest().getResourceRef().getQueryAsForm();
         String userId = query.getFirstValue("user_id", "");
         JSONArray jsonBills = new JSONArray();
@@ -59,7 +59,7 @@ public class BillInformation extends ServerResource {
         }
         catch (Exception e) {
             ErrorReporter.reportException(e);
-            throw e;
+            throw new ResourceException(500);
         }
     }
 }
