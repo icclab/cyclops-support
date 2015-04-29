@@ -27,6 +27,7 @@ import org.restlet.ext.json.JsonRepresentation;
 import org.restlet.representation.Representation;
 import org.restlet.resource.ClientResource;
 import org.restlet.resource.Get;
+import org.restlet.resource.ResourceException;
 import org.restlet.resource.ServerResource;
 import org.restlet.util.Series;
 
@@ -48,7 +49,7 @@ public class KeystoneMeter extends ServerResource{
      * @return  A representation of the untouched response
      */
     @Get
-    public Representation getKeystoneMeters() throws Exception {
+    public Representation getKeystoneMeters() {
         try {
             String authUrl = LoadConfiguration.configuration.get("KEYSTONE_TOKEN_URL");
             String meterUrl = LoadConfiguration.configuration.get("KEYSTONE_METERS_URL");// + "?q.field=user_id&q.value=x";
@@ -81,7 +82,7 @@ public class KeystoneMeter extends ServerResource{
         }
         catch (Exception e) {
             ErrorReporter.reportException(e);
-            throw e;
+            throw new ResourceException(500);
         }
     }
 }

@@ -28,6 +28,7 @@ import org.restlet.ext.json.JsonRepresentation;
 import org.restlet.representation.Representation;
 import org.restlet.resource.ClientResource;
 import org.restlet.resource.Post;
+import org.restlet.resource.ResourceException;
 import org.restlet.resource.ServerResource;
 
 import java.io.IOException;
@@ -48,7 +49,7 @@ public class Usage extends ServerResource{
      * @return  A representation of the untouched response
      */
     @Post("json")
-    public Representation getUsageData(Representation entity) throws Exception {
+    public Representation getUsageData(Representation entity) {
         try {
             JsonRepresentation represent = new JsonRepresentation(entity);
             JSONObject requestJson = represent.getJsonObject();
@@ -72,7 +73,7 @@ public class Usage extends ServerResource{
         }
         catch (Exception e) {
             ErrorReporter.reportException(e);
-            throw e;
+            throw new ResourceException(500);
         }
     }
 }

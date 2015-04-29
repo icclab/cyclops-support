@@ -25,10 +25,7 @@ import org.restlet.data.Header;
 import org.restlet.ext.json.JsonRepresentation;
 import org.restlet.representation.Representation;
 import org.restlet.representation.StringRepresentation;
-import org.restlet.resource.ClientResource;
-import org.restlet.resource.Get;
-import org.restlet.resource.Post;
-import org.restlet.resource.ServerResource;
+import org.restlet.resource.*;
 import org.restlet.util.Series;
 
 import java.io.IOException;
@@ -50,7 +47,7 @@ public class Session extends ServerResource{
      * @return  A representation of the untouched response
      */
     @Post("json")
-    public Representation login(Representation entity) throws Exception{
+    public Representation login(Representation entity) {
         try {
             JsonRepresentation represent = new JsonRepresentation(entity);
             JSONObject json = represent.getJsonObject();
@@ -60,7 +57,7 @@ public class Session extends ServerResource{
         }
         catch (Exception e) {
             ErrorReporter.reportException(e);
-            throw e;
+            throw new ResourceException(500);
         }
     }
 

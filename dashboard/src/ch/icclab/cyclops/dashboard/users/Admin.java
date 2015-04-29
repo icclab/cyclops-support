@@ -28,10 +28,7 @@ import org.restlet.data.Form;
 import org.restlet.data.Header;
 import org.restlet.ext.json.JsonRepresentation;
 import org.restlet.representation.Representation;
-import org.restlet.resource.ClientResource;
-import org.restlet.resource.Get;
-import org.restlet.resource.Put;
-import org.restlet.resource.ServerResource;
+import org.restlet.resource.*;
 import org.restlet.util.Series;
 
 import java.io.IOException;
@@ -71,7 +68,7 @@ public class Admin extends ServerResource{
     }
 
     @Put("json")
-    public Representation updateAdmins(Representation entity) throws Exception {
+    public Representation updateAdmins(Representation entity) {
         try {
             JSONObject updateObject = new JSONObject();
             JsonRepresentation represent = new JsonRepresentation(entity);
@@ -111,7 +108,7 @@ public class Admin extends ServerResource{
         }
         catch (Exception e) {
             ErrorReporter.reportException(e);
-            throw e;
+            throw new ResourceException(500);
         }
     }
 }
