@@ -67,6 +67,13 @@ describe('AdminBillingController', function() {
         to: fakeDate,
         billItems: fakeBillData
     };
+    var fakePromiseResultWithDueDate = {
+        userId: fakeKeystoneId,
+        from: fakeDate,
+        to: fakeDate,
+        due: fakeDate,
+        billItems: fakeBillData
+    };
 
     /*
         Test setup
@@ -98,6 +105,7 @@ describe('AdminBillingController', function() {
             sessionServiceMock.getSessionId.and.returnValue(fakeSessionId);
             responseParserMock.getUserListFromResponse.and.returnValue(fakeUsers);
             dateUtilMock.formatDateFromTimestamp.and.returnValue(fakeDate);
+            dateUtilMock.addDaysToDateString.and.returnValue(fakeDate);
             billDataServiceMock.getFormattedData.and.returnValue(fakeBillData);
 
             controller = $controller('AdminBillingController', {
@@ -303,7 +311,13 @@ describe('AdminBillingController', function() {
         it('should correclty call restService.createBillPDF', function() {
             controller.generateBillPDF(fakePromiseResult);
             expect(restServiceMock.createBillPDF)
-                .toHaveBeenCalledWith(fakePromiseResult);
+                .toHaveBeenCalledWith(fakePromiseResultWithDueDate);
+        });
+
+        it('should calculate due date', function() {
+            controller.generateBillPDF(fakePromiseResult);
+            expect(dateUtilMock.addDaysToDateString)
+                .toHaveBeenCalledWith(fakeDate, 10);
         });
 
         it('should resolve the deferred if rest call is successful', function() {

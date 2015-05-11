@@ -70,10 +70,13 @@
         };
 
         this.getClassForBill = function(bill) {
-            if(bill.status == "paid") {
+            var dateToday = dateUtil.getFormattedDateToday();
+            var isDue = dateUtil.compareDateStrings(bill.due, dateToday) == 1;
+
+            if(bill.paid) {
                 return "success";
             }
-            else if(bill.status == "due") {
+            else if(isDue) {
                 return "danger";
             }
 

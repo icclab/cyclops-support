@@ -266,11 +266,25 @@
             return $http.post('/dashboard/rest/bills/pdf', billDetails, {responseType:'arraybuffer'});
         };
 
+        /**
+         * This method gets the bill for a specific user and time period from
+         * the dashboard backend
+         * @param  {String} userId The user's cloud provider ID
+         * @param  {String} from YYYY-MM-DD timestamp
+         * @param  {String} to YYYY-MM-DD timestamp
+         * @return {Promise}
+         */
         this.getBillPDF = function(userId, from, to) {
             var queryString = "?user_id=" + userId + "&from=" + from + "&to=" + to;
             return $http.get('/dashboard/rest/bills/pdf' + queryString, {responseType:'arraybuffer'});
         };
 
+        /**
+         * This method gets information about alle the user's bills from the
+         * dashboard backend
+         * @param  {String} userId Object The user's cloud provider ID
+         * @return {Promise}
+         */
         this.getBills = function(userId) {
             return $http.get('/dashboard/rest/bills?user_id=' + userId);
         };

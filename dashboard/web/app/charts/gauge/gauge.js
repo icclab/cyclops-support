@@ -61,7 +61,7 @@
         };
 
         this.updateGraph = function() {
-            var result = chartDataService.getGaugeMeterData(
+            var result = chartDataService.getSampledGaugeMeterData(
                 me.chartDataType,
                 me.chartName
             );
