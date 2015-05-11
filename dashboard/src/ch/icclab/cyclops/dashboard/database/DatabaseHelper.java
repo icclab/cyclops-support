@@ -25,6 +25,10 @@ public class DatabaseHelper {
                     " billPDF       TEXT    NOT NULL, " +
                     " fromDate      TEXT    NOT NULL, " +
                     " toDate        TEXT    NOT NULL, " +
+                    " approved      BOOLEAN NOT NULL DEFAULT 0, " +
+                    " paid          BOOLEAN NOT NULL DEFAULT 0, " +
+                    " dueDate       TEXT    NOT NULL, " +
+                    " paymentDate   TEXT, " +
                     " created TIMESTAMP DEFAULT CURRENT_TIMESTAMP)";
             stmt.executeUpdate(sql);
             stmt.close();
@@ -41,11 +45,12 @@ public class DatabaseHelper {
     public void addBill(String userId, String pdfPath, Bill bill) throws DatabaseInteractionException {
         try {
             Connection c = openConnection();
-            PreparedStatement stmt = c.prepareStatement("INSERT INTO bills (ID, userId, billPDF, fromDate, toDate) VALUES (NULL, ?, ?, ?, ?)");
+            PreparedStatement stmt = c.prepareStatement("INSERT INTO bills (ID, userId, billPDF, fromDate, toDate, dueDate) VALUES (NULL, ?, ?, ?, ?, ?)");
             stmt.setString(1, userId);
             stmt.setString(2, pdfPath);
             stmt.setString(3, bill.getFromDate());
             stmt.setString(4, bill.getToDate());
+            stmt.setString(5, bill.getDueDate());
             stmt.executeUpdate();
             c.close();
 
@@ -71,6 +76,9 @@ public class DatabaseHelper {
                 Bill bill = new Bill();
                 bill.setFromDate(resultSet.getString("fromDate"));
                 bill.setToDate(resultSet.getString("toDate"));
+                bill.setDueDate(resultSet.getString("dueDate"));
+                bill.setApproved(resultSet.getInt("approved") != 0);
+                bill.setPaid(resultSet.getInt("paid") != 0);
                 bills.add(bill);
             }
 

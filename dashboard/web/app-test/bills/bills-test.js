@@ -25,12 +25,18 @@ describe('BillController', function() {
         Fake Data
      */
     var fakeKeystoneId = "asdl";
-    var fakePaidBill = { status: "paid" };
-    var fakeDueBill = { status: "due" };
-    var fakeRunningBill = { status: "running" };
+    var fakeDate = "2015-04-28";
     var fakeBill = {
         from: "2015-04-28",
-        to: "2015-04-29"
+        to: "2015-04-29",
+        due: "2015-04-30",
+        paid: true
+    };
+    var fakeBillDue = {
+        from: "2015-04-16",
+        to: "2015-04-17",
+        due: "2015-04-27",
+        paid: false
     };
     var fakeBills = [
         {
@@ -71,6 +77,8 @@ describe('BillController', function() {
             sessionServiceMock.getKeystoneId.and.returnValue(fakeKeystoneId);
             restServiceMock.getBills.and.returnValue(promise);
             restServiceMock.getBillPDF.and.returnValue(promise);
+            dateUtilMock.getFormattedDateToday.and.returnValue(fakeDate);
+            dateUtilMock.compareDateStrings.and.returnValue(-1);
 
             controller = $controller('BillController', {
                 '$scope': $scope,
@@ -89,15 +97,17 @@ describe('BillController', function() {
      */
     describe('getClassForBill', function() {
         it('should return "success" if bill is "paid"', function() {
-            expect(controller.getClassForBill(fakePaidBill)).toBe("success");
+            expect(controller.getClassForBill(fakeBill)).toBe("success");
         });
 
         it('should return "info" if bill is "running"', function() {
-            expect(controller.getClassForBill(fakeRunningBill)).toBe("info");
+            dateUtilMock.compareDateStrings.and.returnValue(-1);
+            expect(controller.getClassForBill(fakeBillDue)).toBe("info");
         });
 
-        it('should return "danger" if bill is "paid"', function() {
-            expect(controller.getClassForBill(fakeDueBill)).toBe("danger");
+        it('should return "danger" if bill is "due"', function() {
+            dateUtilMock.compareDateStrings.and.returnValue(1);
+            expect(controller.getClassForBill(fakeBillDue)).toBe("danger");
         });
     });
 

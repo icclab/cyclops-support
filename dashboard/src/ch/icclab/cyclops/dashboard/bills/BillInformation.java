@@ -47,6 +47,9 @@ public class BillInformation extends ServerResource {
                 JSONObject billJson = new JSONObject();
                 billJson.put("from", bill.getFromDate());
                 billJson.put("to", bill.getToDate());
+                billJson.put("due", bill.getDueDate());
+                billJson.put("approved", bill.isApproved());
+                billJson.put("paid", bill.isPaid());
                 jsonBills.put(billJson);
             }
 

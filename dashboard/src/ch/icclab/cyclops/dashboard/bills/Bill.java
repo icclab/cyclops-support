@@ -43,7 +43,6 @@ public class Bill {
         info.put("org-name", "InIT Service Engineering");
         info.put("address-line1", "Obere Kirchgasse 2");
         info.put("address-line2", "CH Winterthur - 8401");
-        info.put("payment-date", "15/01/2015");
     }
 
     public void addItem(String meterName, Long usage, Double rate, String unit) {
@@ -99,7 +98,10 @@ public class Bill {
         info.put("bill-end-year", String.valueOf(cal.get(Calendar.YEAR)));
         info.put("bill-end-month", padToDoubleDigits(cal.get(Calendar.MONTH) + 1));
         info.put("period-end-date", padToDoubleDigits(cal.get(Calendar.DAY_OF_MONTH)));
+    }
 
+    public void setDueDate(String date) {
+        info.put("payment-date", date);
     }
 
     public String getFromDate() {
@@ -108,6 +110,26 @@ public class Bill {
 
     public String getToDate() {
         return info.get("bill-end-year") + "-" + info.get("bill-end-month") + "-" + info.get("period-end-date");
+    }
+
+    public String getDueDate() {
+        return info.get("payment-date");
+    }
+
+    public void setApproved(boolean isApproved) {
+        info.put("approved", isApproved ? "1" : "0");
+    }
+
+    public void setPaid(boolean isPaid) {
+        info.put("paid", isPaid ? "1" : "0");
+    }
+
+    public boolean isApproved() {
+        return !info.get("approved").equals("0");
+    }
+
+    public boolean isPaid() {
+        return !info.get("paid").equals("0");
     }
 
     public void setRecipientName(String firstName, String lastName) {

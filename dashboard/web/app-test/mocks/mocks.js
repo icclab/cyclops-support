@@ -99,7 +99,8 @@ var dateUtilMock = jasmine.createSpyObj(
         'getFormattedDateToday', 'getFormattedDateYesterday',
         'formatDate', 'formatTime', 'formatDateTime',
         'formatDateFromTimestamp', 'formatTimeFromTimestamp',
-        'formatDateTimeFromTimestamp', 'getFormattedDateTimeNow'
+        'formatDateTimeFromTimestamp', 'getFormattedDateTimeNow',
+        'addDaysToDateString', 'compareDateStrings'
     ]
 );
 

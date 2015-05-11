@@ -49,12 +49,22 @@
             }
         };
 
-        this.setLabelIfSpaceAvailable = function(
-                numPoints, pointIndex, numLabels, label) {
+        this.doSampling = function(points, maxNum) {
+            var sampledPoints = [];
+            var numPoints = points.length;
+            var modulus = Math.round(numPoints / maxNum) || 1;
 
-            var modulus = Math.round(numPoints / numLabels);
-            modulus = (numPoints < numLabels) ? 1 : modulus;
-            return pointIndex % modulus == 0 ? label : "";
+            if(numPoints < maxNum) {
+                return points;
+            }
+
+            for(var i = 0; i < numPoints; i++) {
+                if(i % modulus == 0) {
+                    sampledPoints.push(points[i]);
+                }
+            }
+
+            return sampledPoints;
         };
 
         this.getCumulativeMeterData = function(type, meterName) {
@@ -90,16 +100,26 @@
                 var dataY = [];
 
                 for(var i = 0; i < numPoints; i++) {
-                    dataX.push(me.setLabelIfSpaceAvailable(
-                        numPoints,
-                        i,
-                        NUM_LABELS,
-                        dateUtil.formatDateTimeFromTimestamp(dataPoints[i][0])
-                    ));
+                    dataX.push(dateUtil.formatDateTimeFromTimestamp(dataPoints[i][0]));
                     dataY.push(dataPoints[i][1]);
                 }
 
-                return { "labels": dataX, "data": [dataY] }
+                return { "labels": dataX, "data": [dataY] };
+            }
+            catch(err) {
+                return { "labels": [], "data": [[]] };
+            }
+        };
+
+        this.getSampledGaugeMeterData = function(type, meterName) {
+            try {
+                var unsampledData = me.getGaugeMeterData(type, meterName);
+                var unsampledPoints = unsampledData.data[0];
+                var unsampledLabels = unsampledData.labels;
+                var sampledData = me.doSampling(unsampledPoints, 100);
+                var sampledLabels = me.doSampling(unsampledLabels, 10);
+
+                return { "labels": sampledLabels, "data": [sampledData] };
             }
             catch(err) {
                 return { "labels": [], "data": [[]] };

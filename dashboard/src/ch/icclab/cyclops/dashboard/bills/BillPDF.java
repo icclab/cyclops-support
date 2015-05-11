@@ -73,12 +73,14 @@ public class BillPDF extends ServerResource {
             String userId = billJson.getString("userId");
             String from = billJson.getString("from");
             String to = billJson.getString("to");
+            String due = billJson.getString("due");
             String firstName = billJson.getString("firstName");
             String lastName = billJson.getString("lastName");
             JSONObject billDetails = billJson.getJSONObject("billItems");
 
             bill.setFromDate(from);
             bill.setToDate(to);
+            bill.setDueDate(due);
             bill.setRecipientName(firstName, lastName);
 
             //If PDF doesn't exist yet, create it

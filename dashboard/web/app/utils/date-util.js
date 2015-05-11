@@ -71,6 +71,19 @@
         this.getFormattedDateYesterday = function() {
             return me.formatDate(Date.today().addDays(-1));
         };
+
+        this.addDaysToDateString = function(dateString, days) {
+            return me.formatDate(new Date(dateString).addDays(days));
+        };
+
+        this.compareDateStrings = function(dateStringA, dateStringB) {
+            var a = new Date(dateStringA);
+            var b = new Date(dateStringB);
+
+            if(a > b) return -1;
+            if(a < b) return 1;
+            return 0;
+        };
     }
 
 })();

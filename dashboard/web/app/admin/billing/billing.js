@@ -106,6 +106,7 @@
 
         this.generateBillPDF = function(params) {
             var deferred = $q.defer();
+            params.due = dateUtil.addDaysToDateString(params.to, 10);
 
             restService.createBillPDF(params).then(
                 function(response) {
