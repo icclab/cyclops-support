@@ -25,12 +25,6 @@ describe('ChartDataService', function() {
     var charge = "charge";
     var rate = "rate";
     var fakeDateTime = "2015-01-01 13:33";
-    var fakeLabel = "testLabel";
-    var fakeNumPoints = 800;
-    var fakePointIndex = 80;
-    var fakeNumLabels = 10;
-    var emptyCumulativeObject = { "data": 0 };
-    var emptyGaugeObject = { "labels": [], "data": [[]] };
     var fakeCumulativeName = "cumulativeChart";
     var fakeGaugeName = "gaugeChart";
     var fakePointValue1 = 443309;
@@ -72,18 +66,17 @@ describe('ChartDataService', function() {
             unit: "B"
         }
     };
-    var fakeGaugeResult = {
-        labels: [fakeDateTime, fakeDateTime],
-        data: [
-            [
-                fakeUsageData.gaugeChart.points[1][1],
-                fakeUsageData.gaugeChart.points[0][1],
-            ]
-        ]
-    };
-    var fakeCumulativeResult = {
-        data: fakeUsageData.cumulativeChart.points[0][1] + fakeUsageData.cumulativeChart.points[1][1]
-    };
+    var fakeGaugeResult = [
+        {
+            x: fakeUsageData.gaugeChart.points[1][0],
+            y: fakeUsageData.gaugeChart.points[1][1]
+        },
+        {
+            x: fakeUsageData.gaugeChart.points[0][0],
+            y: fakeUsageData.gaugeChart.points[0][1]
+        }
+    ];
+    var fakeCumulativeResult = fakeUsageData.cumulativeChart.points[0][1] + fakeUsageData.cumulativeChart.points[1][1];
 
     /*
         Test setup
@@ -132,7 +125,7 @@ describe('ChartDataService', function() {
         it('returns an error if no data available', function() {
             usageDataServiceMock.getFormattedData.and.returnValue(undefined);
             var res = service.getCumulativeMeterData(usage, fakeCumulativeName);
-            expect(res).toEqual(emptyCumulativeObject);
+            expect(res).toEqual(0);
         });
     });
 
@@ -150,14 +143,11 @@ describe('ChartDataService', function() {
         it('returns empty data if no usage data is available', function() {
             usageDataServiceMock.getFormattedData.and.returnValue(undefined);
             var res = service.getGaugeMeterData(usage, fakeGaugeName);
-            expect(res).toEqual(emptyGaugeObject);
+            expect(res).toEqual([]);
         });
     });
 
     describe('getSampledGaugeMeterData', function() {
-        beforeEach(function() {
-        });
-
         it('returns the correct usage data if available', function() {
             spyOn(service, 'getGaugeMeterData').and.returnValue(fakeGaugeResult);
             spyOn(service, 'doSampling').and.returnValue(1);
@@ -167,9 +157,20 @@ describe('ChartDataService', function() {
             expect(service.getGaugeMeterData)
                 .toHaveBeenCalledWith(usage, fakeGaugeName);
             expect(service.doSampling)
-                .toHaveBeenCalledWith([fakePointValue2, fakePointValue1], 100);
-            expect(service.doSampling)
-                .toHaveBeenCalledWith([fakeDateTime, fakeDateTime], 10);
+                .toHaveBeenCalledWith(fakeGaugeResult, 100);
+        });
+    });
+
+
+    describe('doSampling', function() {
+        it('returns untouched array if length < maxNum', function() {
+            var smallArray = [1, 2, 3];
+            var res = service.doSampling(smallArray, 5);
+            expect(res).toEqual(smallArray);
+        });
+        it('returns sampled array if length > maxNum', function() {
+            var res = service.doSampling([1, 2, 3, 4], 2);
+            expect(res).toEqual([1, 3]);
         });
     });
 

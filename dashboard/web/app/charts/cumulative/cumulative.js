@@ -50,7 +50,7 @@
             me.chartData = chartDataService.getCumulativeMeterData(
                 me.chartDataType,
                 me.chartName
-            ).data;
+            );
         };
 
         this.useByteFilter = function() {
