@@ -25,11 +25,8 @@
     /*
         Controllers, Factories, Services, Directives
     */
-    ChartDataService.$inject = [
-        'dateUtil', 'usageDataService', 'rateDataService', 'chargeDataService'
-    ];
-    function ChartDataService(
-            dateUtil, usageDataService, rateDataService, chargeDataService) {
+    ChartDataService.$inject = ['usageDataService', 'rateDataService', 'chargeDataService'];
+    function ChartDataService(usageDataService, rateDataService, chargeDataService) {
         var me = this;
         var NUM_LABELS = 10;
 
@@ -75,17 +72,17 @@
                     data points). We need to sum up the individual points to
                     get the cumulative result.
                  */
-                var gaugeData = me.getGaugeMeterData(type, meterName).data[0];
+                var gaugeData = me.getGaugeMeterData(type, meterName);
                 var cumulativeValue = 0;
 
                 for(var i = 0; i < gaugeData.length; i++) {
-                    cumulativeValue += gaugeData[i];
+                    cumulativeValue += gaugeData[i].y;
                 }
 
-                return { "data": cumulativeValue };
+                return cumulativeValue;
             }
             catch(err) {
-                return { "data": 0 };
+                return 0;
             }
         };
 
@@ -96,34 +93,23 @@
                 var dataPoints = serviceData[meterName].points || [];
                 dataPoints.reverse();
                 var numPoints = dataPoints.length;
-                var dataX = [];
-                var dataY = [];
+                var data = [];
 
                 for(var i = 0; i < numPoints; i++) {
-                    dataX.push(dateUtil.formatDateTimeFromTimestamp(dataPoints[i][0]));
-                    dataY.push(dataPoints[i][1]);
+                    data.push({x: dataPoints[i][0], y: dataPoints[i][1]});
                 }
 
-                return { "labels": dataX, "data": [dataY] };
+                return data;
             }
             catch(err) {
-                return { "labels": [], "data": [[]] };
+                return [];
             }
         };
 
         this.getSampledGaugeMeterData = function(type, meterName) {
-            try {
-                var unsampledData = me.getGaugeMeterData(type, meterName);
-                var unsampledPoints = unsampledData.data[0];
-                var unsampledLabels = unsampledData.labels;
-                var sampledData = me.doSampling(unsampledPoints, 100);
-                var sampledLabels = me.doSampling(unsampledLabels, 10);
-
-                return { "labels": sampledLabels, "data": [sampledData] };
-            }
-            catch(err) {
-                return { "labels": [], "data": [[]] };
-            }
+            var unsampledPoints = me.getGaugeMeterData(type, meterName);
+            var sampledData = me.doSampling(unsampledPoints, 100);
+            return sampledData;
         };
     }
 

@@ -406,7 +406,7 @@
     /*
         Charts Module Setup
     */
-    angular.module('dashboard.charts', ['chart.js']);
+    angular.module('dashboard.charts', ['nvd3']);
 
     /*
         Filter Module Setup
