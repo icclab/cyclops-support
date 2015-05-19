@@ -36,9 +36,26 @@ import java.io.File;
 import java.io.IOException;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
+import java.util.Arrays;
 import java.util.HashMap;
 
 public class BillGenerator {
+    private static final int ITEM_NAME_OFFSET_X = 50;
+    private static final int ITEM_NAME_OFFSET_Y = 40;
+
+    private static final int ITEM_USAGE_OFFSET_X = 150;
+    private static final int ITEM_USAGE_OFFSET_Y = 20;
+
+    private static final int ITEM_UNIT_OFFSET_X = 100;
+    private static final int ITEM_UNIT_OFFSET_Y = 0;
+
+    private static final int ITEM_RATE_OFFSET_X = 50;
+    private static final int ITEM_RATE_OFFSET_Y = 0;
+
+    private static final int ITEM_COST_OFFSET_X = 120;
+    private static final int ITEM_COST_OFFSET_Y = 0;
+
+    private static final int TABLE_WIDTH = 550;
 
     public void createPDF(String path, Bill bill) throws PdfGenerationException {
         PDDocument document = new PDDocument();
@@ -73,7 +90,6 @@ public class BillGenerator {
         /*
         BufferedImage img = null;
         img = ImageIO.read(new File(logoFile));
-
 
         if (img != null) {
             PDXObjectImage ximage = new PDJpeg(document, img);
@@ -180,107 +196,165 @@ public class BillGenerator {
         font = PDType1Font.TIMES_BOLD;
         contentStream.setFont(font, 14);
         contentStream.beginText();
-        contentStream.moveTextPositionByAmount(20, 600);
+        contentStream.moveTextPositionByAmount(20, 620);
         contentStream.drawString("Itemized Consumption Summary");
         contentStream.endText();
 
     }
 
     /**
-     * drawFooter.
+     * drawItemizedDetail.
      *
      * @param contentStream (required) reference to the PDPageContentStream object.
-     * @param usage         (required) dictionary containing the various meter usage values
-     * @param rate          (required) dictionary containing the rates for the corresponding meters in usage dictionary, all meters entry must be present
-     * @param unit          (required) dictionary containing the unit symbol for the corresponding meters in usage dictionary, all meters entry must be present
-     * @param discount      (required) dictionary containing the individual volume based discount for the corresponding meters in usage dictionary, all meters entry must be present
+     * @param usage (required) dictionary containing the various meter usage values
+     * @param rate (required) dictionary containing the rates for the corresponding meters in usage dictionary, all meters entry must be present
+     * @param unit (required) dictionary containing the unit symbol for the corresponding meters in usage dictionary, all meters entry must be present
+     * @param discount (required) dictionary containing the individual volume based discount for the corresponding meters in usage dictionary, all meters entry must be present
      */
-    private void drawItemizedDetail(PDPageContentStream contentStream, HashMap<String, Long> usage, HashMap<String, Double> rate, HashMap<String, String> unit, HashMap<String, Double> discount) throws IOException {
-        PDFont font;
+    static void drawItemizedDetail(PDPageContentStream contentStream, HashMap<String, Long> usage, HashMap<String, Double> rate, HashMap<String, String> unit, HashMap<String, Double> discount){
+        try {
+            final int TABLE_X = 40;
+            final int TABLE_Y = 605;
+            final int SUMMARY_X = 280;
+            final int SUMMARY_OFFSET_Y = 20;
 
-        //printing the table header row
-        contentStream.drawLine(40, 560, 550, 560);
-        font = PDType1Font.TIMES_BOLD;
-        contentStream.setFont(font, 12);
+            HashMap<String, Double> itemCost = new HashMap<String, Double>();
+            int headerOffset = drawItemizedDetailTableHeader(contentStream, TABLE_X, TABLE_Y);
+            int tableOffset = drawItemizedDetailTable(contentStream, TABLE_X, TABLE_Y - headerOffset, usage, rate, unit, itemCost);
+            drawItemizedDetailSummary(contentStream, SUMMARY_X, TABLE_Y - tableOffset - SUMMARY_OFFSET_Y - 40, itemCost, discount);
+        }
+        catch(IOException ex) {
+            System.err.println("Exception caught: " + ex);
+        }
+    }
+
+    private static int drawItemizedDetailTableHeader(PDPageContentStream contentStream, int x, int y) throws IOException {
+        final int HEADER_HEIGHT = 20;
+        final int FONT_SIZE = 12;
+
+        contentStream.drawLine(x, y, TABLE_WIDTH, y);
+
+        PDType1Font font = PDType1Font.TIMES_BOLD;
+        contentStream.setFont(font, FONT_SIZE);
+
         contentStream.beginText();
-        contentStream.moveTextPositionByAmount(50, 550);
+        contentStream.moveTextPositionByAmount(ITEM_NAME_OFFSET_X, y - (HEADER_HEIGHT + FONT_SIZE) / 2);
         contentStream.drawString("Resource Name");
-        font = PDType1Font.TIMES_BOLD;
-        contentStream.setFont(font, 12);
-        contentStream.moveTextPositionByAmount(150, 0);
+
+        contentStream.moveTextPositionByAmount(ITEM_USAGE_OFFSET_X, 0);
         contentStream.drawString("Usage Value");
-        font = PDType1Font.TIMES_BOLD;
-        contentStream.setFont(font, 12);
-        contentStream.moveTextPositionByAmount(100, 0);
+
+        contentStream.moveTextPositionByAmount(ITEM_UNIT_OFFSET_X, 0);
         contentStream.drawString("Unit");
-        font = PDType1Font.TIMES_BOLD;
-        contentStream.setFont(font, 12);
-        contentStream.moveTextPositionByAmount(50, 0);
+
+        contentStream.moveTextPositionByAmount(ITEM_RATE_OFFSET_X, 0);
         contentStream.drawString("Resource Rate");
-        font = PDType1Font.TIMES_BOLD;
-        contentStream.setFont(font, 12);
-        contentStream.moveTextPositionByAmount(120, 0);
+
+        contentStream.moveTextPositionByAmount(ITEM_COST_OFFSET_X, 0);
         contentStream.drawString("Usage Cost");
         contentStream.endText();
-        contentStream.drawLine(40, 545, 550, 545);
 
-        HashMap<String, Double> itemCost = new HashMap<String, Double>();
+        contentStream.drawLine(x, y - HEADER_HEIGHT, TABLE_WIDTH, y - HEADER_HEIGHT);
+        contentStream.drawLine(x, y, x, y - HEADER_HEIGHT);
+        contentStream.drawLine(TABLE_WIDTH, y, TABLE_WIDTH, y - HEADER_HEIGHT);
 
-        //now printing the itemized values in row
-        int rowIndex = 1;
-        double totalCost = 0.0;
-        for (String key : usage.keySet()) {
-            font = PDType1Font.COURIER_BOLD;
-            contentStream.setFont(font, 12);
+        return HEADER_HEIGHT;
+    }
+
+    private static int drawItemizedDetailTable(PDPageContentStream contentStream, int x, int y, HashMap<String, Long> usage, HashMap<String, Double> rate, HashMap<String, String> unit, HashMap<String, Double> itemCost) throws IOException {
+        final int FONT_SIZE = 12;
+        final int DELIMITER_PADDING = 8;
+        final int INITIAL_FONT_OFFSET = 12;
+
+        int rowIndex = 0;
+        int tableHeight = 0;
+
+        for (String key : usage.keySet())
+        {
+            PDType1Font font = PDType1Font.COURIER_BOLD;
+            int rowHeight = 0;
+
+            int offsetY = INITIAL_FONT_OFFSET + rowIndex * ITEM_NAME_OFFSET_Y;
+            contentStream.setFont(font, FONT_SIZE);
             contentStream.beginText();
-            contentStream.moveTextPositionByAmount(50, 550 - (rowIndex * 15));
-            contentStream.drawString(ellipsis(key, 19));
+            contentStream.moveTextPositionByAmount(ITEM_NAME_OFFSET_X, y - offsetY);
+            contentStream.drawString(key);
+            rowHeight += offsetY;
+
             font = PDType1Font.COURIER_OBLIQUE;
-            contentStream.setFont(font, 12);
-            contentStream.moveTextPositionByAmount(150, 0);
+            contentStream.setFont(font, FONT_SIZE);
+            contentStream.moveTextPositionByAmount(ITEM_USAGE_OFFSET_X, -1 * ITEM_USAGE_OFFSET_Y);
             contentStream.drawString(Long.toString(usage.get(key)));
+            rowHeight += ITEM_USAGE_OFFSET_Y;
+
             font = PDType1Font.COURIER;
-            contentStream.setFont(font, 12);
-            contentStream.moveTextPositionByAmount(100, 0);
+            contentStream.setFont(font, FONT_SIZE);
+            contentStream.moveTextPositionByAmount(ITEM_UNIT_OFFSET_X, ITEM_UNIT_OFFSET_Y);
             contentStream.drawString(unit.get(key));
+            rowHeight += ITEM_UNIT_OFFSET_Y;
+
             font = PDType1Font.COURIER_BOLD;
-            contentStream.setFont(font, 12);
-            contentStream.moveTextPositionByAmount(50, 0);
-            contentStream.drawString(toScientificNotation(rate.get(key)));
+            contentStream.setFont(font, FONT_SIZE);
+            contentStream.moveTextPositionByAmount(ITEM_RATE_OFFSET_X, ITEM_RATE_OFFSET_Y);
+            contentStream.drawString(prettyPrintRate(rate.get(key)));
+            rowHeight += ITEM_RATE_OFFSET_Y;
+
             double cost = Math.round(usage.get(key) * rate.get(key) * 100.0) / 100.0; // rounds to 2 decimal places
             itemCost.put(key, cost);
-            totalCost += cost;
+
             font = PDType1Font.COURIER_BOLD_OBLIQUE;
             contentStream.setFont(font, 12);
-            contentStream.moveTextPositionByAmount(120, 0);
-            contentStream.drawString(Double.toString(cost));
+            contentStream.moveTextPositionByAmount(ITEM_COST_OFFSET_X, ITEM_COST_OFFSET_Y);
+            contentStream.drawString(prettyPrintPrice(cost));
             contentStream.endText();
+
+            rowHeight += ITEM_COST_OFFSET_Y;
+            rowHeight += DELIMITER_PADDING;
+
+            contentStream.setStrokingColor(Color.LIGHT_GRAY);
+            contentStream.drawLine(x, y - rowHeight, TABLE_WIDTH, y - rowHeight);
+
+            tableHeight = rowHeight;
             rowIndex++;
         }
 
-        //Round to 2 decimal places
-        totalCost = (Math.round(totalCost * 100) / 100);
+        contentStream.setStrokingColor(Color.BLACK);
+        contentStream.drawLine(x, y - tableHeight, TABLE_WIDTH, y - tableHeight);
+        contentStream.drawLine(x, y - tableHeight, x, y);
+        contentStream.drawLine(TABLE_WIDTH, y - tableHeight, TABLE_WIDTH, y);
 
-        contentStream.drawLine(40, 550 - (rowIndex * 15), 550, 550 - (rowIndex * 15));
-        contentStream.drawLine(40, 560, 40, 550 - (rowIndex * 15));
-        contentStream.drawLine(550, 560, 550, 550 - (rowIndex * 15));
+        return tableHeight;
+    }
 
-        font = PDType1Font.TIMES_BOLD;
+    private static void drawItemizedDetailSummary(PDPageContentStream contentStream, int x, int y, HashMap<String, Double> itemCost, HashMap<String, Double> discount) throws IOException {
+        double totalCost = 0;
+
+        for(String key : itemCost.keySet()) {
+            totalCost += itemCost.get(key);
+        }
+
+        PDType1Font font = PDType1Font.TIMES_BOLD;
         contentStream.setFont(font, 12);
         contentStream.beginText();
-        contentStream.moveTextPositionByAmount(280, 500 - (rowIndex * 15));
+        contentStream.moveTextPositionByAmount(x, y);
         contentStream.drawString("Total Amount Due:");
+
         font = PDType1Font.TIMES_ITALIC;
         contentStream.setFont(font, 12);
         contentStream.moveTextPositionByAmount(200, 0);
-        contentStream.drawString(totalCost + " CHF");
+        contentStream.drawString(prettyPrintPrice(totalCost) + " CHF");
+
         int itemIndex = 1;
         double discountedTotalCost = 0.0;
-        for (String key : discount.keySet()) {
-            if (itemIndex == 1)
+
+        for (String key : discount.keySet()){
+            if(itemIndex == 1) {
                 contentStream.moveTextPositionByAmount(-200, -20);
-            else
+            }
+            else {
                 contentStream.moveTextPositionByAmount(-200, -15);
+            }
+
             Double itemDiscount = discount.get(key);
             font = PDType1Font.TIMES_BOLD;
             contentStream.setFont(font, 12);
@@ -291,39 +365,43 @@ public class BillGenerator {
             contentStream.drawString(itemDiscount.toString() + " %");
             //applying the discount to individual costs
             Double usageCost = itemCost.get(key);
-            if (!key.startsWith("overall")) {
-                double discountedCost =
-                        Math.round(usageCost * ((100.00 - itemDiscount) / 100.00) * 100.0) / 100.0;
+            if(!key.startsWith("overall")) {
+                double discountedCost = Math.round(usageCost * ((100.00 - itemDiscount) / 100.00) * 100.0) / 100.0;
                 discountedTotalCost += discountedCost;
                 //System.out.println(key + ", usage-cost: " + usageCost.doubleValue() + ", discount: " + itemDiscount.doubleValue() + ", discounted-price: " + discountedCost);
             }
 
             itemIndex++;
         }
+
         //now apply the final overall discount on top
         Double itemDiscount = discount.get("overall");
-        discountedTotalCost =
-                Math.round(discountedTotalCost * ((100.00 - itemDiscount) / 100.00) * 100.0) / 100.0;
+        discountedTotalCost = Math.round(discountedTotalCost * ((100.00 - itemDiscount) / 100.00) * 100.0) / 100.0;
 
         contentStream.endText();
-        contentStream.drawLine(270, 500 - ((rowIndex + itemIndex) * 15), 560, 500 - ((rowIndex + itemIndex) * 15));
+        contentStream.drawLine(x, y - (itemIndex * 15), TABLE_WIDTH, y - (itemIndex * 15));
         font = PDType1Font.COURIER_BOLD;
         contentStream.setFont(font, 14);
         contentStream.beginText();
-        contentStream.moveTextPositionByAmount(280, 500 - ((rowIndex + itemIndex + 1) * 15));
+        contentStream.moveTextPositionByAmount(280, y - ((itemIndex + 1) * 15));
         contentStream.setNonStrokingColor(Color.orange);
         contentStream.drawString("Grand Amount Due:");
         contentStream.moveTextPositionByAmount(200, 0);
-        contentStream.drawString(discountedTotalCost + " CHF");
+        contentStream.drawString(prettyPrintPrice(discountedTotalCost) + " CHF");
         contentStream.endText();
     }
 
-    private <T> String toScientificNotation(T d) {
-        NumberFormat formatter = new DecimalFormat("0.##E0");
-        return formatter.format(d);
+    private static String prettyPrintRate(double rate) {
+        NumberFormat formatter = new DecimalFormat("0.##########");
+        return formatter.format(rate);
     }
 
-    private String ellipsis(String s, int maxLength) {
+    private static String prettyPrintPrice(double rate) {
+        NumberFormat formatter = new DecimalFormat("0.##");
+        return formatter.format(rate);
+    }
+
+    private static String ellipsis(String s, int maxLength) {
         if(s == null) {
             return null;
         }

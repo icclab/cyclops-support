@@ -164,6 +164,7 @@
          * @return {Promise}
          */
         this.getUdrMeters = function() {
+            //TODO: also post access token
             return $http.get('/dashboard/rest/udrmeters');
         };
 
@@ -196,6 +197,7 @@
          * @return {Promise}
          */
         this.getRateForMeter = function(meter, from, to) {
+            //TODO: also post access token
             var query = "?resourcename=" + meter + "&from=" + from + "&to=" + to;
             return $http.get('/dashboard/rest/rate' + query);
         };
@@ -209,6 +211,7 @@
          * @return {Promise}
          */
         this.getChargeForUser = function(userId, from, to) {
+            //TODO: also post access token
             var query = "?userid=" + userId + "&from=" + from + "&to=" + to;
             return $http.get('/dashboard/rest/charge' + query);
         };
@@ -219,6 +222,7 @@
          * @return {Promise}
          */
         this.getActiveRatePolicy = function() {
+            //TODO: also post access token
             return $http.get('/dashboard/rest/rate/status');
         };
 
@@ -229,6 +233,7 @@
          * @return {Promise}
          */
         this.setActiveRatePolicy = function(policyConfig) {
+            //TODO: also post access token
             return $http.post('/dashboard/rest/rate/status', policyConfig);
         };
 

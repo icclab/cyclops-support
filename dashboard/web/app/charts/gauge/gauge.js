@@ -61,7 +61,7 @@
                         top: 20,
                         right: 20,
                         bottom: 40,
-                        left: 60
+                        left: 65
                     },
                     x: function(d){ return d.x; },
                     y: function(d){ return d.y; },
@@ -74,7 +74,19 @@
                     },
                     yAxis: {
                         tickFormat: function(d){
-                            return d3.format('.02f')(d);
+
+                            if(d == 0) {
+                                return 0;
+                            }
+                            else if(d > 1000000) {
+                                return d3.format('f')(d)
+                            }
+                            else if(d < 1) {
+                                return d3.format('.06f')(d);
+                            }
+                            else {
+                                return d3.format('.02f')(d);
+                            }
                         },
                         axisLabelDistance: 50
                     }

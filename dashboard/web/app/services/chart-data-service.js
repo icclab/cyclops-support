@@ -28,11 +28,6 @@
     ChartDataService.$inject = ['usageDataService', 'rateDataService', 'chargeDataService'];
     function ChartDataService(usageDataService, rateDataService, chargeDataService) {
         var me = this;
-        var NUM_LABELS = 10;
-
-        //Default indices in case there is no column description
-        var DEFAULT_INDEX_TIME = 0;
-        var DEFAULT_INDEX_USAGE = 2;
 
         this.getServiceDelegate = function(type) {
             if(type == "usage") {

@@ -42,7 +42,7 @@
 
         this.formatTimeFromTimestamp = function(timestamp) {
             return new Date(timestamp).toString("HH:mm");
-        }
+        };
 
         this.formatDateTime = function(dateObject) {
             return dateObject.toString("yyyy-MM-dd HH:mm")
@@ -61,7 +61,7 @@
         };
 
         this.getFormattedDateTimeNow = function() {
-            return me.formatDateTime(Date.now());
+            return me.formatDateTimeFromTimestamp(Date.now());
         };
 
         this.getFormattedDateToday = function() {
