@@ -115,7 +115,7 @@ var responseParserMock = jasmine.createSpyObj(
 var modalMock = jasmine.createSpyObj(
     '$modal',
     [
-        'open'
+        'open', 'close'
     ]
 );
 
@@ -143,4 +143,5 @@ function resetAllMocks() {
     resetMock(alertServiceMock);
     resetMock(dateUtilMock);
     resetMock(responseParserMock);
+    resetMock(modalMock);
 }

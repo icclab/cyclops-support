@@ -29,14 +29,14 @@
 
         this.getStaticRatingListFromResponse = function(responseData) {
             var rates = responseData.rate || {};
-            var staticRatingList = [];
+            var staticRatingList = {};
 
             for(var meterName in rates) {
                 var rate = rates[meterName];
-                staticRatingList.push({
+                staticRatingList[meterName] = {
                     'name': meterName,
                     'rate': rate
-                });
+                };
             }
 
             return staticRatingList;

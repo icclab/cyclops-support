@@ -161,7 +161,6 @@ describe('ChartDataService', function() {
         });
     });
 
-
     describe('doSampling', function() {
         it('returns untouched array if length < maxNum', function() {
             var smallArray = [1, 2, 3];

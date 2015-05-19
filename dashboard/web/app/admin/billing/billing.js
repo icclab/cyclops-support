@@ -39,15 +39,29 @@
         this.fromDate = me.defaultDate;
         this.toDate = me.defaultDate;
 
-        this.openModal = function () {
+        this.showPdfModal = function () {
             var modalInstance = $modal.open({
-                templateUrl: 'modals/pdf-modal.html',
+                templateUrl: 'modals/pdf/pdf-modal.html',
                 controller: 'PdfModalController',
                 controllerAs: 'pdfModalCtrl',
                 size: 'lg',
                 resolve: {
                     pdf: function () {
                         return me.pdf;
+                    }
+                }
+            });
+        };
+
+        this.showUserBillsModal = function (bills) {
+            var modalInstance = $modal.open({
+                templateUrl: 'modals/user-bills/user-bills-modal.html',
+                controller: 'UserBillsModalController',
+                controllerAs: 'userBillsModalCtrl',
+                size: 'lg',
+                resolve: {
+                    bills: function () {
+                        return bills;
                     }
                 }
             });
@@ -124,6 +138,21 @@
             return deferred.promise;
         };
 
+        this.getExistingBills = function(userId) {
+            var deferred = $q.defer();
+
+            restService.getBills(userId).then(
+                function(response) {
+                    deferred.resolve(response.data);
+                },
+                function() {
+                    deferred.reject("Could not load bills for this user");
+                }
+            );
+
+            return deferred.promise;
+        };
+
         //https://docs.angularjs.org/guide/directive#creating-a-directive-that-wraps-other-elements
         this.onDateChanged = function(from, to) {
             me.fromDate = dateUtil.formatDateFromTimestamp(from);
@@ -152,7 +181,7 @@
                     .then(me.getBillItems)
                     .then(me.generateBillPDF).then(
                         function(msg) {
-                            me.openModal();
+                            me.showPdfModal();
                             alertService.showSuccess(msg);
                         },
                         function(msg) {
@@ -160,6 +189,24 @@
                         }
                     );
             }
+        };
+
+        this.showExistingBills = function(user) {
+            var sessionId = sessionService.getSessionId();
+            me.getKeystoneIdForUser(user, sessionId)
+                .then(
+                    function(response) {
+                        return me.getExistingBills(response.userId);
+                    }
+                )
+                .then(
+                    function(response) {
+                        me.showUserBillsModal(response);
+                    },
+                    function(msg) {
+                        alertService.showError(msg);
+                    }
+                );
         };
 
         this.getAllUsers();

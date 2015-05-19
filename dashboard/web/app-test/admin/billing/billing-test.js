@@ -216,6 +216,7 @@ describe('AdminBillingController', function() {
         });
 
         it('should show modal on third deferred.resolve', function() {
+            spyOn(controller, 'showPdfModal');
             controller.generateBill(fakeUser);
 
             userInfoDeferred.resolve(fakePromiseResult);
@@ -223,7 +224,7 @@ describe('AdminBillingController', function() {
             billDeferred.resolve(fakePromiseResult);
             $scope.$apply();
 
-            expect(modalMock.open).toHaveBeenCalled();
+            expect(controller.showPdfModal).toHaveBeenCalled();
         });
 
         it('should display success message on third deferred.resolve', function() {
@@ -337,6 +338,63 @@ describe('AdminBillingController', function() {
             $scope.$apply();
 
             expect(promise.$$state.status).toBe(2);
+        });
+    });
+
+    describe('showPdfModal', function() {
+        it('should call $modal.open', function() {
+            controller.showPdfModal();
+            expect(modalMock.open).toHaveBeenCalled();
+        });
+    });
+
+    describe('showUserBillsModal', function() {
+        it('should call $modal.open', function() {
+            controller.showUserBillsModal();
+            expect(modalMock.open).toHaveBeenCalled();
+        });
+    });
+
+    describe('showExistingBills', function() {
+        beforeEach(function(){
+            spyOn(controller, 'getKeystoneIdForUser').and.returnValue(userInfoPromise);
+            spyOn(controller, 'getExistingBills').and.returnValue(billPromise);
+            spyOn(controller, 'showUserBillsModal');
+        });
+
+        it('should correctly call getKeystoneIdForUser', function() {
+            controller.showExistingBills(fakeUser);
+            expect(sessionServiceMock.getSessionId).toHaveBeenCalled();
+            expect(controller.getKeystoneIdForUser)
+                .toHaveBeenCalledWith(fakeUser, fakeSessionId);
+        });
+
+        it('should correctly call getExistingBills on first deferred.resolve', function() {
+            controller.showExistingBills(fakeUser);
+
+            userInfoDeferred.resolve(fakePromiseResult);
+            $scope.$digest();
+
+            expect(controller.getExistingBills).toHaveBeenCalledWith(fakeKeystoneId);
+        });
+
+        it('should correctly call showUserBillsModal on second deferred.resolve', function() {
+            controller.showExistingBills(fakeUser);
+
+            userInfoDeferred.resolve(fakePromiseResult);
+            billDeferred.resolve({});
+            $scope.$digest();
+
+            expect(controller.showUserBillsModal).toHaveBeenCalledWith({});
+        });
+
+        it('should execute error callback on deferred.reject', function() {
+            controller.showExistingBills(fakeUser);
+
+            userInfoDeferred.reject();
+            $scope.$digest();
+
+            expect(alertServiceMock.showError).toHaveBeenCalled();
         });
     });
 });

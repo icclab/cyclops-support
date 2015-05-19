@@ -57,7 +57,7 @@
 
         this.openModal = function (pdf) {
             var modalInstance = $modal.open({
-                templateUrl: 'modals/pdf-modal.html',
+                templateUrl: 'modals/pdf/pdf-modal.html',
                 controller: 'PdfModalController',
                 controllerAs: 'pdfModalCtrl',
                 size: 'lg',

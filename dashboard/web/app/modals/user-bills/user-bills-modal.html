@@ -1,0 +1,31 @@
+<div class="modal-header">
+    <h3 class="modal-title">Existing Bills</h3>
+</div>
+<div class="modal-body">
+    <div class="row">
+
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>From</th>
+                    <th>To</th>
+                    <th>Paid</th>
+                    <th>Approved</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                <tr data-ng-repeat="bill in userBillsModalCtrl.bills">
+                    <td>{{bill.from}}</td>
+                    <td>{{bill.to}}</td>
+                    <td>{{bill.paid}}</td>
+                    <td>{{bill.approved}}</td>
+                </tr>
+            </tbody>
+        </table>
+
+    </div>
+</div>
+<div class="modal-footer">
+    <button class="btn btn-primary" ng-click="userBillsModalCtrl.close()">Close</button>
+</div>
