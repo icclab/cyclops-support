@@ -100,7 +100,7 @@ describe('AdminBillingController', function() {
 
             restServiceMock.getAllUsers.and.returnValue(userInfoPromise);
             restServiceMock.getUserInfo.and.returnValue(userInfoPromise);
-            restServiceMock.getChargeForUser.and.returnValue(billDetailsPromise);
+            restServiceMock.getBillingInformation.and.returnValue(billDetailsPromise);
             restServiceMock.createBillPDF.and.returnValue(billPromise);
             sessionServiceMock.getSessionId.and.returnValue(fakeSessionId);
             responseParserMock.getUserListFromResponse.and.returnValue(fakeUsers);
@@ -283,9 +283,9 @@ describe('AdminBillingController', function() {
     });
 
     describe('getBillItems', function() {
-        it('should correclty call restService.getChargeForUser', function() {
+        it('should correclty call restService.getBillingInformation', function() {
             controller.getBillItems(fakePromiseResult);
-            expect(restServiceMock.getChargeForUser)
+            expect(restServiceMock.getBillingInformation)
                 .toHaveBeenCalledWith(fakeKeystoneId, fakeFromDateTime, fakeToDateTime);
         });
 
