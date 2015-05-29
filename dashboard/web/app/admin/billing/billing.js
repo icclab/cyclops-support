@@ -104,7 +104,7 @@
             var from = params.from + " 00:00";
             var to = params.to + " 23:59";
 
-            restService.getChargeForUser(params.userId, from, to).then(
+            restService.getBillingInformation(params.userId, from, to).then(
                 function(response) {
                     billDataService.setRawData(response.data);
                     params.billItems = billDataService.getFormattedData();

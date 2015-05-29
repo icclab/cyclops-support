@@ -19,6 +19,7 @@ package ch.icclab.cyclops.dashboard.application;
 
 import ch.icclab.cyclops.dashboard.bills.BillInformation;
 import ch.icclab.cyclops.dashboard.bills.BillPDF;
+import ch.icclab.cyclops.dashboard.bills.Billing;
 import ch.icclab.cyclops.dashboard.charge.Charge;
 import ch.icclab.cyclops.dashboard.database.DatabaseHelper;
 import ch.icclab.cyclops.dashboard.database.DatabaseInteractionException;
@@ -62,8 +63,9 @@ public class DashboardApplication extends Application {
         router.attach("/users", User.class);
         router.attach("/users/{user}", UserInfo.class);
         router.attach("/admins", Admin.class);
-        router.attach("/bills", BillInformation.class);
-        router.attach("/bills/pdf", BillPDF.class);
+        router.attach("/billing", Billing.class);
+        router.attach("/billing/bills", BillInformation.class);
+        router.attach("/billing/bills/pdf", BillPDF.class);
 
         DatabaseHelper dbHelper = new DatabaseHelper();
         try {
