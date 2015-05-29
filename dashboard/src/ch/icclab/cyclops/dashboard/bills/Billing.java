@@ -15,7 +15,7 @@
  *     under the License.
  */
 
-package ch.icclab.cyclops.dashboard.charge;
+package ch.icclab.cyclops.dashboard.bills;
 
 import ch.icclab.cyclops.dashboard.oauth2.OAuthClientResource;
 import ch.icclab.cyclops.dashboard.oauth2.OAuthServerResource;
@@ -23,12 +23,12 @@ import ch.icclab.cyclops.dashboard.util.LoadConfiguration;
 import org.restlet.representation.Representation;
 import org.restlet.resource.Get;
 
-public class Charge extends OAuthServerResource {
+public class Billing extends OAuthServerResource {
     @Get
-    public Representation getCharge() {
+    public Representation getBills() {
         String query = getRequest().getResourceRef().getQuery();
         String oauthToken = getOAuthTokenFromHeader();
-        String url = LoadConfiguration.configuration.get("RC_CHARGE_URL") + "?" + query;
+        String url = LoadConfiguration.configuration.get("BILLING_INVOICE_URL") + "?" + query;
         OAuthClientResource clientResource = new OAuthClientResource(url, oauthToken);
         return clientResource.get();
     }

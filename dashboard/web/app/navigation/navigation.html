@@ -233,7 +233,6 @@
                             <a ui-sref="admin-meters"><i class="fa fa-wrench fa-fw"></i> Meter Configuration</a>
                         </li>
                     </ul>
-                    <!-- /.nav-second-level -->
                 </li>
 
                 <li data-ng-if="navigationCtrl.showAdminNavigation()">
@@ -243,7 +242,6 @@
                             <a ui-sref="admin-rate"><i class="fa fa-wrench fa-fw"></i> Rate</a>
                         </li>
                     </ul>
-                    <!-- /.nav-second-level -->
                 </li>
 
                 <li data-ng-if="navigationCtrl.showAdminNavigation()">
@@ -253,9 +251,18 @@
                             <a ui-sref="admin-billing"><i class="fa fa-btc fa-fw"></i> Billing</a>
                         </li>
                     </ul>
-                    <!-- /.nav-second-level -->
                 </li>
 
+                <!--
+                <li data-ng-if="navigationCtrl.showAdminNavigation()">
+                    <a href="#"><i class="fa fa-book fa-fw"></i> Product Catalogue<span class="fa arrow"></span></a>
+                    <ul class="nav nav-second-level collapse in" aria-expanded="true">
+                        <li>
+                            <a ui-sref="admin-products"><i class="fa fa-sitemap fa-fw"></i> Products</a>
+                        </li>
+                    </ul>
+                </li>
+                -->
 
                 <li>
                     <a href="#" data-ng-click="navigationCtrl.logout()"><i class="fa fa-sign-out fa-fw"></i> Logout</a>
