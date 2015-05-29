@@ -18,18 +18,18 @@
 package ch.icclab.cyclops.dashboard.udr;
 
 import ch.icclab.cyclops.dashboard.errorreporting.ErrorReporter;
+import ch.icclab.cyclops.dashboard.oauth2.OAuthClientResource;
+import ch.icclab.cyclops.dashboard.oauth2.OAuthServerResource;
 import ch.icclab.cyclops.dashboard.util.LoadConfiguration;
 import org.restlet.ext.json.JsonRepresentation;
 import org.restlet.representation.Representation;
 import org.restlet.resource.*;
 
-import java.io.IOException;
-
 /**
  * This class handles all requests associated with UDR meters. The class can load existing meter configuration and
  * update meter configuration on the UDR microservice
  */
-public class UdrMeter extends ServerResource {
+public class UdrMeter extends OAuthServerResource {
 
     /**
      * This method updates the meter configuration from the UDR microservice
@@ -43,7 +43,9 @@ public class UdrMeter extends ServerResource {
     @Post("json")
     public Representation updateUdrMeters(Representation entity) {
         try {
-            ClientResource res = new ClientResource(LoadConfiguration.configuration.get("UDR_METER_URL"));
+            String oauthToken = getOAuthTokenFromHeader();
+            String url = LoadConfiguration.configuration.get("UDR_METER_URL");
+            OAuthClientResource res = new OAuthClientResource(url, oauthToken);
             Representation rep = new JsonRepresentation(entity);
             return res.post(rep);
         } catch (Exception e) {
@@ -60,7 +62,9 @@ public class UdrMeter extends ServerResource {
      */
     @Get
     public Representation getUdrMeters() {
-        ClientResource res = new ClientResource(LoadConfiguration.configuration.get("UDR_METER_URL"));
+        String oauthToken = getOAuthTokenFromHeader();
+        String url = LoadConfiguration.configuration.get("UDR_METER_URL");
+        OAuthClientResource res = new OAuthClientResource(url, oauthToken);
         return res.get();
     }
 }

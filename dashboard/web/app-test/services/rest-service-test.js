@@ -66,6 +66,12 @@ describe('RestService', function() {
          */
         module('dashboard.services');
 
+        sessionServiceMock.getAccessToken.and.returnValue(fakeAccessToken);
+
+        module(function($provide) {
+            $provide.value('sessionService', sessionServiceMock);
+        });
+
         /*
             Inject dependencies and configure mocks
          */
@@ -90,9 +96,10 @@ describe('RestService', function() {
         $httpBackend.whenGET("/dashboard/rest/users" + fakeSessionQuery).respond(200);
         $httpBackend.whenGET("/dashboard/rest/admins" + fakeSessionQuery).respond(200);
         $httpBackend.whenPUT("/dashboard/rest/admins").respond(200);
-        $httpBackend.whenGET("/dashboard/rest/bills" + fakeUserIdQuery).respond(200);
-        $httpBackend.whenPOST("/dashboard/rest/bills/pdf").respond(200);
-        $httpBackend.whenGET("/dashboard/rest/bills/pdf" + fakeBillQuery).respond(200);
+        $httpBackend.whenGET("/dashboard/rest/billing" + fakeChargeQuery).respond(200);
+        $httpBackend.whenGET("/dashboard/rest/billing/bills" + fakeUserIdQuery).respond(200);
+        $httpBackend.whenPOST("/dashboard/rest/billing/bills/pdf").respond(200);
+        $httpBackend.whenGET("/dashboard/rest/billing/bills/pdf" + fakeBillQuery).respond(200);
         $httpBackend.whenGET("/dashboard/rest/users/" + fakeUser + fakeSessionQuery).respond(200);
     });
 
@@ -265,7 +272,7 @@ describe('RestService', function() {
 
     describe('createBillPDF', function() {
         it('should send complete POST request', function() {
-            $httpBackend.expectPOST("/dashboard/rest/bills/pdf", fakeBill);
+            $httpBackend.expectPOST("/dashboard/rest/billing/bills/pdf", fakeBill);
             restService.createBillPDF(fakeBill);
             $httpBackend.flush();
         });
@@ -273,7 +280,7 @@ describe('RestService', function() {
 
     describe('getBillPDF', function() {
         it('should send complete GET request', function() {
-            $httpBackend.expectGET("/dashboard/rest/bills/pdf" + fakeBillQuery);
+            $httpBackend.expectGET("/dashboard/rest/billing/bills/pdf" + fakeBillQuery);
             restService.getBillPDF(fakeUser, fakeFrom, fakeTo);
             $httpBackend.flush();
         });
@@ -281,8 +288,16 @@ describe('RestService', function() {
 
     describe('getBills', function() {
         it('should send complete GET request', function() {
-            $httpBackend.expectGET("/dashboard/rest/bills" + fakeUserIdQuery);
+            $httpBackend.expectGET("/dashboard/rest/billing/bills" + fakeUserIdQuery);
             restService.getBills(fakeUser);
+            $httpBackend.flush();
+        });
+    });
+
+    describe('getBillingInformation', function() {
+        it('should send complete GET request', function() {
+            $httpBackend.expectGET("/dashboard/rest/billing" + fakeChargeQuery);
+            restService.getBillingInformation(fakeUser, fakeFrom, fakeTo);
             $httpBackend.flush();
         });
     });

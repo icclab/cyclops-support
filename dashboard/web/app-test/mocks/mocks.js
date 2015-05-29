@@ -22,7 +22,8 @@ var restServiceMock = jasmine.createSpyObj(
         'updateUdrMeters', 'getKeystoneMeters', 'getUdrMeters',
         'getAdminGroupInfo', 'getAllUsers', 'getRateForMeter',
         'getChargeForUser', 'getActiveRatePolicy', 'setActiveRatePolicy',
-        'updateAdmins', 'createBillPDF', 'getUserInfo', 'getBills', 'getBillPDF'
+        'updateAdmins', 'createBillPDF', 'getUserInfo', 'getBills', 'getBillPDF',
+        'getBillingInformation'
     ]
 );
 
