@@ -29,6 +29,7 @@ describe('AdminMeterController', function() {
     var fakeMeters = [
         { name:'a.test1', type:'gauge', source:'openstack' },
         { name:'b.test2', type:'cumulative', source:'openstack' },
+        { name:'external.test', type:'gauge', source:'external' },
         { name:'a.test1', type:'delta', source:'openstack' }
     ];
     var fakeMetersWithSelection = [
@@ -38,6 +39,12 @@ describe('AdminMeterController', function() {
     var fakeUniqueMeters = {
         'a.test1': fakeMeters[0],
         'b.test2': fakeMeters[1]
+    };
+    var fakeExternalMeter = {
+        name: "external.test",
+        enabled: false,
+        type: "gauge",
+        source: "external"
     };
     var fakeUniqueMetersAfterPreselection = {
         'a.test1': fakeMetersWithSelection[0],
@@ -86,8 +93,12 @@ describe('AdminMeterController', function() {
             enabled: true,
             type: "cumulative",
             source: "openstack"
-        }
-     };
+        },
+        "external.test": fakeExternalMeter
+    };
+    var fakeMeterMapAfterExternalMeters = {
+        "external.test": fakeExternalMeter
+    };
     var fakeFormattedOpenstackData = fakeFormattedUdrData;
 
     /*
@@ -148,6 +159,7 @@ describe('AdminMeterController', function() {
         });
 
         it('should execute loadUdrMeterSuccess on udrDeferred.resolve', function() {
+            spyOn(controller, 'addExternalMetersToMap');
             spyOn(controller, 'preselectMeters');
 
             controller.loadMeterData();
@@ -156,8 +168,9 @@ describe('AdminMeterController', function() {
             $scope.$digest();
 
             expect(meterselectionDataServiceMock.setRawUdrData).toHaveBeenCalled();
-            expect(controller.preselectMeters)
-                .toHaveBeenCalledWith(fakeUdrRequestBody);
+            expect(meterselectionDataServiceMock.getFormattedOpenstackData).toHaveBeenCalled();
+            expect(controller.addExternalMetersToMap).toHaveBeenCalledWith();
+            expect(controller.preselectMeters).toHaveBeenCalledWith();
         });
 
         it('should execute loadMeterError on keystoneDeferred.reject', function() {
@@ -246,6 +259,19 @@ describe('AdminMeterController', function() {
             controller.preselectMeters();
             expect(meterselectionDataServiceMock.getFormattedUdrData).toHaveBeenCalled();
             expect(controller.meterMap).toEqual(fakeUniqueMetersAfterPreselection);
+        });
+    });
+
+    describe('addExternalMetersToMap', function() {
+        it('should get meters from meterselectionDataService', function() {
+            controller.addExternalMetersToMap();
+            expect(meterselectionDataServiceMock.getFormattedUdrData).toHaveBeenCalled();
+        });
+
+        it('should add all external meters', function() {
+            controller.meterMap = {};
+            controller.addExternalMetersToMap();
+            expect(controller.meterMap).toEqual(fakeMeterMapAfterExternalMeters);
         });
     });
 });
