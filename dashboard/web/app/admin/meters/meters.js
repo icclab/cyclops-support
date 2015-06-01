@@ -40,7 +40,9 @@
 
         var loadUdrMeterSuccess = function(response) {
             meterselectionDataService.setRawUdrData(response.data);
-            me.preselectMeters(response.data);
+            me.meterMap = meterselectionDataService.getFormattedOpenstackData();
+            me.addExternalMetersToMap();
+            me.preselectMeters();
         };
 
         var loadMeterError = function(response) {
@@ -55,19 +57,28 @@
             alertService.showError("Updating meters failed");
         };
 
-        this.preselectMeters = function(udrMeterResponse) {
+        this.preselectMeters = function() {
             var udrMeters = meterselectionDataService.getFormattedUdrData();
-            var meters = meterselectionDataService.getFormattedOpenstackData();
 
             for(var meterName in udrMeters) {
                 var meter = udrMeters[meterName];
 
-                if(meterName in meters) {
-                    meters[meterName].enabled = meter.enabled;
+                if(meterName in me.meterMap) {
+                    me.meterMap[meterName].enabled = meter.enabled;
                 }
             }
+        };
 
-            me.meterMap = meters;
+        this.addExternalMetersToMap = function() {
+            var udrMeters = meterselectionDataService.getFormattedUdrData();
+
+            for(var meterName in udrMeters) {
+                var meter = udrMeters[meterName];
+
+                if(me.isExternalMeter(meter)) {
+                    me.meterMap[meterName] = meter;
+                }
+            }
         };
 
         /**
@@ -126,6 +137,19 @@
             restService.getKeystoneMeters()
                 .then(loadKeystoneMeterSuccess)
                 .then(loadUdrMeterSuccess, loadMeterError);
+        };
+
+        this.addExternalMeter = function(newMeterName) {
+            me.meterMap[newMeterName] = {
+                name: newMeterName,
+                enabled: true,
+                type: "gauge",
+                source: "external"
+            };
+        };
+
+        this.isExternalMeter = function(meter) {
+            return meter.source == "external";
         };
 
         this.loadMeterData();
