@@ -188,4 +188,10 @@ describe('LoginController', function() {
         });
     });
 
+    describe('loadExternalUserIds', function() {
+        it('should ', function() {
+            expect(1).toBe(2);
+        });
+    });
+
 });

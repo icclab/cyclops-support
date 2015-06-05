@@ -67,6 +67,14 @@
             return get('keystoneId');
         };
 
+        this.getExternalIds = function() {
+            return angular.fromJson(get('externalIds'));
+        };
+
+        this.setExternalIds = function(ids) {
+            return set('externalIds', angular.toJson(ids));
+        };
+
         this.setSessionId = function(id) {
             set('sessionId', id);
         };

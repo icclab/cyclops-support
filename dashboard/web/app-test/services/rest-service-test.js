@@ -301,4 +301,23 @@ describe('RestService', function() {
             $httpBackend.flush();
         });
     });
+
+    describe('getExternalUserIds', function() {
+        it('should send complete GET request', function() {
+            expect(1).toBe(2);
+        });
+    });
+
+    describe('updateExternalUserIds', function() {
+        it('should send complete POST request', function() {
+            expect(1).toBe(2);
+        });
+    });
+
+    describe('addExternalMeterSource', function() {
+        it('should send complete POST request', function() {
+            expect(1).toBe(2);
+        });
+    });
+
 });

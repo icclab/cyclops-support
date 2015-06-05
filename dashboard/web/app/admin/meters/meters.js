@@ -45,7 +45,7 @@
             me.preselectMeters();
         };
 
-        var loadMeterError = function(response) {
+        var loadMeterError = function() {
             alertService.showError("Error loading list of meters");
         };
 
@@ -53,8 +53,16 @@
             alertService.showSuccess("Meters successfully updated");
         };
 
-        var updateMeterError = function(response) {
+        var updateMeterError = function() {
             alertService.showError("Updating meters failed");
+        };
+
+        var onAddMeterSourceSuccess = function(response) {
+            //...
+        };
+
+        var onAddMeterSourceError = function() {
+            alertService.showError("Could not add meter source to database");
         };
 
         this.preselectMeters = function() {
@@ -139,17 +147,20 @@
                 .then(loadUdrMeterSuccess, loadMeterError);
         };
 
-        this.addExternalMeter = function(newMeterName) {
+        this.addExternalMeter = function(newMeterName, newMeterSource) {
             me.meterMap[newMeterName] = {
                 name: newMeterName,
                 enabled: true,
-                type: "gauge",
-                source: "external"
+                type: "external",
+                source: newMeterSource
             };
+
+            restService.addExternalMeterSource(newMeterSource)
+                .then(onAddMeterSourceSuccess, onAddMeterSourceError);
         };
 
         this.isExternalMeter = function(meter) {
-            return meter.source == "external";
+            return meter.type == "external";
         };
 
         this.loadMeterData();

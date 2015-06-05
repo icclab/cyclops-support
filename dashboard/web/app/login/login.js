@@ -34,6 +34,15 @@
         this.user = '';
         this.pwd = '';
 
+        var onLoadIdsSuccess = function(response) {
+            sessionService.setExternalIds(response.data);
+            me.showOverview();
+        };
+
+        var onLoadIdsError = function() {
+            //...
+        };
+
         /**
          * This method redirects to the overview page.
          */
@@ -61,7 +70,7 @@
          */
         var sessionInfoSuccess = function(response) {
             sessionService.setSessionId(response.data.tokenId);
-            me.showOverview();
+            me.loadExternalUserIds();
         };
 
         /**
@@ -101,6 +110,12 @@
                 .then(loginSuccess)
                 .then(tokenInfoSuccess)
                 .then(sessionInfoSuccess, loginFailed);
+        };
+
+        this.loadExternalUserIds = function() {
+            var userId = sessionService.getKeystoneId();
+            restService.getExternalUserIds(userId)
+                .then(onLoadIdsSuccess, onLoadIdsError);
         };
     };
 
