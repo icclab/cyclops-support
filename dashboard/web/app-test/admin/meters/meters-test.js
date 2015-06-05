@@ -43,8 +43,8 @@ describe('AdminMeterController', function() {
     var fakeExternalMeter = {
         name: "external.test",
         enabled: false,
-        type: "gauge",
-        source: "external"
+        type: "external",
+        source: "test-source"
     };
     var fakeUniqueMetersAfterPreselection = {
         'a.test1': fakeMetersWithSelection[0],
@@ -124,6 +124,7 @@ describe('AdminMeterController', function() {
             restServiceMock.getKeystoneMeters.and.returnValue(keystonePromise);
             restServiceMock.getUdrMeters.and.returnValue(udrPromise);
             restServiceMock.updateUdrMeters.and.returnValue(udrPromise);
+            restServiceMock.addExternalMeterSource.and.returnValue(udrPromise);
             meterselectionDataServiceMock.getFormattedUdrData.and.returnValue(fakeFormattedUdrData);
             meterselectionDataServiceMock.getFormattedOpenstackData.and.returnValue(fakeFormattedOpenstackData);
             dateUtilMock.getTimestamp.and.returnValue(fakeTimestamp);
@@ -272,6 +273,48 @@ describe('AdminMeterController', function() {
             controller.meterMap = {};
             controller.addExternalMetersToMap();
             expect(controller.meterMap).toEqual(fakeMeterMapAfterExternalMeters);
+        });
+    });
+
+    describe('addExternalMeter', function() {
+        it('should add a new meter', function() {
+            controller.meterMap = {};
+            controller.addExternalMeter("test-name", "test-source");
+            expect(controller.meterMap).toEqual({
+                "test-name": {
+                    name: "test-name",
+                    enabled: true,
+                    type: "external",
+                    source: "test-source"
+                }
+            });
+        });
+
+        it('should overwrite existing meter', function() {
+            controller.meterMap = fakeMeterMapAfterExternalMeters;
+            controller.addExternalMeter(fakeExternalMeter.name, fakeExternalMeter.source);
+            expect(controller.meterMap).toEqual({
+                "external.test": {
+                    name: fakeExternalMeter.name,
+                    enabled: !(fakeExternalMeter.enabled),
+                    type: fakeExternalMeter.type,
+                    source: fakeExternalMeter.source
+                }
+            });
+        });
+
+        it('should correctly call restService.addExternalMeterSource', function() {
+            expect(1).toBe(2);
+        });
+    });
+
+    describe('isExternalMeter', function() {
+        it('should return true if meter is external', function() {
+            expect(controller.isExternalMeter({type: "external"})).toBeTruthy();
+        });
+
+        it('should return false if meter is internal', function() {
+            expect(controller.isExternalMeter({type: "openstack"})).toBeFalsy();
         });
     });
 });

@@ -25,14 +25,38 @@
     /*
         Controllers, Factories, Services, Directives
     */
-    CloudServiceController.$inject =
-        ['$state', 'restService', 'sessionService'];
-    function CloudServiceController($state, restService, sessionService) {
+    CloudServiceController.$inject = ['$state', 'restService', 'sessionService', 'alertService'];
+    function CloudServiceController($state, restService, sessionService, alertService) {
         var me = this;
+        this.externalUserIds = [];
+
+        var onUpdateIdsSuccess = function(response) {
+            alertService.showSuccess("IDs successfully updated");
+        };
+
+        var onUpdateIdsError = function() {
+            alertService.showError("Could not save external IDs");
+        };
 
         this.showKeystone = function() {
             $state.go("keystone");
         };
+
+        this.updateExternalUserIds = function() {
+            var userId = sessionService.getKeystoneId();
+            restService.updateExternalUserIds(userId, me.externalUserIds)
+                .then(onUpdateIdsSuccess, onUpdateIdsError);
+        };
+
+        this.loadExternalUserIds = function() {
+            me.externalUserIds = sessionService.getExternalIds();
+        };
+
+        this.hasExternalUserIds = function() {
+            return me.externalUserIds.length > 0;
+        };
+
+        this.loadExternalUserIds();
     };
 
 })();
