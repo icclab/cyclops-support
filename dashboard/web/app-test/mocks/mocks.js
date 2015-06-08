@@ -47,6 +47,14 @@ var usageDataServiceMock = jasmine.createSpyObj(
     ]
 );
 
+var externalUsageDataServiceMock = jasmine.createSpyObj(
+    'externalUsageDataService',
+    [
+        'notifyChartDataReady', 'setRawData', 'formatPoints',
+        'getFormattedColumns', 'getFormattedData'
+    ]
+);
+
 var rateDataServiceMock = jasmine.createSpyObj(
     'rateDataService',
     [

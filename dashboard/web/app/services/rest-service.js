@@ -319,7 +319,7 @@
 
         /**
          * a
-         * @param  {String} b desc
+         * @param  {String} userId User ID for which data should be loaded
          * @return {Promise}
          */
         this.getExternalUserIds = function(userId) {
@@ -328,7 +328,8 @@
 
         /**
          * a
-         * @param  {String} b desc
+         * @param  {String} userId User ID for which data should be stored
+         * @param  {Array} externalIds Array of external IDs to store
          * @return {Promise}
          */
         this.updateExternalUserIds = function(userId, externalIds) {
@@ -340,7 +341,7 @@
 
         /**
          * a
-         * @param  {String} b desc
+         * @param  {String} meterSource Name of the meter source to be stored
          * @return {Promise}
          */
         this.addExternalMeterSource = function(meterSource) {

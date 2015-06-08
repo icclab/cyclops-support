@@ -27,17 +27,18 @@
     */
     OverviewController.$inject = [
         '$scope', '$location',
-        'restService', 'sessionService', 'usageDataService', 'alertService',
-        'dateUtil'
+        'restService', 'sessionService', 'usageDataService', 'externalUsageDataService',
+        'alertService', 'dateUtil'
     ];
     function OverviewController(
             $scope, $location,
-            restService, sessionService, usageDataService, alertService,
-            dateUtil) {
+            restService, sessionService, usageDataService, externalUsageDataService,
+            alertService, dateUtil) {
 
         var me = this;
         this.dateFormat = "yyyy-MM-dd";
         this.defaultDate = dateUtil.getFormattedDateToday();
+        this.externalUserIds = [];
 
         var loadUdrDataSuccess = function(response) {
             usageDataService.setRawData(response.data);
@@ -48,9 +49,41 @@
             alertService.showError("Requesting meter data failed");
         };
 
+        var loadExternalDataSuccess = function(response) {
+            externalUsageDataService.setRawData(response.data);
+            externalUsageDataService.notifyChartDataReady($scope);
+        };
+
+        var loadExternalDataError = function(response) {
+            alertService.showError("Requesting external meter data failed");
+        };
+
+        var onLoadIdsSuccess = function (response) {
+            me.externalUserIds = response.data;
+
+            me.onDateChanged(
+                dateUtil.getFormattedDateToday(),
+                dateUtil.getFormattedDateToday()
+            );
+        };
+
+        var onLoadIdsError = function() {
+            me.externalUserIds = [];
+
+            me.onDateChanged(
+                dateUtil.getFormattedDateToday(),
+                dateUtil.getFormattedDateToday()
+            );
+        };
+
         this.requestUsage = function(keystoneId, from, to) {
             restService.getUdrData(keystoneId, from, to)
                 .then(loadUdrDataSuccess, loadUdrDataFailed);
+        };
+
+        this.requestExternalUsage = function(externalUserId, from, to) {
+            restService.getUdrData(externalUserId, from, to)
+                .then(loadExternalDataSuccess, loadExternalDataError);
         };
 
         this.hasKeystoneId = function() {
@@ -72,14 +105,27 @@
         this.updateCharts = function(from, to) {
             if(me.hasKeystoneId()) {
                 var keystoneId = sessionService.getKeystoneId();
+                var exIds = me.externalUserIds;
+
                 me.requestUsage(keystoneId, from, to);
+
+                for(var i = 0; i < exIds.length; i++) {
+                    var exId = exIds[i];
+
+                    if(exId.userId && exId.userId != "") {
+                        me.requestExternalUsage(exId.userId, from, to);
+                    }
+                }
             }
         };
 
-        this.onDateChanged(
-            dateUtil.getFormattedDateToday(),
-            dateUtil.getFormattedDateToday()
-        );
+        this.loadExternalUserIds = function() {
+            var userId = sessionService.getKeystoneId();
+            restService.getExternalUserIds(userId)
+                .then(onLoadIdsSuccess, onLoadIdsError);
+        };
+
+        this.loadExternalUserIds();
     };
 
 })();

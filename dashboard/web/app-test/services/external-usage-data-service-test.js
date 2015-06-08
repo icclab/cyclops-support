@@ -15,75 +15,45 @@
  *     under the License.
  */
 
-describe('UsageDataService', function() {
+describe('ExternalUsageDataService', function() {
     var service;
     var scopeMock;
 
     /*
         Fake Data
      */
-    var fakeCumulativeName = "network.incoming.bytes";
-    var fakeGaugeName = "cpu_util";
     var fakeChartData = {
-        'usage': {
-            'OpenStack': [
-                {
-                    'name': fakeCumulativeName,
-                    'columns': ["time", "sequence_number", "type", "unit", "usage"],
-                    'points': [
-                        [1428568125000, 7654340001, "cumulative", "B", 14600],
-                        [1428567525000, 7654830001, "cumulative", "B", 16951]
-                    ]
-                },
-                {
-                    'name': fakeGaugeName,
-                    'columns': ["time", "sequence_number", "avg", "type", "unit"],
-                    'points': [
-                        [1428555539000, 7432920001, 0.22915418, "gauge", "%"],
-                        [1428556139000, 7443990001, 0.22790419, "gauge", "%"]
-                    ]
-                }
-            ]
+        usage: {
+            External: [{
+                columns: ["time", "sequence_number", "timestamp", "usage"],
+                name: "test.external.meter1",
+                points: [
+                    [1433771461073, 355709310001, 1433771461, 17],
+                    [1433770861042, 355628670001, 1433770861, 43]
+                ]
+            }]
         }
     };
     var fakeFormattedChartData = {
-        "network.incoming.bytes": {
-            'name': fakeCumulativeName,
-            'columns': ["time", "value"],
-            'points': [
-                [1428568125000, 14600],
-                [1428567525000, 16951]
+        "test.external.meter1": {
+            name: "test.external.meter1",
+            columns: ["time", "value"],
+            points: [
+                [1433771461073, 17],
+                [1433770861042, 43]
             ],
-            'enabled': true,
-            'type': "cumulative",
-            'unit': "B"
-        },
-        "cpu_util": {
-            'name': fakeGaugeName,
-            'columns': ["time", "value"],
-            'points': [
-                [1428555539000, 0.22915418],
-                [1428556139000, 0.22790419]
-            ],
-            'enabled': true,
-            'type': "gauge",
-            'unit': "%"
+            enabled: true,
+            type: "gauge",
+            unit: ""
         }
     };
-    var fakeEventData = [
-        {
-            name: fakeCumulativeName,
-            unit: "B",
-            chartType: "cumulative",
-            serviceType: "usage"
-        },
-        {
-            name: fakeGaugeName,
-            unit: "%",
-            chartType: "gauge",
-            serviceType: "usage"
-        },
-    ];
+    var fakeEventData = [{
+        name: "test.external.meter1",
+        unit: "",
+        chartType: "gauge",
+        serviceType: "external"
+    }];
+
 
     /*
         Test setup
@@ -104,8 +74,8 @@ describe('UsageDataService', function() {
         /*
             Inject dependencies and configure mocks
          */
-        inject(function(_usageDataService_) {
-            service = _usageDataService_;
+        inject(function(_externalUsageDataService_) {
+            service = _externalUsageDataService_;
         });
     });
 
@@ -139,20 +109,12 @@ describe('UsageDataService', function() {
     });
 
     describe('formatPoints', function() {
-        it('should correctly format points for cumulative meters', function() {
+        it('should correctly format points for external meters', function() {
             var res = service.formatPoints(
-                fakeChartData.usage.OpenStack[0].points,
-                fakeChartData.usage.OpenStack[0].columns
+                fakeChartData.usage.External[0].points,
+                fakeChartData.usage.External[0].columns
             );
-            expect(res).toEqual(fakeFormattedChartData[fakeCumulativeName].points);
-        });
-
-        it('should correctly format points for gauge meters', function() {
-            var res = service.formatPoints(
-                fakeChartData.usage.OpenStack[1].points,
-                fakeChartData.usage.OpenStack[1].columns
-            );
-            expect(res).toEqual(fakeFormattedChartData[fakeGaugeName].points);
+            expect(res).toEqual(fakeFormattedChartData["test.external.meter1"].points);
         });
     });
 

@@ -304,7 +304,9 @@ describe('AdminMeterController', function() {
         });
 
         it('should correctly call restService.addExternalMeterSource', function() {
-            expect(1).toBe(2);
+            controller.addExternalMeter(fakeExternalMeter.name, fakeExternalMeter.source);
+            expect(restServiceMock.addExternalMeterSource)
+                .toHaveBeenCalledWith(fakeExternalMeter.source);
         });
     });
 

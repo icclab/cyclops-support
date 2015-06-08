@@ -93,6 +93,9 @@ describe('RestService', function() {
         $httpBackend.whenGET("/dashboard/rest/keystonemeters").respond(200);
         $httpBackend.whenGET("/dashboard/rest/udrmeters").respond(200);
         $httpBackend.whenPOST("/dashboard/rest/udrmeters").respond(200);
+        $httpBackend.whenGET("/dashboard/rest/udrmeters/externalids" + fakeUserIdQuery).respond(200);
+        $httpBackend.whenPOST("/dashboard/rest/udrmeters/externalids").respond(200);
+        $httpBackend.whenPOST("/dashboard/rest/udrmeters/externalsources").respond(200);
         $httpBackend.whenGET("/dashboard/rest/users" + fakeSessionQuery).respond(200);
         $httpBackend.whenGET("/dashboard/rest/admins" + fakeSessionQuery).respond(200);
         $httpBackend.whenPUT("/dashboard/rest/admins").respond(200);
@@ -304,19 +307,30 @@ describe('RestService', function() {
 
     describe('getExternalUserIds', function() {
         it('should send complete GET request', function() {
-            expect(1).toBe(2);
+            $httpBackend.expectGET("/dashboard/rest/udrmeters/externalids" + fakeUserIdQuery);
+            restService.getExternalUserIds(fakeUser);
+            $httpBackend.flush();
         });
     });
 
     describe('updateExternalUserIds', function() {
         it('should send complete POST request', function() {
-            expect(1).toBe(2);
+            $httpBackend.expectPOST("/dashboard/rest/udrmeters/externalids", {
+                userId: fakeUser,
+                externalIds: [1]
+            });
+            restService.updateExternalUserIds(fakeUser, [1]);
+            $httpBackend.flush();
         });
     });
 
     describe('addExternalMeterSource', function() {
         it('should send complete POST request', function() {
-            expect(1).toBe(2);
+            $httpBackend.expectPOST("/dashboard/rest/udrmeters/externalsources", {
+                source: "test"
+            });
+            restService.addExternalMeterSource("test");
+            $httpBackend.flush();
         });
     });
 
