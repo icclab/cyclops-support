@@ -57,7 +57,7 @@ public class BillGenerator {
 
     private static final int TABLE_WIDTH = 550;
 
-    public void createPDF(String path, Bill bill) throws PdfGenerationException {
+    public void createPDF(String path, Bill bill, File logo) throws PdfGenerationException {
         PDDocument document = new PDDocument();
         PDPage page = new PDPage();
         document.addPage(page);
@@ -65,7 +65,7 @@ public class BillGenerator {
         try {
             PDPageContentStream contentStream = new PDPageContentStream(document, page);
             drawHeader(contentStream);
-            drawFooter(document, contentStream, "logo.png");
+            drawFooter(document, contentStream, logo);
             drawBillDetail(contentStream, bill.getInfo());
             drawItemizedDetail(contentStream, bill.getUsage(), bill.getRates(), bill.getUnits(), bill.getDiscounts());
             contentStream.close();
@@ -84,18 +84,16 @@ public class BillGenerator {
      * @param contentStream (required) reference to the PDPageContentStream object.
      * @param logoFile      (required) full file path of the company's logo file
      */
-    private void drawFooter(PDDocument document, PDPageContentStream contentStream, String logoFile) throws IOException {
+    private void drawFooter(PDDocument document, PDPageContentStream contentStream, File logoFile) throws IOException {
         //loading the logo image now
 
-        /*
         BufferedImage img = null;
-        img = ImageIO.read(new File(logoFile));
+        img = ImageIO.read(logoFile);
 
         if (img != null) {
             PDXObjectImage ximage = new PDJpeg(document, img);
             contentStream.drawImage(ximage, 20, 20);
         }
-        */
 
         contentStream.drawLine(10, 80, 600, 80);
         contentStream.beginText();

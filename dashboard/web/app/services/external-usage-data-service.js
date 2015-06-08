@@ -20,12 +20,12 @@
         Module Setup
     */
     angular.module('dashboard.services')
-        .service('usageDataService', UsageDataService);
+        .service('externalUsageDataService', ExternalUsageDataService);
 
     /*
         Controllers, Factories, Services, Directives
     */
-    function UsageDataService() {
+    function ExternalUsageDataService() {
         var me = this;
         var formattedData = {};
 
@@ -37,7 +37,7 @@
          *     name: <chart_name>
          *     unit: <data_unit>
          *     chartType: <chart_type>
-         *     serviceType: "usage"
+         *     serviceType: "external"
          * }
          *
          * @param  {Scope} $scope Scope on which the event is fired
@@ -52,7 +52,7 @@
                     name: chart.name,
                     unit: chart.unit,
                     chartType: chart.type,
-                    serviceType: "usage"
+                    serviceType: "external"
                 });
             }
 
@@ -68,17 +68,15 @@
          *         points: [...],
          *         columns: [...],
          *         enabled: true/false,
-         *         type: "gauge"/"cumulative"
+         *         type: "gauge"
          *     }
          * }
          *
          * @param {Object} data Raw response data
          */
         this.setRawData = function(data) {
-            formattedData = {};
-
-            if(data && data.usage && data.usage.OpenStack) {
-                dataArray = data.usage.OpenStack;
+            if(data && data.usage && data.usage.External) {
+                dataArray = data.usage.External;
 
                 for(var i = 0; i < dataArray.length; i++) {
                     currentData = dataArray[i];
@@ -90,10 +88,6 @@
 
                     //Get the first point to find out the meter type and unit
                     var firstPoint = currentData.points[0] || [];
-                    var indexType = currentData.columns.indexOf("type");
-                    var indexUnit = currentData.columns.indexOf("unit");
-                    var type = firstPoint[indexType];
-                    var unit = firstPoint[indexUnit];
 
                     var formattedColumns = me.getFormattedColumns();
                     var formattedPoints = me.formatPoints(
@@ -106,8 +100,8 @@
                         columns: formattedColumns,
                         points: formattedPoints,
                         enabled: true,
-                        type: type,
-                        unit: unit
+                        type: "gauge",
+                        unit: ""
                     };
                 }
             }
@@ -128,21 +122,12 @@
         this.formatPoints = function(rawPoints, rawColumns) {
             var formattedPoints = [];
             var indexTime = rawColumns.indexOf("time");
-            var indexAvg = rawColumns.indexOf("avg");
             var indexUsage = rawColumns.indexOf("usage");
 
             for (var i = 0; i < rawPoints.length; i++) {
                 var rawPoint = rawPoints[i];
                 var time = rawPoint[indexTime];
-                var value = 0;
-
-                if(indexAvg > -1) {
-                    value = rawPoint[indexAvg];
-                }
-                else if(indexUsage > -1) {
-                    value = rawPoint[indexUsage];
-                }
-
+                var value = rawPoint[indexUsage];
                 formattedPoints.push([time, value]);
             };
 
