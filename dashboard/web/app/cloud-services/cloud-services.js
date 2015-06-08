@@ -38,6 +38,14 @@
             alertService.showError("Could not save external IDs");
         };
 
+        var onLoadIdsSuccess = function(response) {
+            me.externalUserIds = response.data;
+        };
+
+        var onLoadIdsError = function() {
+            alertService.showError("Could not load external user IDs");
+        };
+
         this.showKeystone = function() {
             $state.go("keystone");
         };
@@ -49,7 +57,9 @@
         };
 
         this.loadExternalUserIds = function() {
-            me.externalUserIds = sessionService.getExternalIds();
+            var userId = sessionService.getKeystoneId();
+            restService.getExternalUserIds(userId)
+                .then(onLoadIdsSuccess, onLoadIdsError);
         };
 
         this.hasExternalUserIds = function() {

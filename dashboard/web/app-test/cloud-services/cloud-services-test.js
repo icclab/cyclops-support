@@ -65,26 +65,83 @@ describe('CloudServiceController', function() {
         Tests
      */
     describe('updateExternalUserIds', function() {
-        it('should ', function() {
-            expect(1).toBe(2);
+        it('should read the User ID from the session', function() {
+            controller.updateExternalUserIds();
+            expect(sessionServiceMock.getKeystoneId).toHaveBeenCalled();
+        });
+
+        it('should correctly call restService.updateExternalUserIds', function() {
+            controller.externalUserIds = [1];
+            controller.updateExternalUserIds();
+            expect(restServiceMock.updateExternalUserIds)
+                .toHaveBeenCalledWith(fakeKeystoneId, [1]);
+        });
+
+        it('should execute success callback on deferred.resolve', function() {
+            controller.updateExternalUserIds();
+
+            deferred.resolve({});
+            $scope.$digest();
+
+            expect(alertServiceMock.showSuccess).toHaveBeenCalled();
+        });
+
+        it('should execute error callback on deferred.reject', function() {
+            controller.updateExternalUserIds();
+
+            deferred.reject();
+            $scope.$digest();
+
+            expect(alertServiceMock.showError).toHaveBeenCalled();
         });
     });
 
     describe('loadExternalUserIds', function() {
-        it('should ', function() {
-            expect(1).toBe(2);
+        it('should read the User ID from the session', function() {
+            controller.loadExternalUserIds();
+            expect(sessionServiceMock.getKeystoneId).toHaveBeenCalled();
+        });
+
+        it('should correctly call restService.getExternalUserIds', function() {
+            controller.loadExternalUserIds();
+            expect(restServiceMock.getExternalUserIds).toHaveBeenCalledWith(fakeKeystoneId);
+        });
+
+        it('should execute success callback on deferred.resolve', function() {
+            controller.loadExternalUserIds();
+
+            deferred.resolve({ data: [1] });
+            $scope.$digest();
+
+            expect(controller.externalUserIds).toEqual([1]);
+        });
+
+        it('should execute error callback on deferred.reject', function() {
+            controller.loadExternalUserIds();
+
+            deferred.reject();
+            $scope.$digest();
+
+            expect(alertServiceMock.showError).toHaveBeenCalled();
         });
     });
 
     describe('hasExternalUserIds', function() {
-        it('should ', function() {
-            expect(1).toBe(2);
+        it('should return true if there are external IDs', function() {
+            controller.externalUserIds = [1];
+            expect(controller.hasExternalUserIds()).toBeTruthy();
+        });
+
+        it('should return false if there are no external IDs', function() {
+            controller.externalUserIds = [];
+            expect(controller.hasExternalUserIds()).toBeFalsy();
         });
     });
 
     describe('showKeystone', function() {
-        it('should ', function() {
-            expect(1).toBe(2);
+        it('should switch the state', function() {
+            controller.showKeystone();
+            expect(stateMock.go).toHaveBeenCalledWith('keystone');
         });
     });
 });
