@@ -316,6 +316,39 @@
             var queryString = "?userid=" + userId + "&from=" + from + "&to=" + to;
             return $http.get('/dashboard/rest/billing' + queryString, config);
         };
+
+        /**
+         * a
+         * @param  {String} userId User ID for which data should be loaded
+         * @return {Promise}
+         */
+        this.getExternalUserIds = function(userId) {
+            return $http.get('/dashboard/rest/udrmeters/externalids?user_id=' + userId);
+        };
+
+        /**
+         * a
+         * @param  {String} userId User ID for which data should be stored
+         * @param  {Array} externalIds Array of external IDs to store
+         * @return {Promise}
+         */
+        this.updateExternalUserIds = function(userId, externalIds) {
+            return $http.post('/dashboard/rest/udrmeters/externalids', {
+                userId: userId,
+                externalIds: externalIds
+            });
+        };
+
+        /**
+         * a
+         * @param  {String} meterSource Name of the meter source to be stored
+         * @return {Promise}
+         */
+        this.addExternalMeterSource = function(meterSource) {
+            return $http.post('/dashboard/rest/udrmeters/externalsources', {
+                source: meterSource
+            });
+        };
     }
 
 })();

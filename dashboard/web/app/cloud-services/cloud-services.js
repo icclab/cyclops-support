@@ -25,14 +25,48 @@
     /*
         Controllers, Factories, Services, Directives
     */
-    CloudServiceController.$inject =
-        ['$state', 'restService', 'sessionService'];
-    function CloudServiceController($state, restService, sessionService) {
+    CloudServiceController.$inject = ['$state', 'restService', 'sessionService', 'alertService'];
+    function CloudServiceController($state, restService, sessionService, alertService) {
         var me = this;
+        this.externalUserIds = [];
+
+        var onUpdateIdsSuccess = function(response) {
+            alertService.showSuccess("IDs successfully updated");
+        };
+
+        var onUpdateIdsError = function() {
+            alertService.showError("Could not save external IDs");
+        };
+
+        var onLoadIdsSuccess = function(response) {
+            me.externalUserIds = response.data;
+        };
+
+        var onLoadIdsError = function() {
+            alertService.showError("Could not load external user IDs");
+        };
 
         this.showKeystone = function() {
             $state.go("keystone");
         };
+
+        this.updateExternalUserIds = function() {
+            var userId = sessionService.getKeystoneId();
+            restService.updateExternalUserIds(userId, me.externalUserIds)
+                .then(onUpdateIdsSuccess, onUpdateIdsError);
+        };
+
+        this.loadExternalUserIds = function() {
+            var userId = sessionService.getKeystoneId();
+            restService.getExternalUserIds(userId)
+                .then(onLoadIdsSuccess, onLoadIdsError);
+        };
+
+        this.hasExternalUserIds = function() {
+            return me.externalUserIds.length > 0;
+        };
+
+        this.loadExternalUserIds();
     };
 
 })();

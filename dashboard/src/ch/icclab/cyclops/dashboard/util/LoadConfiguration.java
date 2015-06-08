@@ -55,6 +55,11 @@ public class LoadConfiguration extends ClientResource {
         System.out.println("Reading the config file from " + servlet.getRealPath("/WEB-INF/configuration.txt"));
         // Get the path of the config file relative to the WAR
         String rootPath = servlet.getRealPath("/WEB-INF/configuration.txt");
+
+        //Add WEB-INF path to access local images etc.
+        String webInfPath = servlet.getRealPath("/WEB-INF");
+        configuration.put("WEB-INF", webInfPath);
+
         Path path = Paths.get(rootPath);
         File configFile = new File(path.toString());
         FileRepresentation file = new FileRepresentation(configFile, MediaType.TEXT_PLAIN);

@@ -103,8 +103,11 @@ public class BillPDF extends ServerResource {
                     bill.addItem(key, usage, rate, unit, discount);
                 }
 
+                String logoPath = LoadConfiguration.configuration.get("WEB-INF") + "/images/icclab-logo-small.png";
+                File logoFile = new File(logoPath);
+
                 BillGenerator billGen = new BillGenerator();
-                billGen.createPDF(path, bill);
+                billGen.createPDF(path, bill, logoFile);
                 dbHelper.addBill(userId, path, bill);
                 return new FileRepresentation(pdfFile, MediaType.APPLICATION_PDF, 0);
             }

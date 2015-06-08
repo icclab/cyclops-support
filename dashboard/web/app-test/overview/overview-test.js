@@ -19,8 +19,8 @@ describe('OverviewController', function() {
     var $scope;
     var $location;
     var controller;
-    var udrDeferred;
-    var udrPromise;
+    var deferred;
+    var promise;
 
     /*
         Fake Data
@@ -54,11 +54,12 @@ describe('OverviewController', function() {
         inject(function($controller, $q, $rootScope, _$location_) {
             $location = _$location_;
             $scope = $rootScope.$new();
-            udrDeferred = $q.defer();
-            udrPromise = udrDeferred.promise;
+            deferred = $q.defer();
+            promise = deferred.promise;
 
             sessionServiceMock.getKeystoneId.and.returnValue(fakeKeystoneId);
-            restServiceMock.getUdrData.and.returnValue(udrPromise);
+            restServiceMock.getUdrData.and.returnValue(promise);
+            restServiceMock.getExternalUserIds.and.returnValue(promise);
             dateUtilMock.getFormattedDateToday.and.returnValue(fakeDateToday);
             dateUtilMock.formatDateFromTimestamp.and.returnValue(fakeDateToday);
             spyOn($scope, '$broadcast');
@@ -68,6 +69,7 @@ describe('OverviewController', function() {
                 'restService': restServiceMock,
                 'sessionService': sessionServiceMock,
                 'usageDataService': usageDataServiceMock,
+                'externalUsageDataService': externalUsageDataServiceMock,
                 'alertService': alertServiceMock,
                 'dateUtil': dateUtilMock
             });
@@ -103,25 +105,25 @@ describe('OverviewController', function() {
     describe('requestUsage', function() {
         it('should correctly call restService.getUdrData', function() {
             controller.requestUsage(fakeKeystoneId, fakeFrom, fakeTo);
-            udrDeferred.resolve(fakeResponse);
+            deferred.resolve(fakeResponse);
             $scope.$digest();
 
             expect(restServiceMock.getUdrData)
                 .toHaveBeenCalledWith(fakeKeystoneId, fakeFrom, fakeTo);
         });
 
-        it('should execute loadUdrDataSuccess on udrDeferred.resolve', function() {
+        it('should execute loadUdrDataSuccess on deferred.resolve', function() {
             controller.requestUsage(fakeKeystoneId, fakeFrom, fakeTo);
-            udrDeferred.resolve(fakeResponse);
+            deferred.resolve(fakeResponse);
             $scope.$digest();
 
             expect(usageDataServiceMock.setRawData)
                 .toHaveBeenCalledWith(fakeResponse.data);
         });
 
-        it('should excute loadUdrDataFailed on udrDeferred.reject', function() {
+        it('should excute loadUdrDataFailed on deferred.reject', function() {
             controller.requestUsage(fakeKeystoneId, fakeFrom, fakeTo);
-            udrDeferred.reject();
+            deferred.reject();
             $scope.$digest();
 
             expect(alertServiceMock.showError).toHaveBeenCalled();
@@ -173,6 +175,69 @@ describe('OverviewController', function() {
 
             expect(dateUtilMock.formatDateFromTimestamp).toHaveBeenCalledWith(1);
             expect(dateUtilMock.formatDateFromTimestamp).toHaveBeenCalledWith(2);
+        });
+    });
+
+    describe('loadExternalUserIds', function() {
+        it('should read the User ID from the session', function() {
+            controller.loadExternalUserIds();
+            expect(sessionServiceMock.getKeystoneId).toHaveBeenCalled();
+        });
+
+        it('should correctly call restService.getExternalUserIds', function() {
+            controller.loadExternalUserIds();
+            expect(restServiceMock.getExternalUserIds).toHaveBeenCalledWith(fakeKeystoneId);
+        });
+
+        it('should execute success callback on deferred.resolve', function() {
+            spyOn(controller, "onDateChanged");
+            controller.loadExternalUserIds();
+
+            deferred.resolve({ data: [1] });
+            $scope.$digest();
+
+            expect(controller.externalUserIds).toEqual([1]);
+            expect(controller.onDateChanged).toHaveBeenCalledWith(fakeDateToday, fakeDateToday);
+        });
+
+        it('should execute error callback on deferred.reject', function() {
+            spyOn(controller, "onDateChanged");
+            controller.loadExternalUserIds();
+
+            deferred.reject();
+            $scope.$digest();
+
+            expect(controller.externalUserIds).toEqual([]);
+            expect(controller.onDateChanged).toHaveBeenCalledWith(fakeDateToday, fakeDateToday);
+
+        });
+    });
+
+    describe('requestExternalUsage', function() {
+        it('should correctly call restService.getUdrData', function() {
+            controller.requestExternalUsage(fakeKeystoneId, fakeFrom, fakeTo);
+            expect(restServiceMock.getUdrData)
+                .toHaveBeenCalledWith(fakeKeystoneId, fakeFrom, fakeTo);
+        });
+
+        it('should execute success callback on deferred.resolve', function() {
+            controller.requestExternalUsage(fakeKeystoneId, fakeFrom, fakeTo);
+
+            deferred.resolve({ data: 1 });
+            $scope.$digest();
+
+            expect(externalUsageDataServiceMock.setRawData).toHaveBeenCalledWith(1);
+            expect(externalUsageDataServiceMock.notifyChartDataReady)
+                .toHaveBeenCalledWith($scope);
+        });
+
+        it('should execute error callback on deferred.reject', function() {
+            controller.requestExternalUsage(fakeKeystoneId, fakeFrom, fakeTo);
+
+            deferred.reject();
+            $scope.$digest();
+
+            expect(alertServiceMock.showError).toHaveBeenCalled();
         });
     });
 });
