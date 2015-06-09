@@ -78,6 +78,8 @@
                     var lastNameField = responseData.sn || [];
                     var userId = keystoneIdField[0];
 
+                    //No need to continue processing if the user does not have
+                    //a user ID. He can't have a bill anyway.
                     if(userId) {
                         deferred.resolve({
                             userId: userId,
@@ -99,19 +101,80 @@
             return deferred.promise;
         };
 
-        this.getBillItems = function(params) {
+        this.loadExternalUserIds = function(params) {
+            var deferred = $q.defer();
+
+            var userId = sessionService.getKeystoneId();
+            restService.getExternalUserIds(userId).then(
+                function(response) {
+
+                    //All loaded external IDs will be passed to the getExternalBillItems
+                    //method for processing
+                    params.externalUserIds = response.data;
+                    deferred.resolve(params);
+                },
+                function() {
+                    deferred.reject("Could not load external IDs");
+                }
+            );
+
+            return deferred.promise;
+        };
+
+        this.getInternalBillItems = function(params) {
             var deferred = $q.defer();
             var from = params.from + " 00:00";
             var to = params.to + " 23:59";
 
             restService.getBillingInformation(params.userId, from, to).then(
                 function(response) {
+
+                    //Store the data for the internal billing items in the
+                    //billDataService. The service should already contain
+                    //external billing items.
                     billDataService.setRawData(response.data);
                     params.billItems = billDataService.getFormattedData();
                     deferred.resolve(params);
                 },
                 function() {
                     deferred.reject("Could not load charge data for user");
+                }
+            );
+
+            return deferred.promise;
+        };
+
+        this.getExternalBillItems = function(params) {
+            var deferred = $q.defer();
+            var promises = [];
+            var exIds = params.externalUserIds;
+            var from = params.from + " 00:00";
+            var to = params.to + " 23:59";
+
+            for (var i = 0; i < exIds.length; i++) {
+
+                //Only load data for external applications that have an ID associated
+                if(exIds[i].userId && exIds[i].userId != "") {
+                    var promise = restService.getBillingInformation(exIds[i].userId, from, to);
+                    promises.push(promise);
+                }
+            }
+
+            $q.all(promises).then(
+                function(responses) {
+
+                    //for each external meter that was loaded, store the data
+                    //in the billDataService. The data will later be used after
+                    //the internal billing items have been loaded.
+                    for (var i = 0; i < responses.length; i++) {
+                        var response = responses[i];
+                        billDataService.setRawData(response.data);
+                    };
+
+                    deferred.resolve(params);
+                },
+                function() {
+                    deferred.reject("Could not load all external meter data");
                 }
             );
 
@@ -178,7 +241,9 @@
                 var sessionId = sessionService.getSessionId();
 
                 me.getKeystoneIdForUser(user, sessionId)
-                    .then(me.getBillItems)
+                    .then(me.loadExternalUserIds)
+                    .then(me.getExternalBillItems)
+                    .then(me.getInternalBillItems)
                     .then(me.generateBillPDF).then(
                         function(msg) {
                             me.showPdfModal();
