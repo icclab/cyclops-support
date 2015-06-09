@@ -47,8 +47,6 @@
          * @param {Object} data Raw response data
          */
         this.setRawData = function(data) {
-            formattedData = {};
-
             if(data && data.charge) {
                 var chargeData = data.charge;
                 var points = chargeData.points || [];

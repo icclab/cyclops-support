@@ -80,10 +80,13 @@ describe('OverviewController', function() {
         Tests
      */
     describe('updateCharts', function() {
-        it('should call requestUsage if Keystone ID available', function() {
+        beforeEach(function() {
             spyOn(controller, 'hasKeystoneId').and.returnValue(true);
             spyOn(controller, 'requestUsage');
+            spyOn(controller, 'requestExternalUsage');
+        });
 
+        it('should call requestUsage if Keystone ID available', function() {
             controller.updateCharts(fakeFrom, fakeTo);
 
             expect(controller.hasKeystoneId).toHaveBeenCalled();
@@ -92,13 +95,31 @@ describe('OverviewController', function() {
         });
 
         it('should do nothing if no Keystone ID available', function() {
-            spyOn(controller, 'hasKeystoneId').and.returnValue(false);
-            spyOn(controller, 'requestUsage');
+            controller.hasKeystoneId.and.returnValue(false);
 
             controller.updateCharts(fakeDateToday, fakeDateToday);
 
             expect(controller.hasKeystoneId).toHaveBeenCalled();
             expect(controller.requestUsage).not.toHaveBeenCalled();
+        });
+
+        it('should not request external data if no external ID available', function() {
+            controller.externalUserIds = [];
+            controller.updateCharts(fakeDateToday, fakeDateToday);
+            expect(controller.requestExternalUsage).not.toHaveBeenCalled();
+        });
+
+        it('should request data for each external User ID', function() {
+            controller.externalUserIds = [
+                {userId: "test1" },
+                {userId: "test2" }
+            ];
+
+            controller.updateCharts(fakeDateToday, fakeDateToday);
+            expect(controller.requestExternalUsage)
+                .toHaveBeenCalledWith("test1", fakeDateToday, fakeDateToday);
+            expect(controller.requestExternalUsage)
+                .toHaveBeenCalledWith("test2", fakeDateToday, fakeDateToday);
         });
     });
 
@@ -209,7 +230,6 @@ describe('OverviewController', function() {
 
             expect(controller.externalUserIds).toEqual([]);
             expect(controller.onDateChanged).toHaveBeenCalledWith(fakeDateToday, fakeDateToday);
-
         });
     });
 

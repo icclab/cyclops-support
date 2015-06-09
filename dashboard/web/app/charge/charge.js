@@ -35,6 +35,7 @@
         var me = this;
         this.dateFormat = "yyyy-MM-dd";
         this.defaultDate = dateUtil.getFormattedDateToday();
+        me.externalUserIds = [];
 
         var loadChargeDataSuccess = function(response) {
             chargeDataService.setRawData(response.data);
@@ -45,6 +46,26 @@
             alertService.showError("Requesting charge data failed");
         };
 
+        var onLoadIdsSuccess = function (response) {
+            me.externalUserIds = response.data;
+
+            me.requestCharge(
+                sessionService.getKeystoneId(),
+                dateUtil.getFormattedDateToday() + " 00:00",
+                dateUtil.getFormattedDateToday() + " 23:59"
+            );
+        };
+
+        var onLoadIdsError = function() {
+            me.externalUserIds = [];
+
+            me.requestCharge(
+                sessionService.getKeystoneId(),
+                dateUtil.getFormattedDateToday() + " 00:00",
+                dateUtil.getFormattedDateToday() + " 23:59"
+            );
+        };
+
         //https://docs.angularjs.org/guide/directive#creating-a-directive-that-wraps-other-elements
         this.onDateChanged = function(from, to) {
             var fromDate = dateUtil.formatDateFromTimestamp(from) + " 00:00";
@@ -53,15 +74,28 @@
         };
 
         this.requestCharge = function(userId, from, to) {
+            var exIds = me.externalUserIds;
+
             restService.getChargeForUser(userId, from, to)
                 .then(loadChargeDataSuccess, loadChargeDataFailed);
+
+            for(var i = 0; i < exIds.length; i++) {
+                var exId = exIds[i];
+
+                if(exId.userId && exId.userId != "") {
+                    restService.getChargeForUser(exId.userId, from, to)
+                        .then(loadChargeDataSuccess, loadChargeDataFailed);
+                }
+            }
         };
 
-        this.requestCharge(
-            sessionService.getKeystoneId(),
-            dateUtil.getFormattedDateToday() + " 00:00:00",
-            dateUtil.getFormattedDateToday() + " 23:59:59"
-        );
+        this.loadExternalUserIds = function() {
+            var userId = sessionService.getKeystoneId();
+            restService.getExternalUserIds(userId)
+                .then(onLoadIdsSuccess, onLoadIdsError);
+        };
+
+        this.loadExternalUserIds();
     };
 
 })();

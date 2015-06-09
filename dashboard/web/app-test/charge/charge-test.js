@@ -18,8 +18,10 @@
 describe('ChargeController', function() {
     var $scope;
     var controller;
-    var chargeDeferred;
-    var chargePromise;
+    var deferred;
+    var promise;
+    var externalDeferred;
+    var externalPromise;
 
     /*
         Fake Data
@@ -33,6 +35,12 @@ describe('ChargeController', function() {
             'test': 'abc'
         }
     };
+    var fakeExternalUserIdResponse = {
+        data: [
+            {userId:"test1"},
+            {userId:"test2"}
+        ]
+    }
 
     /*
         Test setup
@@ -50,11 +58,14 @@ describe('ChargeController', function() {
          */
         inject(function($controller, $q, $rootScope) {
             $scope = $rootScope.$new();
-            chargeDeferred = $q.defer();
-            chargePromise = chargeDeferred.promise;
+            deferred = $q.defer();
+            externalDeferred = $q.defer();
+            promise = deferred.promise;
+            externalPromise = externalDeferred.promise;
 
             sessionServiceMock.getKeystoneId.and.returnValue(fakeUser);
-            restServiceMock.getChargeForUser.and.returnValue(chargePromise);
+            restServiceMock.getChargeForUser.and.returnValue(promise);
+            restServiceMock.getExternalUserIds.and.returnValue(externalPromise);
             dateUtilMock.getFormattedDateToday.and.returnValue(fakeDateToday);
             dateUtilMock.formatDateFromTimestamp.and.returnValue(fakeDateToday);
             spyOn($scope, '$broadcast');
@@ -76,16 +87,16 @@ describe('ChargeController', function() {
     describe('requestCharge', function() {
         it('should correctly call restService.getChargeForUser', function() {
             controller.requestCharge(fakeUser, fakeFrom, fakeTo);
-            chargeDeferred.resolve(fakeResponse);
+            deferred.resolve(fakeResponse);
             $scope.$digest();
 
             expect(restServiceMock.getChargeForUser)
                 .toHaveBeenCalledWith(fakeUser, fakeFrom, fakeTo);
         });
 
-        it('should execute loadUdrDataSuccess on chargeDeferred.resolve', function() {
+        it('should execute loadUdrDataSuccess on deferred.resolve', function() {
             controller.requestCharge(fakeUser, fakeFrom, fakeTo);
-            chargeDeferred.resolve(fakeResponse);
+            deferred.resolve(fakeResponse);
             $scope.$digest();
 
             expect(chargeDataServiceMock.setRawData)
@@ -94,12 +105,44 @@ describe('ChargeController', function() {
             expect(chargeDataServiceMock.notifyChartDataReady).toHaveBeenCalled();
         });
 
-        it('should excute loadUdrDataFailed on chargeDeferred.reject', function() {
+        it('should excute loadUdrDataFailed on deferred.reject', function() {
             controller.requestCharge(fakeUser, fakeFrom, fakeTo);
-            chargeDeferred.reject();
+            deferred.reject();
             $scope.$digest();
 
             expect(alertServiceMock.showError).toHaveBeenCalled();
+        });
+
+        it('should not request external data if no external ID available', function() {
+            restServiceMock.getChargeForUser.calls.reset();
+
+            controller.externalUserIds = [];
+            controller.requestCharge(fakeUser, fakeDateToday, fakeDateToday);
+
+            deferred.resolve(fakeResponse);
+            externalDeferred.resolve(fakeExternalUserIdResponse);
+
+            expect(restServiceMock.getChargeForUser.calls.count()).toBe(1);
+        });
+
+        it('should request data for each external User ID', function() {
+            restServiceMock.getChargeForUser.calls.reset();
+
+            controller.externalUserIds = [
+                {userId: "test1" },
+                {userId: "test2" }
+            ];
+
+            controller.requestCharge(fakeUser, fakeDateToday, fakeDateToday);
+
+            deferred.resolve(fakeResponse);
+            externalDeferred.resolve(fakeExternalUserIdResponse);
+
+            expect(restServiceMock.getChargeForUser.calls.count()).toBe(3);
+            expect(restServiceMock.getChargeForUser)
+                .toHaveBeenCalledWith("test1", fakeDateToday, fakeDateToday);
+            expect(restServiceMock.getChargeForUser)
+                .toHaveBeenCalledWith("test2", fakeDateToday, fakeDateToday);
         });
     });
 
@@ -120,6 +163,35 @@ describe('ChargeController', function() {
 
             expect(dateUtilMock.formatDateFromTimestamp).toHaveBeenCalledWith(1);
             expect(dateUtilMock.formatDateFromTimestamp).toHaveBeenCalledWith(2);
+        });
+    });
+
+    describe('loadExternalUserIds', function() {
+        it('should correctly call restService.getExternalUserIds', function() {
+            controller.loadExternalUserIds();
+            expect(restServiceMock.getExternalUserIds).toHaveBeenCalledWith(fakeUser);
+        });
+
+        it('should execute success callback on deferred.resolve', function() {
+            spyOn(controller, "requestCharge");
+            controller.loadExternalUserIds();
+
+            externalDeferred.resolve({ data: [1] });
+            $scope.$digest();
+
+            expect(controller.externalUserIds).toEqual([1]);
+            expect(controller.requestCharge).toHaveBeenCalledWith(fakeUser, fakeFrom, fakeTo);
+        });
+
+        it('should execute error callback on deferred.reject', function() {
+            spyOn(controller, "requestCharge");
+            controller.loadExternalUserIds();
+
+            externalDeferred.reject();
+            $scope.$digest();
+
+            expect(controller.externalUserIds).toEqual([]);
+            expect(controller.requestCharge).toHaveBeenCalledWith(fakeUser, fakeFrom, fakeTo);
         });
     });
 });
