@@ -11,6 +11,7 @@ The dashboard interacts with the different micro service of <a href="http://iccl
 ### Architecture
 #### * CYCLOPS Rating Charging & Billing Framework
 <img align="middle" src="http://blog.zhaw.ch/icclab/files/2013/05/overall_architecture.png" alt="CYCLOPS Architecture" height="500" width="600"></img>
+
 For more in-depth documentation, see:
 * [Installing OpenAM](https://github.com/icclab/cyclops-support/wiki/OpenAM-Installation)
 * [Configuring OpenAM](https://github.com/icclab/cyclops-support/wiki/OpenAM-Configuration)
