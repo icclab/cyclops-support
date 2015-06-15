@@ -39,7 +39,6 @@
       'dashboard.admin.users',
       'dashboard.admin.rate',
       'dashboard.admin.billing',
-      'dashboard.admin.products',
       'dashboard.charts',
       'dashboard.filter',
       'dashboard.notifications',
@@ -383,35 +382,6 @@
                         templateUrl: 'cloud-services/cloud-services.html',
                         controller: 'CloudServiceController',
                         controllerAs: 'cloudServiceCtrl'
-                    }
-                }
-            });
-        }
-    ]);
-
-
-    /*
-        Product Management Module Setup
-    */
-    angular.module('dashboard.admin.products', [
-        'ui.router'
-    ]).config([
-        '$stateProvider',
-        function($stateProvider) {
-            $stateProvider.state('admin-products', {
-                url: "/admin/products",
-                authenticate: true,
-                adminOnly: true,
-                views: {
-                    "navigation": {
-                        templateUrl: 'navigation/navigation.html',
-                        controller: 'NavigationController',
-                        controllerAs: 'navigationCtrl'
-                    },
-                    "content": {
-                        templateUrl: 'admin/products/products.html',
-                        controller: 'AdminProductController',
-                        controllerAs: 'adminProductCtrl'
                     }
                 }
             });
