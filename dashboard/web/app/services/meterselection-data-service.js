@@ -103,6 +103,18 @@
         this.getFormattedOpenstackData = function() {
             return formattedOpenstackData;
         };
+
+        this.getSelectedMeterNames = function() {
+            var selectedMeterNames = [];
+
+            for(var meterName in formattedUdrData) {
+                if(formattedUdrData[meterName].enabled) {
+                    selectedMeterNames.push(meterName);
+                }
+            }
+
+            return selectedMeterNames;
+        };
     }
 
 })();

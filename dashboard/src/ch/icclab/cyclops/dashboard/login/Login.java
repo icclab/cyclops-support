@@ -17,6 +17,7 @@
 
 package ch.icclab.cyclops.dashboard.login;
 
+import ch.icclab.cyclops.dashboard.errorreporting.ErrorReporter;
 import ch.icclab.cyclops.dashboard.util.LoadConfiguration;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -25,10 +26,7 @@ import org.restlet.data.Form;
 import org.restlet.ext.json.JsonRepresentation;
 import org.restlet.representation.Representation;
 import org.restlet.representation.StringRepresentation;
-import org.restlet.resource.ClientResource;
-import org.restlet.resource.Get;
-import org.restlet.resource.Post;
-import org.restlet.resource.ServerResource;
+import org.restlet.resource.*;
 
 import java.io.IOException;
 
@@ -52,25 +50,17 @@ public class Login extends ServerResource{
      */
     @Post("json")
     public Representation login(Representation entity) {
-
         try {
             JsonRepresentation represent = new JsonRepresentation(entity);
             JSONObject json = represent.getJsonObject();
             String user = json.getString("username");
             String pass = json.getString("password");
             return sendRequest(user, pass);
-        } catch (IOException e) {
-            //TODO: error handling
-        } catch (JSONException e) {
-            //TODO: error handling
         }
-        return new StringRepresentation("error");
-    }
-
-    @Get("json")
-    public Representation loginTest() {
-        //For debugging, replace "user" and "pass"
-        return sendRequest("user", "pass");
+        catch (Exception e) {
+            ErrorReporter.reportException(e);
+            throw new ResourceException(500);
+        }
     }
 
     private Representation sendRequest(String username, String password) {

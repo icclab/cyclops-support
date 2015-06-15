@@ -58,6 +58,7 @@ describe('ChargeDataService', function() {
         Test setup
      */
     beforeEach(function() {
+        resetAllMocks();
 
         /*
             Load module
@@ -110,6 +111,14 @@ describe('ChargeDataService', function() {
         it('should correctly format columns', function() {
             var res = service.getFormattedColumns();
             expect(res).toEqual(["time", "value"]);
+        });
+    });
+
+    describe('clearData', function() {
+        it('should clear data', function() {
+            service.setRawData(fakeChartData);
+            service.clearData();
+            expect(service.getFormattedData()).toEqual({});
         });
     });
 });

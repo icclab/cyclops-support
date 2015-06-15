@@ -31,14 +31,14 @@ describe('AdminRateController', function() {
     var statusStringDynamic = "Dynamic Rating";
     var statusStringStatic = "Static Rating";
     var fakeDateTime = "2015-03-21 15:14:13";
-    var fakeMeters = [
-        { name: "meter.name1", rate: 3 },
-        { name: "meter.name2", rate: 4 }
-    ];
-    var fakeMetersIllegal = [
-        { name: "meter.name1", rate: "a" },
-        { name: "meter.name2", rate: -5 }
-    ];
+    var fakeMeters = {
+        "meter.name1": { name: "meter.name1", rate: 3 },
+        "meter.name2": { name: "meter.name2", rate: 4 }
+    };
+    var fakeMetersIllegal = {
+        "meter.name1": { name: "meter.name1", rate: "a" },
+        "meter.name2": { name: "meter.name2", rate: -5 }
+    };
     var fakeStaticRateConfig = {
         "source": "dashboard",
         "time": fakeDateTime,
@@ -79,20 +79,21 @@ describe('AdminRateController', function() {
             ]
         }
     };
-    var fakeMetersAfterFilter = [
-        { name: "b.test2", rate: 1 }
-    ];
-    var fakeMetersBeforeFilter = [
-        { name: "b.test2", rate: 3 }
-    ];
-    var fakeMetersAfterFilterUntouched = [
-        { name: "b.test2", rate: 3 }
-    ];
+    var fakeMetersAfterFilter = {
+        "b.test2": { name: "b.test2", rate: 1 }
+    };
+    var fakeMetersBeforeFilter = {
+        "b.test2": { name: "b.test2", rate: 3 }
+    };
+    var fakeMetersAfterFilterUntouched = {
+        "b.test2": { name: "b.test2", rate: 3 }
+    };
 
     /*
         Test setup
      */
     beforeEach(function() {
+        resetAllMocks();
 
         /*
             Load module
@@ -119,6 +120,7 @@ describe('AdminRateController', function() {
                 '$scope': $scope,
                 'restService': restServiceMock,
                 'alertService': alertServiceMock,
+                'meterselectionDataService': meterselectionDataServiceMock,
                 'responseParser': responseParserMock,
                 'dateUtil': dateUtilMock,
             });
@@ -305,7 +307,7 @@ describe('AdminRateController', function() {
 
     describe('filterEnabledMeters', function() {
         it('should filter meters correctly on normal response', function() {
-            controller.meters = [];
+            controller.meters = {};
             controller.filterEnabledMeters(fakeUdrMeterResponse);
             expect(controller.meters).toEqual(fakeMetersAfterFilter);
         });

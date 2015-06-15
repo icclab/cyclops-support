@@ -21,17 +21,26 @@ Currently, the following features are implemented:
 * [User] Dynamically created charts for rate data
 * [User] Dynamically created charts for charge data
 * [User] Alert Messages
+* [User] Charts for external meters
+* [User] View billing information and bill PDFs
 * [Admin] Listing users and admins
 * [Admin] Displaying list of all available meters
 * [Admin] Configuring UDR Microservice to use different set of meters
 * [Admin] User Management
-* [Admin] Configure Rate Microservice 
+* [Admin] Configure Rate Microservice
+* [Admin] Create bills for users
+* [Admin] Add external meters
 
 ### Components & Libraries
   * <a href="https://angularjs.org">AngularJS</a>
   * <a href="https://github.com/angular-ui/ui-router">AngularJS ui-router</a>
   * <a href="https://github.com/Salakar/angular-toasty">angular-toasty</a>
   * <a href="https://github.com/chieffancypants/angular-loading-bar">angular-loading-bar</a>
+  * <a href="https://angular-ui.github.io/bootstrap/">angular-ui bootstrap</a>
+  * <a href="https://github.com/datejs/Datejs">DateJS</a>
+  * <a href="http://d3js.org/">D3</a>
+  * <a href="http://nvd3.org/">NVD3</a>
+  * <a href="https://krispo.github.io/angular-nvd3/">angular-NVD3</a>
   * <a href="https://jasmine.github.io">Jasmine</a>
   * <a href="http://getbootstrap.com">Bootstrap</a>
   * <a href="http://startbootstrap.com/template-overviews/sb-admin-2">SB Admin 2 (Bootstrap Theme)</a>

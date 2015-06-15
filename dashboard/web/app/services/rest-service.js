@@ -25,8 +25,17 @@
     /*
         Controllers, Factories, Services, Directives
     */
-    RestService.$inject = ['$http'];
-    function RestService($http) {
+    RestService.$inject = ['$http', 'sessionService'];
+    function RestService($http, sessionService) {
+        var me = this;
+
+        this.getOAuthHeaderConfig = function() {
+            return {
+                headers: {
+                    'X-OAuth-Token': sessionService.getAccessToken()
+                }
+            };
+        };
 
         /**
          * This method requests data from the UDR service via the dashboard
@@ -39,14 +48,14 @@
          * @return {Promise}
          */
         this.getUdrData = function(keystoneId, from, to) {
-            //TODO: also post access token
+            var config = me.getOAuthHeaderConfig();
             var postData = {
                 'keystoneId': keystoneId,
                 'from': from,
                 'to': to
             };
 
-            return $http.post('/dashboard/rest/usage', postData);
+            return $http.post('/dashboard/rest/usage', postData, config);
         };
 
         /**
@@ -143,8 +152,8 @@
          * @return {Promise}
          */
         this.updateUdrMeters = function(requestBody) {
-            //TODO: also post access token
-            return $http.post('/dashboard/rest/udrmeters', requestBody);
+            var config = me.getOAuthHeaderConfig();
+            return $http.post('/dashboard/rest/udrmeters', requestBody, config);
         };
 
         /**
@@ -164,7 +173,8 @@
          * @return {Promise}
          */
         this.getUdrMeters = function() {
-            return $http.get('/dashboard/rest/udrmeters');
+            var config = me.getOAuthHeaderConfig();
+            return $http.get('/dashboard/rest/udrmeters', config);
         };
 
         /**
@@ -196,8 +206,9 @@
          * @return {Promise}
          */
         this.getRateForMeter = function(meter, from, to) {
+            var config = me.getOAuthHeaderConfig();
             var query = "?resourcename=" + meter + "&from=" + from + "&to=" + to;
-            return $http.get('/dashboard/rest/rate' + query);
+            return $http.get('/dashboard/rest/rate' + query, config);
         };
 
         /**
@@ -209,8 +220,9 @@
          * @return {Promise}
          */
         this.getChargeForUser = function(userId, from, to) {
+            var config = me.getOAuthHeaderConfig();
             var query = "?userid=" + userId + "&from=" + from + "&to=" + to;
-            return $http.get('/dashboard/rest/charge' + query);
+            return $http.get('/dashboard/rest/charge' + query, config);
         };
 
         /**
@@ -219,7 +231,8 @@
          * @return {Promise}
          */
         this.getActiveRatePolicy = function() {
-            return $http.get('/dashboard/rest/rate/status');
+            var config = me.getOAuthHeaderConfig();
+            return $http.get('/dashboard/rest/rate/status', config);
         };
 
         /**
@@ -229,9 +242,16 @@
          * @return {Promise}
          */
         this.setActiveRatePolicy = function(policyConfig) {
-            return $http.post('/dashboard/rest/rate/status', policyConfig);
+            var config = me.getOAuthHeaderConfig();
+            return $http.post('/dashboard/rest/rate/status', policyConfig, config);
         };
 
+        /**
+         * This method updates the admin group in OpenAM via the dashboard backend
+         * @param  {Array} admins Array of Admin names
+         * @param  {String} sessionId OpenAM Admin Session ID
+         * @return {Promise}
+         */
         this.updateAdmins = function(admins, sessionId) {
             var putData = {
                 'admins': admins,
@@ -239,6 +259,95 @@
             };
 
             return $http.put('/dashboard/rest/admins', putData);
+        };
+
+        /**
+         * This method loads user information from OpenAM via the dashboard backend
+         * @param  {String} username Username whose details will be read
+         * @param  {String} adminSessionId Admin Session ID from OpenAM
+         * @return {Promise}
+         */
+        this.getUserInfo = function(username, adminSessionId) {
+            return $http.get('/dashboard/rest/users/' + username + "?session_id=" + adminSessionId);
+        };
+
+        /**
+         * This method sends bill details to the dashboard backend for PDF generation
+         * @param  {Object} billDetails Object containing billing details
+         * @return {Promise}
+         */
+        this.createBillPDF = function(billDetails) {
+            return $http.post('/dashboard/rest/billing/bills/pdf', billDetails, {responseType:'arraybuffer'});
+        };
+
+        /**
+         * This method gets the bill for a specific user and time period from
+         * the dashboard backend
+         * @param  {String} userId The user's cloud provider ID
+         * @param  {String} from YYYY-MM-DD timestamp
+         * @param  {String} to YYYY-MM-DD timestamp
+         * @return {Promise}
+         */
+        this.getBillPDF = function(userId, from, to) {
+            var queryString = "?user_id=" + userId + "&from=" + from + "&to=" + to;
+            return $http.get('/dashboard/rest/billing/bills/pdf' + queryString, {responseType:'arraybuffer'});
+        };
+
+        /**
+         * This method gets information about alle the user's bills from the
+         * dashboard backend
+         * @param  {String} userId Object The user's cloud provider ID
+         * @return {Promise}
+         */
+        this.getBills = function(userId) {
+            return $http.get('/dashboard/rest/billing/bills?user_id=' + userId);
+        };
+
+        /**
+         * This method gets detailed billing information for a user during a
+         * specified time window
+         * @param  {String} userId User ID
+         * @param  {String} from YYYY-MM-DD timestamp
+         * @param  {String} to YYYY-MM-DD timestamp
+         * @return {Promise}
+         */
+        this.getBillingInformation = function(userId, from, to) {
+            var config = me.getOAuthHeaderConfig();
+            var queryString = "?userid=" + userId + "&from=" + from + "&to=" + to;
+            return $http.get('/dashboard/rest/billing' + queryString, config);
+        };
+
+        /**
+         * a
+         * @param  {String} userId User ID for which data should be loaded
+         * @return {Promise}
+         */
+        this.getExternalUserIds = function(userId) {
+            return $http.get('/dashboard/rest/udrmeters/externalids?user_id=' + userId);
+        };
+
+        /**
+         * a
+         * @param  {String} userId User ID for which data should be stored
+         * @param  {Array} externalIds Array of external IDs to store
+         * @return {Promise}
+         */
+        this.updateExternalUserIds = function(userId, externalIds) {
+            return $http.post('/dashboard/rest/udrmeters/externalids', {
+                userId: userId,
+                externalIds: externalIds
+            });
+        };
+
+        /**
+         * a
+         * @param  {String} meterSource Name of the meter source to be stored
+         * @return {Promise}
+         */
+        this.addExternalMeterSource = function(meterSource) {
+            return $http.post('/dashboard/rest/udrmeters/externalsources', {
+                source: meterSource
+            });
         };
     }
 

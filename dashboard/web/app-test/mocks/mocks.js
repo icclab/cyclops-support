@@ -14,7 +14,6 @@
  *     License for the specific language governing permissions and limitations
  *     under the License.
  */
-
 var restServiceMock = jasmine.createSpyObj(
     'restService',
     [
@@ -23,7 +22,9 @@ var restServiceMock = jasmine.createSpyObj(
         'updateUdrMeters', 'getKeystoneMeters', 'getUdrMeters',
         'getAdminGroupInfo', 'getAllUsers', 'getRateForMeter',
         'getChargeForUser', 'getActiveRatePolicy', 'setActiveRatePolicy',
-        'updateAdmins'
+        'updateAdmins', 'createBillPDF', 'getUserInfo', 'getBills', 'getBillPDF',
+        'getBillingInformation', 'getExternalUserIds', 'updateExternalUserIds',
+        'addExternalMeterSource'
     ]
 );
 
@@ -31,10 +32,10 @@ var sessionServiceMock = jasmine.createSpyObj(
     'sessionService',
     [
         'clearSession', 'getSessionId', 'getAccessToken', 'getIdToken',
-        'getUsername', 'getTokenType', 'getExpiration', '', 'getKeystoneId',
+        'getUsername', 'getTokenType', 'getExpiration', 'getKeystoneId',
         'setSessionId', 'setAccessToken', 'setIdToken', 'setUsername',
         'setTokenType', 'setExpiration', 'setKeystoneId', 'setAdmin',
-        'isAdmin', 'isAuthenticated'
+        'isAdmin', 'isAuthenticated', 'setExternalIds', 'getExternalIds'
     ]
 );
 
@@ -42,7 +43,15 @@ var usageDataServiceMock = jasmine.createSpyObj(
     'usageDataService',
     [
         'notifyChartDataReady', 'setRawData', 'formatPoints',
-        'formatColumns', 'getFormattedData'
+        'getFormattedColumns', 'getFormattedData', 'clearData'
+    ]
+);
+
+var externalUsageDataServiceMock = jasmine.createSpyObj(
+    'externalUsageDataService',
+    [
+        'notifyChartDataReady', 'setRawData', 'formatPoints',
+        'getFormattedColumns', 'getFormattedData', 'clearData'
     ]
 );
 
@@ -50,7 +59,7 @@ var rateDataServiceMock = jasmine.createSpyObj(
     'rateDataService',
     [
         'notifyChartDataReady', 'setRawData', 'formatPoints',
-        'formatColumns', 'getFormattedData'
+        'getFormattedColumns', 'getFormattedData', 'clearData'
     ]
 );
 
@@ -58,7 +67,15 @@ var chargeDataServiceMock = jasmine.createSpyObj(
     'chargeDataService',
     [
         'notifyChartDataReady', 'setRawData', 'formatPoints',
-        'formatColumns', 'getFormattedData'
+        'getFormattedColumns', 'getFormattedData', 'clearData'
+    ]
+);
+
+var externalChargeDataServiceMock = jasmine.createSpyObj(
+    'externalChargeDataService',
+    [
+        'notifyChartDataReady', 'setRawData', 'formatPoints',
+        'getFormattedColumns', 'getFormattedData', 'clearData'
     ]
 );
 
@@ -66,7 +83,15 @@ var meterselectionDataServiceMock = jasmine.createSpyObj(
     'meterselectionDataService',
     [
         'setRawUdrData', 'setRawOpenstackData', 'getFormattedUdrData',
-        'getFormattedOpenstackData'
+        'getFormattedOpenstackData', 'getSelectedMeterNames'
+    ]
+);
+
+var billDataServiceMock = jasmine.createSpyObj(
+    'billDataService',
+    [
+        'setRawData', 'getFormattedData', 'formatPoints',
+        'getFormattedColumns'
     ]
 );
 
@@ -88,11 +113,12 @@ var alertServiceMock = jasmine.createSpyObj(
 var dateUtilMock = jasmine.createSpyObj(
     'dateUtil',
     [
-        'getTimestamp', 'fromTimestamp', 'getFormattedTimeNow',
-        'getFormattedTime6HoursAgo', 'getFormattedDateTimeNow',
+        'getTimestamp', 'getFormattedTimeNow',
         'getFormattedDateToday', 'getFormattedDateYesterday',
-        'getFormattedDate3DaysAgo', 'getFormattedDate1WeekAgo',
-        'getFormattedDate1MonthAgo', 'getFormattedDate1YearAgo'
+        'formatDate', 'formatTime', 'formatDateTime',
+        'formatDateFromTimestamp', 'formatTimeFromTimestamp',
+        'formatDateTimeFromTimestamp', 'getFormattedDateTimeNow',
+        'addDaysToDateString', 'compareDateStrings'
     ]
 );
 
@@ -103,3 +129,47 @@ var responseParserMock = jasmine.createSpyObj(
         'getUserListFromResponse', 'getAdminStatusFromResponse'
     ]
 );
+
+var modalMock = jasmine.createSpyObj(
+    '$modal',
+    [
+        'open', 'close'
+    ]
+);
+
+var stateMock = jasmine.createSpyObj(
+    '$state',
+    [
+        'go'
+    ]
+);
+
+//Mocking the URL class used for PDFs
+var URL = jasmine.createSpyObj(
+    'URL',
+    ['createObjectURL']
+);
+
+function resetMock(mockObject) {
+    for(var func in mockObject) {
+        mockObject[func].calls.reset();
+    }
+}
+
+function resetAllMocks() {
+    resetMock(restServiceMock);
+    resetMock(sessionServiceMock);
+    resetMock(usageDataServiceMock);
+    resetMock(externalUsageDataServiceMock);
+    resetMock(rateDataServiceMock);
+    resetMock(chargeDataServiceMock);
+    resetMock(externalChargeDataServiceMock);
+    resetMock(meterselectionDataServiceMock);
+    resetMock(billDataServiceMock);
+    resetMock(chartDataServiceMock);
+    resetMock(alertServiceMock);
+    resetMock(dateUtilMock);
+    resetMock(responseParserMock);
+    resetMock(modalMock);
+    resetMock(stateMock);
+}

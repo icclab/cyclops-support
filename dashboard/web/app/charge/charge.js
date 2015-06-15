@@ -27,12 +27,15 @@
     */
     ChargeController.$inject = [
         '$scope', 'restService', 'sessionService', 'chargeDataService',
-        'alertService', 'dateUtil'
+        'externalChargeDataService', 'alertService', 'dateUtil'
     ];
     function ChargeController(
             $scope, restService, sessionService, chargeDataService,
-            alertService, dateUtil) {
+            externalChargeDataService, alertService, dateUtil) {
         var me = this;
+        this.dateFormat = "yyyy-MM-dd";
+        this.defaultDate = dateUtil.getFormattedDateToday();
+        me.externalUserIds = [];
 
         var loadChargeDataSuccess = function(response) {
             chargeDataService.setRawData(response.data);
@@ -43,16 +46,73 @@
             alertService.showError("Requesting charge data failed");
         };
 
+        var loadExternalDataSuccess = function(response) {
+            externalChargeDataService.setRawData(response.data);
+            externalChargeDataService.notifyChartDataReady($scope);
+        };
+
+        var loadExternalDataError = function(response) {
+            alertService.showError("Requesting external meter data failed");
+        };
+
+        var onLoadIdsSuccess = function (response) {
+            var dateToday = dateUtil.getFormattedDateToday();
+            me.externalUserIds = response.data;
+            me.onDateChanged(dateToday, dateToday);
+        };
+
+        var onLoadIdsError = function() {
+            var dateToday = dateUtil.getFormattedDateToday();
+            me.externalUserIds = [];
+            me.onDateChanged(dateToday, dateToday);
+        };
+
         this.requestCharge = function(userId, from, to) {
             restService.getChargeForUser(userId, from, to)
                 .then(loadChargeDataSuccess, loadChargeDataFailed);
         };
 
-        this.requestCharge(
-            sessionService.getKeystoneId(),
-            dateUtil.getFormattedDateToday() + " 00:00:00",
-            dateUtil.getFormattedDateToday() + " 23:59:59"
-        );
+        this.requestExternalCharge = function(externalUserId, from, to) {
+            restService.getChargeForUser(externalUserId, from, to)
+                .then(loadExternalDataSuccess, loadExternalDataError);
+        };
+
+        this.clearChartDataForUpdate = function() {
+            $scope.$broadcast("CLEAR_CHARTS");
+            chargeDataService.clearData();
+            externalChargeDataService.clearData();
+        };
+
+        //https://docs.angularjs.org/guide/directive#creating-a-directive-that-wraps-other-elements
+        this.onDateChanged = function(from, to) {
+            var fromDate = dateUtil.formatDateFromTimestamp(from) + " 00:00";
+            var toDate = dateUtil.formatDateFromTimestamp(to) + " 23:59";
+            me.updateCharts(sessionService.getKeystoneId(), fromDate, toDate);
+        };
+
+        this.updateCharts = function(userId, from, to) {
+            var exIds = me.externalUserIds;
+
+            me.clearChartDataForUpdate();
+
+            for(var i = 0; i < exIds.length; i++) {
+                var exId = exIds[i];
+
+                if(exId.userId && exId.userId != "") {
+                    me.requestExternalCharge(exId.userId, from, to);
+                }
+            }
+
+            me.requestCharge(userId, from, to);
+        };
+
+        this.loadExternalUserIds = function() {
+            var userId = sessionService.getKeystoneId();
+            restService.getExternalUserIds(userId)
+                .then(onLoadIdsSuccess, onLoadIdsError);
+        };
+
+        this.loadExternalUserIds();
     };
 
 })();

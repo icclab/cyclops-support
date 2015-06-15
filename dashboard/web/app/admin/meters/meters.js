@@ -40,10 +40,12 @@
 
         var loadUdrMeterSuccess = function(response) {
             meterselectionDataService.setRawUdrData(response.data);
-            me.preselectMeters(response.data);
+            me.meterMap = meterselectionDataService.getFormattedOpenstackData();
+            me.addExternalMetersToMap();
+            me.preselectMeters();
         };
 
-        var loadMeterError = function(response) {
+        var loadMeterError = function() {
             alertService.showError("Error loading list of meters");
         };
 
@@ -51,23 +53,40 @@
             alertService.showSuccess("Meters successfully updated");
         };
 
-        var updateMeterError = function(response) {
+        var updateMeterError = function() {
             alertService.showError("Updating meters failed");
         };
 
-        this.preselectMeters = function(udrMeterResponse) {
+        var onAddMeterSourceSuccess = function(response) {
+            //...
+        };
+
+        var onAddMeterSourceError = function() {
+            alertService.showError("Could not add meter source to database");
+        };
+
+        this.preselectMeters = function() {
             var udrMeters = meterselectionDataService.getFormattedUdrData();
-            var meters = meterselectionDataService.getFormattedOpenstackData();
 
             for(var meterName in udrMeters) {
                 var meter = udrMeters[meterName];
 
-                if(meterName in meters) {
-                    meters[meterName].enabled = meter.enabled;
+                if(meterName in me.meterMap) {
+                    me.meterMap[meterName].enabled = meter.enabled;
                 }
             }
+        };
 
-            me.meterMap = meters;
+        this.addExternalMetersToMap = function() {
+            var udrMeters = meterselectionDataService.getFormattedUdrData();
+
+            for(var meterName in udrMeters) {
+                var meter = udrMeters[meterName];
+
+                if(me.isExternalMeter(meter)) {
+                    me.meterMap[meterName] = meter;
+                }
+            }
         };
 
         /**
@@ -126,6 +145,22 @@
             restService.getKeystoneMeters()
                 .then(loadKeystoneMeterSuccess)
                 .then(loadUdrMeterSuccess, loadMeterError);
+        };
+
+        this.addExternalMeter = function(newMeterName, newMeterSource) {
+            me.meterMap[newMeterName] = {
+                name: newMeterName,
+                enabled: true,
+                type: "external",
+                source: newMeterSource
+            };
+
+            restService.addExternalMeterSource(newMeterSource)
+                .then(onAddMeterSourceSuccess, onAddMeterSourceError);
+        };
+
+        this.isExternalMeter = function(meter) {
+            return meter.type == "external";
         };
 
         this.loadMeterData();

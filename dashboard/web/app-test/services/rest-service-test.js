@@ -35,22 +35,42 @@ describe('RestService', function() {
     var fakeChargeQuery = "?userid="+fakeUser+"&from="+fakeFrom+"&to="+fakeTo;
     var fakeAccessQuery = "?access_token=" + fakeAccessToken;
     var fakeSessionQuery = "?session_id=" + fakeSessionId;
+    var fakeUserIdQuery = "?user_id=" + fakeUser;
+    var fakeBillQuery = "?user_id=" + fakeUser + "&from=" + fakeFrom + "&to=" + fakeTo;
     var fakePolicyConfig = { rate_policy:'dynamic' };
     var fakeAdmins = ['test1', 'user2'];
     var fakeUpdatedAdmins = {
         'admins': fakeAdmins,
         'sessionId': fakeSessionId
     };
+    var fakeBillItems = {
+        "cpu_util": {
+            price: 5
+        }
+    };
+    var fakeBill = {
+        userId: fakeUser,
+        from: fakeFrom,
+        to: fakeTo,
+        items: fakeBillItems
+    };
 
     /*
         Test setup
      */
     beforeEach(function(){
+        resetAllMocks();
 
         /*
             Load module
          */
         module('dashboard.services');
+
+        sessionServiceMock.getAccessToken.and.returnValue(fakeAccessToken);
+
+        module(function($provide) {
+            $provide.value('sessionService', sessionServiceMock);
+        });
 
         /*
             Inject dependencies and configure mocks
@@ -73,9 +93,17 @@ describe('RestService', function() {
         $httpBackend.whenGET("/dashboard/rest/keystonemeters").respond(200);
         $httpBackend.whenGET("/dashboard/rest/udrmeters").respond(200);
         $httpBackend.whenPOST("/dashboard/rest/udrmeters").respond(200);
+        $httpBackend.whenGET("/dashboard/rest/udrmeters/externalids" + fakeUserIdQuery).respond(200);
+        $httpBackend.whenPOST("/dashboard/rest/udrmeters/externalids").respond(200);
+        $httpBackend.whenPOST("/dashboard/rest/udrmeters/externalsources").respond(200);
         $httpBackend.whenGET("/dashboard/rest/users" + fakeSessionQuery).respond(200);
         $httpBackend.whenGET("/dashboard/rest/admins" + fakeSessionQuery).respond(200);
         $httpBackend.whenPUT("/dashboard/rest/admins").respond(200);
+        $httpBackend.whenGET("/dashboard/rest/billing" + fakeChargeQuery).respond(200);
+        $httpBackend.whenGET("/dashboard/rest/billing/bills" + fakeUserIdQuery).respond(200);
+        $httpBackend.whenPOST("/dashboard/rest/billing/bills/pdf").respond(200);
+        $httpBackend.whenGET("/dashboard/rest/billing/bills/pdf" + fakeBillQuery).respond(200);
+        $httpBackend.whenGET("/dashboard/rest/users/" + fakeUser + fakeSessionQuery).respond(200);
     });
 
     /*
@@ -236,4 +264,74 @@ describe('RestService', function() {
             $httpBackend.flush();
         });
     });
+
+    describe('getUserInfo', function() {
+        it('should send complete GET request', function() {
+            $httpBackend.expectGET("/dashboard/rest/users/" + fakeUser + fakeSessionQuery);
+            restService.getUserInfo(fakeUser, fakeSessionId);
+            $httpBackend.flush();
+        });
+    });
+
+    describe('createBillPDF', function() {
+        it('should send complete POST request', function() {
+            $httpBackend.expectPOST("/dashboard/rest/billing/bills/pdf", fakeBill);
+            restService.createBillPDF(fakeBill);
+            $httpBackend.flush();
+        });
+    });
+
+    describe('getBillPDF', function() {
+        it('should send complete GET request', function() {
+            $httpBackend.expectGET("/dashboard/rest/billing/bills/pdf" + fakeBillQuery);
+            restService.getBillPDF(fakeUser, fakeFrom, fakeTo);
+            $httpBackend.flush();
+        });
+    });
+
+    describe('getBills', function() {
+        it('should send complete GET request', function() {
+            $httpBackend.expectGET("/dashboard/rest/billing/bills" + fakeUserIdQuery);
+            restService.getBills(fakeUser);
+            $httpBackend.flush();
+        });
+    });
+
+    describe('getBillingInformation', function() {
+        it('should send complete GET request', function() {
+            $httpBackend.expectGET("/dashboard/rest/billing" + fakeChargeQuery);
+            restService.getBillingInformation(fakeUser, fakeFrom, fakeTo);
+            $httpBackend.flush();
+        });
+    });
+
+    describe('getExternalUserIds', function() {
+        it('should send complete GET request', function() {
+            $httpBackend.expectGET("/dashboard/rest/udrmeters/externalids" + fakeUserIdQuery);
+            restService.getExternalUserIds(fakeUser);
+            $httpBackend.flush();
+        });
+    });
+
+    describe('updateExternalUserIds', function() {
+        it('should send complete POST request', function() {
+            $httpBackend.expectPOST("/dashboard/rest/udrmeters/externalids", {
+                userId: fakeUser,
+                externalIds: [1]
+            });
+            restService.updateExternalUserIds(fakeUser, [1]);
+            $httpBackend.flush();
+        });
+    });
+
+    describe('addExternalMeterSource', function() {
+        it('should send complete POST request', function() {
+            $httpBackend.expectPOST("/dashboard/rest/udrmeters/externalsources", {
+                source: "test"
+            });
+            restService.addExternalMeterSource("test");
+            $httpBackend.flush();
+        });
+    });
+
 });

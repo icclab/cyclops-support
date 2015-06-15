@@ -17,7 +17,15 @@
 
 package ch.icclab.cyclops.dashboard.application;
 
+import ch.icclab.cyclops.dashboard.bills.BillInformation;
+import ch.icclab.cyclops.dashboard.bills.BillPDF;
+import ch.icclab.cyclops.dashboard.bills.Billing;
 import ch.icclab.cyclops.dashboard.charge.Charge;
+import ch.icclab.cyclops.dashboard.database.DatabaseHelper;
+import ch.icclab.cyclops.dashboard.database.DatabaseInteractionException;
+import ch.icclab.cyclops.dashboard.errorreporting.ErrorReporter;
+import ch.icclab.cyclops.dashboard.externalMeters.ExternalMeterSources;
+import ch.icclab.cyclops.dashboard.externalMeters.ExternalUserAccounts;
 import ch.icclab.cyclops.dashboard.keystone.KeystoneAssociation;
 import ch.icclab.cyclops.dashboard.keystone.KeystoneMeter;
 import ch.icclab.cyclops.dashboard.login.Login;
@@ -29,6 +37,7 @@ import ch.icclab.cyclops.dashboard.udr.UdrMeter;
 import ch.icclab.cyclops.dashboard.udr.Usage;
 import ch.icclab.cyclops.dashboard.users.Admin;
 import ch.icclab.cyclops.dashboard.users.User;
+import ch.icclab.cyclops.dashboard.users.UserInfo;
 import ch.icclab.cyclops.dashboard.util.LoadConfiguration;
 import org.restlet.Application;
 import org.restlet.Context;
@@ -51,10 +60,25 @@ public class DashboardApplication extends Application {
         router.attach("/charge", Charge.class);
         router.attach("/keystonemeters", KeystoneMeter.class);
         router.attach("/udrmeters", UdrMeter.class);
+        router.attach("/udrmeters/externalids", ExternalUserAccounts.class);
+        router.attach("/udrmeters/externalsources", ExternalMeterSources.class);
         router.attach("/keystone", KeystoneAssociation.class);
         router.attach("/session", Session.class);
         router.attach("/users", User.class);
+        router.attach("/users/{user}", UserInfo.class);
         router.attach("/admins", Admin.class);
+        router.attach("/billing", Billing.class);
+        router.attach("/billing/bills", BillInformation.class);
+        router.attach("/billing/bills/pdf", BillPDF.class);
+
+        DatabaseHelper dbHelper = new DatabaseHelper();
+        try {
+            dbHelper.createDatabaseIfNotExists();
+        }
+        catch (DatabaseInteractionException e) {
+            ErrorReporter.reportException(e);
+        }
+
         return router;
     }
 

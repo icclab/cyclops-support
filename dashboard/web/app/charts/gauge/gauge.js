@@ -38,32 +38,74 @@
         controller.updateGraph();
     }
 
-    GaugeChartController.$inject = ['$scope', 'chartDataService'];
-    function GaugeChartController($scope, chartDataService) {
+    GaugeChartController.$inject = ['$scope', 'dateUtil', 'chartDataService'];
+    function GaugeChartController($scope, dateUtil, chartDataService) {
         var me = this;
-        this.chartName = '';
-        this.chartData = undefined;
         this.chartDataType = undefined;
+        this.chartName = undefined;
         this.chartDataUnit = undefined;
-        this.chartLabels = undefined;
-        this.chartSeries = undefined;
-        this.chartOptions = {
-            pointDot: false,
-            animation: false,
-            bezierCurve : true,
-            showTooltips: false,
-            bezierCurveTension : 0.4,
-            pointHitDetectionRadius: 0
-        };
+        this.chartData = [];
+        this.chartOptions = {};
 
         this.updateGraph = function() {
-            var result = chartDataService.getGaugeMeterData(
+            var result = chartDataService.getSampledGaugeMeterData(
                 me.chartDataType,
                 me.chartName
             );
 
-            me.chartData = result.data;
-            me.chartLabels = result.labels;
+            me.chartOptions = {
+                chart: {
+                    type: 'lineChart',
+                    height: 250,
+                    margin : {
+                        top: 20,
+                        right: 20,
+                        bottom: 40,
+                        left: 80
+                    },
+                    x: function(d){ return d.x; },
+                    y: function(d){ return d.y; },
+                    useInteractiveGuideline: true,
+                    xAxis: {
+                        tickFormat: function(d){
+                            return dateUtil.formatTimeFromTimestamp(d);
+                        },
+                        axisLabelDistance: 50
+                    },
+                    yAxis: {
+                        tickFormat: function(d){
+
+                            if(d == 0) {
+                                return 0;
+                            }
+                            else if(d > 1000000) {
+                                return d3.format('f')(d)
+                            }
+                            else if(d < 1) {
+                                return d3.format('.10f')(d);
+                            }
+                            else {
+                                return d3.format('.02f')(d);
+                            }
+                        },
+                        axisLabelDistance: 50
+                    }
+                }
+            };
+
+            var seriesName = me.chartName;
+
+            if(me.chartDataUnit) {
+                seriesName += ' (' + me.chartDataUnit + ')';
+            }
+
+            me.chartData = [
+                {
+                    area: true,
+                    values: result,
+                    key: seriesName
+                }
+            ];
         };
     }
 
