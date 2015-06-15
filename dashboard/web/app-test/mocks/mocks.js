@@ -43,7 +43,7 @@ var usageDataServiceMock = jasmine.createSpyObj(
     'usageDataService',
     [
         'notifyChartDataReady', 'setRawData', 'formatPoints',
-        'getFormattedColumns', 'getFormattedData'
+        'getFormattedColumns', 'getFormattedData', 'clearData'
     ]
 );
 
@@ -51,7 +51,7 @@ var externalUsageDataServiceMock = jasmine.createSpyObj(
     'externalUsageDataService',
     [
         'notifyChartDataReady', 'setRawData', 'formatPoints',
-        'getFormattedColumns', 'getFormattedData'
+        'getFormattedColumns', 'getFormattedData', 'clearData'
     ]
 );
 
@@ -59,7 +59,7 @@ var rateDataServiceMock = jasmine.createSpyObj(
     'rateDataService',
     [
         'notifyChartDataReady', 'setRawData', 'formatPoints',
-        'getFormattedColumns', 'getFormattedData'
+        'getFormattedColumns', 'getFormattedData', 'clearData'
     ]
 );
 
@@ -67,7 +67,15 @@ var chargeDataServiceMock = jasmine.createSpyObj(
     'chargeDataService',
     [
         'notifyChartDataReady', 'setRawData', 'formatPoints',
-        'getFormattedColumns', 'getFormattedData'
+        'getFormattedColumns', 'getFormattedData', 'clearData'
+    ]
+);
+
+var externalChargeDataServiceMock = jasmine.createSpyObj(
+    'externalChargeDataService',
+    [
+        'notifyChartDataReady', 'setRawData', 'formatPoints',
+        'getFormattedColumns', 'getFormattedData', 'clearData'
     ]
 );
 
@@ -152,8 +160,10 @@ function resetAllMocks() {
     resetMock(restServiceMock);
     resetMock(sessionServiceMock);
     resetMock(usageDataServiceMock);
+    resetMock(externalUsageDataServiceMock);
     resetMock(rateDataServiceMock);
     resetMock(chargeDataServiceMock);
+    resetMock(externalChargeDataServiceMock);
     resetMock(meterselectionDataServiceMock);
     resetMock(billDataServiceMock);
     resetMock(chartDataServiceMock);

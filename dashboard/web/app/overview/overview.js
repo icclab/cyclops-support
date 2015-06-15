@@ -59,21 +59,15 @@
         };
 
         var onLoadIdsSuccess = function (response) {
+            var dateToday = dateUtil.getFormattedDateToday();
             me.externalUserIds = response.data;
-
-            me.onDateChanged(
-                dateUtil.getFormattedDateToday(),
-                dateUtil.getFormattedDateToday()
-            );
+            me.onDateChanged(dateToday, dateToday);
         };
 
         var onLoadIdsError = function() {
+            var dateToday = dateUtil.getFormattedDateToday();
             me.externalUserIds = [];
-
-            me.onDateChanged(
-                dateUtil.getFormattedDateToday(),
-                dateUtil.getFormattedDateToday()
-            );
+            me.onDateChanged(dateToday, dateToday);
         };
 
         this.requestUsage = function(keystoneId, from, to) {
@@ -95,6 +89,12 @@
             $location.path("/cloudservices");
         };
 
+        this.clearChartDataForUpdate = function() {
+            $scope.$broadcast("CLEAR_CHARTS");
+            usageDataService.clearData();
+            externalUsageDataService.clearData();
+        };
+
         //https://docs.angularjs.org/guide/directive#creating-a-directive-that-wraps-other-elements
         this.onDateChanged = function(from, to) {
             var fromDate = dateUtil.formatDateFromTimestamp(from) + " 00:00";
@@ -107,7 +107,7 @@
                 var keystoneId = sessionService.getKeystoneId();
                 var exIds = me.externalUserIds;
 
-                me.requestUsage(keystoneId, from, to);
+                me.clearChartDataForUpdate();
 
                 for(var i = 0; i < exIds.length; i++) {
                     var exId = exIds[i];
@@ -116,6 +116,8 @@
                         me.requestExternalUsage(exId.userId, from, to);
                     }
                 }
+
+                me.requestUsage(keystoneId, from, to);
             }
         };
 

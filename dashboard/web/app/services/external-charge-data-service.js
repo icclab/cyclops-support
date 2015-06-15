@@ -20,12 +20,12 @@
         Module Setup
     */
     angular.module('dashboard.services')
-        .service('externalUsageDataService', ExternalUsageDataService);
+        .service('externalChargeDataService', ExternalChargeDataService);
 
     /*
         Controllers, Factories, Services, Directives
     */
-    function ExternalUsageDataService() {
+    function ExternalChargeDataService() {
         var me = this;
         var formattedData = {};
 
@@ -37,7 +37,7 @@
          *     name: <chart_name>
          *     unit: <data_unit>
          *     chartType: <chart_type>
-         *     serviceType: "external"
+         *     serviceType: "charge"
          * }
          *
          * @param  {Scope} $scope Scope on which the event is fired
@@ -52,7 +52,7 @@
                     name: chart.name,
                     unit: chart.unit,
                     chartType: chart.type,
-                    serviceType: "usage_external"
+                    serviceType: "charge_external"
                 });
             }
 
@@ -68,70 +68,49 @@
          *         points: [...],
          *         columns: [...],
          *         enabled: true/false,
-         *         type: "gauge"
+         *         type: "gauge"/"cumulative"
          *     }
          * }
          *
          * @param {Object} data Raw response data
          */
         this.setRawData = function(data) {
-            if(data && data.usage && data.usage.External) {
-                dataArray = data.usage.External;
+            if(data && data.charge) {
+                var usedMeterNames = [];
+                var chargeData = data.charge;
+                var points = chargeData.points || [];
+                var columns = chargeData.columns || [];
+                var indexResource = columns.indexOf("resource");
+                var indexTime = columns.indexOf("time");
+                var indexPrice = columns.indexOf("price");
 
-                for(var i = 0; i < dataArray.length; i++) {
-                    currentData = dataArray[i];
+                for (var i = 0; i < points.length; i++) {
+                    var meter = points[i];
+                    var meterName = meter[indexResource];
+                    var meterTime = meter[indexTime];
+                    var meterPrice = meter[indexPrice];
 
-                    //Skip if data is null (no usage data available)
-                    if(!currentData) {
-                        continue;
+                    /*
+                        This block checks if a meter has already appeared in the
+                        current data. If the meterName appears for the first time,
+                        we can create the data or overwrite old data.
+                     */
+                    if(usedMeterNames.indexOf(meterName) == -1) {
+                        formattedData[meterName] = {
+                            name: meterName,
+                            points: [],
+                            columns: me.getFormattedColumns(),
+                            enabled: true,
+                            type: "gauge",
+                            unit: ""
+                        };
+
+                        usedMeterNames.push(meterName);
                     }
 
-                    //Get the first point to find out the meter type and unit
-                    var firstPoint = currentData.points[0] || [];
-
-                    var formattedColumns = me.getFormattedColumns();
-                    var formattedPoints = me.formatPoints(
-                        currentData.points,
-                        currentData.columns
-                    );
-
-                    formattedData[currentData.name] = {
-                        name: currentData.name,
-                        columns: formattedColumns,
-                        points: formattedPoints,
-                        enabled: true,
-                        type: "gauge",
-                        unit: ""
-                    };
+                    formattedData[meterName].points.push([meterTime, meterPrice]);
                 }
             }
-        };
-
-        /**
-         * Transforms the raw points to the following format:
-         *
-         * [
-         *     <timestamp>
-         *     <point_value>
-         * ]
-         *
-         * @param {Object} rawPoints Raw point data
-         * @param {Object} rawColumns Raw column data
-         * @return {Array}
-         */
-        this.formatPoints = function(rawPoints, rawColumns) {
-            var formattedPoints = [];
-            var indexTime = rawColumns.indexOf("time");
-            var indexUsage = rawColumns.indexOf("usage");
-
-            for (var i = 0; i < rawPoints.length; i++) {
-                var rawPoint = rawPoints[i];
-                var time = rawPoint[indexTime];
-                var value = rawPoint[indexUsage];
-                formattedPoints.push([time, value]);
-            };
-
-            return formattedPoints;
         };
 
         /**

@@ -15,7 +15,7 @@
  *     under the License.
  */
 
-describe('ChargeDataService', function() {
+describe('ExternalChargeDataService', function() {
     var service;
     var scopeMock;
 
@@ -51,7 +51,7 @@ describe('ChargeDataService', function() {
         name: fakeMeterName,
         unit: "",
         chartType: "gauge",
-        serviceType: "charge"
+        serviceType: "charge_external"
     }];
 
     /*
@@ -73,8 +73,8 @@ describe('ChargeDataService', function() {
         /*
             Inject dependencies and configure mocks
          */
-        inject(function(_chargeDataService_) {
-            service = _chargeDataService_;
+        inject(function(_externalChargeDataService_) {
+            service = _externalChargeDataService_;
         });
     });
 
@@ -111,14 +111,6 @@ describe('ChargeDataService', function() {
         it('should correctly format columns', function() {
             var res = service.getFormattedColumns();
             expect(res).toEqual(["time", "value"]);
-        });
-    });
-
-    describe('clearData', function() {
-        it('should clear data', function() {
-            service.setRawData(fakeChartData);
-            service.clearData();
-            expect(service.getFormattedData()).toEqual({});
         });
     });
 });

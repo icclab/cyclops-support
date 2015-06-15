@@ -46,7 +46,7 @@
                 var chartElement = $compile(finalTmpl)($scope);
                 el.append(chartElement);
             }
-        }
+        };
 
         return {
             restrict: 'E',
@@ -56,6 +56,10 @@
 
                 $scope.$on('CHART_DATA_READY', function(e, charts) {
                     me.renderCharts($scope, el, charts);
+                });
+
+                $scope.$on('CLEAR_CHARTS', function() {
+                    el.empty();
                 });
             }
         };

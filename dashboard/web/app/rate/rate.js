@@ -37,6 +37,8 @@
         this.defaultDate = dateUtil.getFormattedDateToday();
 
         var onLoadRateDataSuccess = function(responses) {
+            me.clearChartDataForUpdate();
+
             for (var i = 0; i < responses.length; i++) {
                 var response = responses[i];
                 rateDataService.setRawData(response.data);
@@ -62,6 +64,11 @@
 
         var onLoadMeterSelectionError = function(response) {
             alertService.showError("Could not load selected meters");
+        };
+
+        this.clearChartDataForUpdate = function() {
+            $scope.$broadcast("CLEAR_CHARTS");
+            rateDataService.clearData();
         };
 
         //https://docs.angularjs.org/guide/directive#creating-a-directive-that-wraps-other-elements
