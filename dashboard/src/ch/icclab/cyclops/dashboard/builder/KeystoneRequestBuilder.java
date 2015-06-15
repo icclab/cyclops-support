@@ -17,6 +17,7 @@
 
 package ch.icclab.cyclops.dashboard.builder;
 
+import ch.icclab.cyclops.dashboard.errorreporting.ErrorReporter;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -35,31 +36,24 @@ public class KeystoneRequestBuilder {
      * @param domainName  The keystone domain
      * @return  A JSON representation
      */
-    public static JsonRepresentation buildKeystoneAuthRequestBody(
-            String username, String pwd, String domainName) {
+    public static JsonRepresentation buildKeystoneAuthRequestBody(String username, String pwd, String domainName) throws JSONException {
         JSONObject wrapper = new JSONObject();
-
-        try {
-            JSONObject domain = new JSONObject();
-            domain.put("name", domainName);
-            JSONArray methods = new JSONArray();
-            methods.put("password");
-            JSONObject user = new JSONObject();
-            user.put("domain", domain);
-            user.put("name", username);
-            user.put("password", pwd);
-            JSONObject password = new JSONObject();
-            password.put("user", user);
-            JSONObject identity = new JSONObject();
-            identity.put("methods", methods);
-            identity.put("password", password);
-            JSONObject auth = new JSONObject();
-            auth.put("identity", identity);
-            wrapper.put("auth", auth);
-
-        } catch (JSONException e) {
-            //TODO: error handling
-        }
+        JSONObject domain = new JSONObject();
+        domain.put("name", domainName);
+        JSONArray methods = new JSONArray();
+        methods.put("password");
+        JSONObject user = new JSONObject();
+        user.put("domain", domain);
+        user.put("name", username);
+        user.put("password", pwd);
+        JSONObject password = new JSONObject();
+        password.put("user", user);
+        JSONObject identity = new JSONObject();
+        identity.put("methods", methods);
+        identity.put("password", password);
+        JSONObject auth = new JSONObject();
+        auth.put("identity", identity);
+        wrapper.put("auth", auth);
 
         return new JsonRepresentation(wrapper);
     }

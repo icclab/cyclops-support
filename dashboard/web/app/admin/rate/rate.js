@@ -26,16 +26,18 @@
         Controllers, Factories, Services, Directives
     */
     AdminRateController.$inject = [
-        'restService', 'alertService', 'responseParser', 'dateUtil'
+        'restService', 'alertService', 'meterselectionDataService',
+        'responseParser', 'dateUtil'
     ];
     function AdminRateController(
-            restService, alertService, responseParser, dateUtil) {
+            restService, alertService, meterselectionDataService,
+            responseParser, dateUtil) {
         var me = this;
         this.isStaticRateEnabled = false;
         this.activePolicyStatusString = "Dynamic Rating";
         this.staticRatingButtonClass = "";
         this.dynamicRatingButtonClass = "disabled";
-        this.meters = [];
+        this.meters = {};
 
         var onGetActivePolicyError = function(response) {
             alertService.showError("Could not determine rate policy");
@@ -90,18 +92,17 @@
 
         this.buildStaticRateConfig = function() {
             var rates = {};
-            var meters = me.meters;
 
-            for(var i = 0; i < meters.length; i++) {
-                var currentMeter = meters[i];
-                var rate = currentMeter.rate;
+            for(var meterName in me.meters) {
+                var meter = me.meters[meterName];
+                var rate = meter.rate;
 
                 //replace illegal numbers / strings with 1
                 if(isNaN(rate) || rate < 0) {
                     rate = 1;
                 }
 
-                rates[currentMeter.name] = rate;
+                rates[meterName] = rate;
             }
 
             return {
@@ -127,47 +128,31 @@
         };
 
         this.filterEnabledMeters = function(udrMeterResponse) {
-            var meterData = udrMeterResponse.data;
-            var udrMeters = meterData.points || [];
-            var columns = meterData.columns || [];
-            var indexName = columns.indexOf("metername");
-            var indexStatus = columns.indexOf("status");
+            meterselectionDataService.setRawUdrData(udrMeterResponse.data);
+            var udrMeters = meterselectionDataService.getFormattedUdrData();
 
-            if(indexName == -1 || indexStatus == -1) {
-                return;
-            }
+            for(var udrMeterName in udrMeters) {
+                var meter = udrMeters[udrMeterName];
 
-            /*
-            Outer Loop: Goes through all meters that the UDR microservice
-            knows.
-
-            Inner Loop: For each meter that is enabled, it looks up if a
-            static meter already exists (meaning that a static rate has been set)
-
-            If the meter doesn't exist yet, it means that it was selected, but
-            not configured for static rating yet. Therefore, we have to add it
-            to the static meter array with a default rate (here: 1)
-             */
-            for(var i = 0; i < udrMeters.length; i++) {
-                var enabledMeter = udrMeters[i];
-
-                if(enabledMeter[indexStatus] == 1) {
-                    var meterExists = false;
-
-                    for(var j = 0; j < me.meters.length; j++) {
-                        var staticMeter = me.meters[j];
-
-                        if(staticMeter.name == enabledMeter[indexName]) {
-                            meterExists = true;
-                        }
-                    }
-
-                    if(!meterExists) {
-                        me.meters.push({
-                            'name': enabledMeter[indexName],
-                            'rate': 1
-                        });
-                    }
+                if(meter.enabled && !(udrMeterName in me.meters)) {
+                    /*
+                        Scenario 1: show all meters that are enabled. We have to add
+                        them to the me.meters array even though they were not listed
+                        by the static rating response
+                     */
+                    me.meters[udrMeterName] = {
+                        'name': udrMeterName,
+                        'rate': 1
+                    };
+                }
+                else if(!meter.enabled && udrMeterName in me.meters) {
+                    /*
+                        Scenario 2: hide all meters that are disabled, even if they
+                        were listed by the static rating response. Reason: The meter
+                        selection might have changed since the rating policy was last
+                        updated
+                     */
+                    delete me.meters[udrMeterName];
                 }
             }
         };

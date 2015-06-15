@@ -17,22 +17,19 @@
 
 package ch.icclab.cyclops.dashboard.udr;
 
+import ch.icclab.cyclops.dashboard.errorreporting.ErrorReporter;
+import ch.icclab.cyclops.dashboard.oauth2.OAuthClientResource;
+import ch.icclab.cyclops.dashboard.oauth2.OAuthServerResource;
 import ch.icclab.cyclops.dashboard.util.LoadConfiguration;
 import org.restlet.ext.json.JsonRepresentation;
 import org.restlet.representation.Representation;
-import org.restlet.representation.StringRepresentation;
-import org.restlet.resource.ClientResource;
-import org.restlet.resource.Get;
-import org.restlet.resource.Post;
-import org.restlet.resource.ServerResource;
-
-import java.io.IOException;
+import org.restlet.resource.*;
 
 /**
  * This class handles all requests associated with UDR meters. The class can load existing meter configuration and
  * update meter configuration on the UDR microservice
  */
-public class UdrMeter extends ServerResource {
+public class UdrMeter extends OAuthServerResource {
 
     /**
      * This method updates the meter configuration from the UDR microservice
@@ -45,17 +42,16 @@ public class UdrMeter extends ServerResource {
      */
     @Post("json")
     public Representation updateUdrMeters(Representation entity) {
-        ClientResource res = new ClientResource(LoadConfiguration.configuration.get("UDR_METER_URL"));
-        JsonRepresentation rep;
-
         try {
-            rep = new JsonRepresentation(entity);
+            String oauthToken = getOAuthTokenFromHeader();
+            String url = LoadConfiguration.configuration.get("UDR_METER_URL");
+            OAuthClientResource res = new OAuthClientResource(url, oauthToken);
+            Representation rep = new JsonRepresentation(entity);
             return res.post(rep);
-        } catch (IOException e) {
-            //TODO: error handling
+        } catch (Exception e) {
+            ErrorReporter.reportException(e);
+            throw new ResourceException(500);
         }
-
-        return new StringRepresentation("error");
     }
 
 
@@ -64,9 +60,11 @@ public class UdrMeter extends ServerResource {
      *
      * @return  A representation of the untouched response
      */
-    @Get("json")
+    @Get
     public Representation getUdrMeters() {
-        ClientResource res = new ClientResource(LoadConfiguration.configuration.get("UDR_METER_URL"));
+        String oauthToken = getOAuthTokenFromHeader();
+        String url = LoadConfiguration.configuration.get("UDR_METER_URL");
+        OAuthClientResource res = new OAuthClientResource(url, oauthToken);
         return res.get();
     }
 }

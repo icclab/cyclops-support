@@ -26,16 +26,12 @@
         Controllers, Factories, Services, Directives
     */
     ChartDataService.$inject = [
-        'dateUtil', 'usageDataService', 'rateDataService', 'chargeDataService'
+        'usageDataService', 'rateDataService', 'chargeDataService',
+        'externalUsageDataService', 'externalChargeDataService'
     ];
-    function ChartDataService(
-            dateUtil, usageDataService, rateDataService, chargeDataService) {
+    function ChartDataService(usageDataService, rateDataService, chargeDataService,
+            externalUsageDataService, externalChargeDataService) {
         var me = this;
-        var NUM_LABELS = 10;
-
-        //Default indices in case there is no column description
-        var DEFAULT_INDEX_TIME = 0;
-        var DEFAULT_INDEX_USAGE = 2;
 
         this.getServiceDelegate = function(type) {
             if(type == "usage") {
@@ -47,14 +43,30 @@
             else if(type == "charge") {
                 return chargeDataService;
             }
+            else if(type == "usage_external") {
+                return externalUsageDataService;
+            }
+            else if(type == "charge_external") {
+                return externalChargeDataService;
+            }
         };
 
-        this.setLabelIfSpaceAvailable = function(
-                numPoints, pointIndex, numLabels, label) {
+        this.doSampling = function(points, maxNum) {
+            var sampledPoints = [];
+            var numPoints = points.length;
+            var modulus = Math.round(numPoints / maxNum) || 1;
 
-            var modulus = Math.round(numPoints / numLabels);
-            modulus = (numPoints < numLabels) ? 1 : modulus;
-            return pointIndex % modulus == 0 ? label : "";
+            if(numPoints < maxNum) {
+                return points;
+            }
+
+            for(var i = 0; i < numPoints; i++) {
+                if(i % modulus == 0) {
+                    sampledPoints.push(points[i]);
+                }
+            }
+
+            return sampledPoints;
         };
 
         this.getCumulativeMeterData = function(type, meterName) {
@@ -65,17 +77,17 @@
                     data points). We need to sum up the individual points to
                     get the cumulative result.
                  */
-                var gaugeData = me.getGaugeMeterData(type, meterName).data[0];
+                var gaugeData = me.getGaugeMeterData(type, meterName);
                 var cumulativeValue = 0;
 
                 for(var i = 0; i < gaugeData.length; i++) {
-                    cumulativeValue += gaugeData[i];
+                    cumulativeValue += gaugeData[i].y;
                 }
 
-                return { "data": cumulativeValue };
+                return cumulativeValue;
             }
             catch(err) {
-                return { "data": 0 };
+                return 0;
             }
         };
 
@@ -86,24 +98,23 @@
                 var dataPoints = serviceData[meterName].points || [];
                 dataPoints.reverse();
                 var numPoints = dataPoints.length;
-                var dataX = [];
-                var dataY = [];
+                var data = [];
 
                 for(var i = 0; i < numPoints; i++) {
-                    dataX.push(me.setLabelIfSpaceAvailable(
-                        numPoints,
-                        i,
-                        NUM_LABELS,
-                        dateUtil.fromTimestamp(dataPoints[i][0])
-                    ));
-                    dataY.push(dataPoints[i][1]);
+                    data.push({x: dataPoints[i][0], y: dataPoints[i][1]});
                 }
 
-                return { "labels": dataX, "data": [dataY] }
+                return data;
             }
             catch(err) {
-                return { "labels": [], "data": [[]] };
+                return [];
             }
+        };
+
+        this.getSampledGaugeMeterData = function(type, meterName) {
+            var unsampledPoints = me.getGaugeMeterData(type, meterName);
+            var sampledData = me.doSampling(unsampledPoints, 100);
+            return sampledData;
         };
     }
 

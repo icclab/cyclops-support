@@ -26,7 +26,7 @@ describe('UsageDataService', function() {
     var fakeGaugeName = "cpu_util";
     var fakeChartData = {
         'usage': {
-            'openstack': [
+            'OpenStack': [
                 {
                     'name': fakeCumulativeName,
                     'columns': ["time", "sequence_number", "type", "unit", "usage"],
@@ -89,6 +89,7 @@ describe('UsageDataService', function() {
         Test setup
      */
     beforeEach(function() {
+        resetAllMocks();
 
         /*
             Load module
@@ -138,18 +139,18 @@ describe('UsageDataService', function() {
     });
 
     describe('formatPoints', function() {
-        it('should correctly format points for gauge meters', function() {
+        it('should correctly format points for cumulative meters', function() {
             var res = service.formatPoints(
-                fakeChartData.usage.openstack[0].points,
-                fakeChartData.usage.openstack[0].columns
+                fakeChartData.usage.OpenStack[0].points,
+                fakeChartData.usage.OpenStack[0].columns
             );
             expect(res).toEqual(fakeFormattedChartData[fakeCumulativeName].points);
         });
 
         it('should correctly format points for gauge meters', function() {
             var res = service.formatPoints(
-                fakeChartData.usage.openstack[1].points,
-                fakeChartData.usage.openstack[1].columns
+                fakeChartData.usage.OpenStack[1].points,
+                fakeChartData.usage.OpenStack[1].columns
             );
             expect(res).toEqual(fakeFormattedChartData[fakeGaugeName].points);
         });
@@ -159,6 +160,14 @@ describe('UsageDataService', function() {
         it('should correctly format columns', function() {
             var res = service.getFormattedColumns();
             expect(res).toEqual(["time", "value"]);
+        });
+    });
+
+    describe('clearData', function() {
+        it('should clear data', function() {
+            service.setRawData(fakeChartData);
+            service.clearData();
+            expect(service.getFormattedData()).toEqual({});
         });
     });
 });

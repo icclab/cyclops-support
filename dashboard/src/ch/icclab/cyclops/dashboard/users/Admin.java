@@ -17,6 +17,7 @@
 
 package ch.icclab.cyclops.dashboard.users;
 
+import ch.icclab.cyclops.dashboard.errorreporting.ErrorReporter;
 import ch.icclab.cyclops.dashboard.util.LoadConfiguration;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -27,10 +28,7 @@ import org.restlet.data.Form;
 import org.restlet.data.Header;
 import org.restlet.ext.json.JsonRepresentation;
 import org.restlet.representation.Representation;
-import org.restlet.resource.ClientResource;
-import org.restlet.resource.Get;
-import org.restlet.resource.Put;
-import org.restlet.resource.ServerResource;
+import org.restlet.resource.*;
 import org.restlet.util.Series;
 
 import java.io.IOException;
@@ -69,18 +67,15 @@ public class Admin extends ServerResource{
         return clientResource.get();
     }
 
-    @Put
+    @Put("json")
     public Representation updateAdmins(Representation entity) {
-        String sessionId = "";
-        JSONArray admins;
-        JSONObject updateObject = new JSONObject();
-
         try {
+            JSONObject updateObject = new JSONObject();
             JsonRepresentation represent = new JsonRepresentation(entity);
             JSONObject requestJson = represent.getJsonObject();
             JSONArray uniqueMembers = new JSONArray();
-            admins = requestJson.getJSONArray("admins");
-            sessionId = requestJson.getString("sessionId");
+            JSONArray admins = requestJson.getJSONArray("admins");
+            String sessionId = requestJson.getString("sessionId");
 
             String adminGroupName = LoadConfiguration.configuration.get("OPENAM_ADMIN_GROUP_NAME");
             String adminEntryPattern = LoadConfiguration.configuration.get("OPENAM_ADMIN_USER_PATTERN");
@@ -98,23 +93,22 @@ public class Admin extends ServerResource{
 
             updateObject.put("uniquemember", uniqueMembers);
 
-        } catch (JSONException e) {
-            //TODO: error handling
-        } catch (IOException e) {
-            //TODO: error handling
+            String url = LoadConfiguration.configuration.get("OPENAM_LIST_ADMINS_URL");
+            ClientResource clientResource = new ClientResource(url);
+
+            Series<Header> headers = (Series<Header>) clientResource.getRequestAttributes().get("org.restlet.http.headers");
+
+            if (headers == null) {
+                headers = new Series<Header>(Header.class);
+                clientResource.getRequestAttributes().put("org.restlet.http.headers", headers);
+            }
+
+            headers.set("iPlanetDirectoryPro", sessionId);
+            return clientResource.put(updateObject);
         }
-
-        String url = LoadConfiguration.configuration.get("OPENAM_LIST_ADMINS_URL");
-        ClientResource clientResource = new ClientResource(url);
-
-        Series<Header> headers = (Series<Header>) clientResource.getRequestAttributes().get("org.restlet.http.headers");
-
-        if (headers == null) {
-            headers = new Series<Header>(Header.class);
-            clientResource.getRequestAttributes().put("org.restlet.http.headers", headers);
+        catch (Exception e) {
+            ErrorReporter.reportException(e);
+            throw new ResourceException(500);
         }
-
-        headers.set("iPlanetDirectoryPro", sessionId);
-        return clientResource.put(updateObject);
     }
 }

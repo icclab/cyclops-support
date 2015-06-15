@@ -55,6 +55,7 @@ describe('MeterselectionDataService', function() {
         Test setup
      */
     beforeEach(function() {
+        resetAllMocks();
 
         /*
             Load module
@@ -98,6 +99,13 @@ describe('MeterselectionDataService', function() {
         it('ignores incorrectly formatted data', function() {
             service.setRawOpenstackData({});
             expect(service.getFormattedOpenstackData()).toEqual({});
+        });
+    });
+
+    describe('getSelectedMeterNames', function() {
+        it('returns array of selected meters', function() {
+            service.setRawUdrData(fakeMeterselectionData);
+            expect(service.getSelectedMeterNames()).toEqual(["cpu_util"]);
         });
     });
 });

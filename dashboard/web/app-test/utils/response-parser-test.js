@@ -32,16 +32,16 @@ describe('ResponseParser', function() {
         rate: null
     };
 
-    var fakeStaticMeterList = [
-        {
+    var fakeStaticMeterList = {
+        "meter.name1": {
             name: "meter.name1",
             rate: "5",
         },
-        {
+        "meter.other.test": {
             name: "meter.other.test",
             rate: "0.5"
         }
-    ];
+    };
 
     var fakeGroupResponse = {
         username: "CyclopsAdmin",
@@ -87,6 +87,7 @@ describe('ResponseParser', function() {
         Test setup
      */
     beforeEach(function(){
+        resetAllMocks();
 
         /*
             Load module
@@ -112,7 +113,7 @@ describe('ResponseParser', function() {
 
         it('should correctly handle empty response', function() {
             var res = responseParser.getStaticRatingListFromResponse(fakeEmptyStaticMeterResponse);
-            expect(res).toEqual([]);
+            expect(res).toEqual({});
         });
     });
 

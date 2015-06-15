@@ -24,21 +24,18 @@ describe('ChartDataService', function() {
     var usage = "usage";
     var charge = "charge";
     var rate = "rate";
-    var fakeLabel = "testLabel";
-    var fakeNumPoints = 800;
-    var fakePointIndex = 80;
-    var fakeNumLabels = 10;
-    var emptyCumulativeObject = { "data": 0 };
-    var emptyGaugeObject = { "labels": [], "data": [[]] };
+    var fakeDateTime = "2015-01-01 13:33";
     var fakeCumulativeName = "cumulativeChart";
     var fakeGaugeName = "gaugeChart";
+    var fakePointValue1 = 443309;
+    var fakePointValue2 = 142012;
     var fakeUsageData = {
         cumulativeChart: {
             name: fakeCumulativeName,
             columns: ["time", "value"],
             points: [
-                [1428478324000, 443309],
-                [1428478324000, 142012]
+                [1428478324000, fakePointValue1],
+                [1428478324000, fakePointValue2]
             ],
             enabled: true,
             type: "cumulative",
@@ -48,8 +45,8 @@ describe('ChartDataService', function() {
             name: fakeCumulativeName,
             columns: ["time", "value"],
             points: [
-                [1428478324000, 443309],
-                [1428478324000, 142012]
+                [1428478324000, fakePointValue1],
+                [1428478324000, fakePointValue2]
             ],
             enabled: true,
             type: "gauge",
@@ -69,30 +66,30 @@ describe('ChartDataService', function() {
             unit: "B"
         }
     };
-    var fakeGaugeResult = {
-        labels: ['', ''],
-        data: [
-            [
-                fakeUsageData.gaugeChart.points[1][1],
-                fakeUsageData.gaugeChart.points[0][1],
-            ]
-        ]
-    };
-    var fakeCumulativeResult = {
-        data: fakeUsageData.cumulativeChart.points[0][1] + fakeUsageData.cumulativeChart.points[1][1]
-    };
+    var fakeGaugeResult = [
+        {
+            x: fakeUsageData.gaugeChart.points[1][0],
+            y: fakeUsageData.gaugeChart.points[1][1]
+        },
+        {
+            x: fakeUsageData.gaugeChart.points[0][0],
+            y: fakeUsageData.gaugeChart.points[0][1]
+        }
+    ];
+    var fakeCumulativeResult = fakeUsageData.cumulativeChart.points[0][1] + fakeUsageData.cumulativeChart.points[1][1];
 
     /*
         Test setup
      */
     beforeEach(function() {
+        resetAllMocks();
 
         /*
             Load module
          */
         module('dashboard.services');
 
-        dateUtilMock.fromTimestamp.and.returnValue("12-Jan-15 13:33");
+        dateUtilMock.formatDateTimeFromTimestamp.and.returnValue(fakeDateTime);
 
         module(function($provide) {
             $provide.value('dateUtil', dateUtilMock);
@@ -114,7 +111,6 @@ describe('ChartDataService', function() {
      */
     describe('getCumulativeMeterData', function() {
         beforeEach(function() {
-            spyOn(service, 'setLabelIfSpaceAvailable').and.returnValue('');
             spyOn(service, 'getServiceDelegate').and.returnValue(usageDataServiceMock);
         });
 
@@ -129,13 +125,12 @@ describe('ChartDataService', function() {
         it('returns an error if no data available', function() {
             usageDataServiceMock.getFormattedData.and.returnValue(undefined);
             var res = service.getCumulativeMeterData(usage, fakeCumulativeName);
-            expect(res).toEqual(emptyCumulativeObject);
+            expect(res).toEqual(0);
         });
     });
 
     describe('getGaugeMeterData', function() {
         beforeEach(function() {
-            spyOn(service, 'setLabelIfSpaceAvailable').and.returnValue('');
             spyOn(service, 'getServiceDelegate').and.returnValue(usageDataServiceMock);
         });
 
@@ -148,7 +143,33 @@ describe('ChartDataService', function() {
         it('returns empty data if no usage data is available', function() {
             usageDataServiceMock.getFormattedData.and.returnValue(undefined);
             var res = service.getGaugeMeterData(usage, fakeGaugeName);
-            expect(res).toEqual(emptyGaugeObject);
+            expect(res).toEqual([]);
+        });
+    });
+
+    describe('getSampledGaugeMeterData', function() {
+        it('returns the correct usage data if available', function() {
+            spyOn(service, 'getGaugeMeterData').and.returnValue(fakeGaugeResult);
+            spyOn(service, 'doSampling').and.returnValue(1);
+
+            service.getSampledGaugeMeterData(usage, fakeGaugeName);
+
+            expect(service.getGaugeMeterData)
+                .toHaveBeenCalledWith(usage, fakeGaugeName);
+            expect(service.doSampling)
+                .toHaveBeenCalledWith(fakeGaugeResult, 100);
+        });
+    });
+
+    describe('doSampling', function() {
+        it('returns untouched array if length < maxNum', function() {
+            var smallArray = [1, 2, 3];
+            var res = service.doSampling(smallArray, 5);
+            expect(res).toEqual(smallArray);
+        });
+        it('returns sampled array if length > maxNum', function() {
+            var res = service.doSampling([1, 2, 3, 4], 2);
+            expect(res).toEqual([1, 3]);
         });
     });
 
@@ -166,23 +187,6 @@ describe('ChartDataService', function() {
         it('returns rateDataService if selected', function() {
             var res = service.getServiceDelegate(rate);
             expect(res).toEqual(rateDataServiceMock);
-        });
-    });
-
-
-    describe('setLabelIfSpaceAvailable', function() {
-        it('should set a label if space permits it', function() {
-            var res = service.setLabelIfSpaceAvailable(
-                fakeNumPoints, fakePointIndex, fakeNumLabels, fakeLabel
-            );
-            expect(res).toEqual(fakeLabel);
-        });
-
-        it('should not add a label if no space is available', function() {
-            var res = service.setLabelIfSpaceAvailable(
-                fakeNumPoints, fakePointIndex + 1, fakeNumLabels, fakeLabel
-            );
-            expect(res).toEqual('');
         });
     });
 });

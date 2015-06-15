@@ -50,7 +50,15 @@
             me.chartData = chartDataService.getCumulativeMeterData(
                 me.chartDataType,
                 me.chartName
-            ).data;
+            );
+        };
+
+        this.useByteFilter = function() {
+            return me.chartDataUnit == "B";
+        };
+
+        this.useHourFilter = function() {
+            return me.chartDataUnit == "ns";
         };
     }
 

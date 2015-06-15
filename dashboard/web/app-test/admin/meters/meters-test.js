@@ -29,6 +29,7 @@ describe('AdminMeterController', function() {
     var fakeMeters = [
         { name:'a.test1', type:'gauge', source:'openstack' },
         { name:'b.test2', type:'cumulative', source:'openstack' },
+        { name:'external.test', type:'gauge', source:'external' },
         { name:'a.test1', type:'delta', source:'openstack' }
     ];
     var fakeMetersWithSelection = [
@@ -38,6 +39,12 @@ describe('AdminMeterController', function() {
     var fakeUniqueMeters = {
         'a.test1': fakeMeters[0],
         'b.test2': fakeMeters[1]
+    };
+    var fakeExternalMeter = {
+        name: "external.test",
+        enabled: false,
+        type: "external",
+        source: "test-source"
     };
     var fakeUniqueMetersAfterPreselection = {
         'a.test1': fakeMetersWithSelection[0],
@@ -86,8 +93,12 @@ describe('AdminMeterController', function() {
             enabled: true,
             type: "cumulative",
             source: "openstack"
-        }
-     };
+        },
+        "external.test": fakeExternalMeter
+    };
+    var fakeMeterMapAfterExternalMeters = {
+        "external.test": fakeExternalMeter
+    };
     var fakeFormattedOpenstackData = fakeFormattedUdrData;
 
     /*
@@ -113,6 +124,7 @@ describe('AdminMeterController', function() {
             restServiceMock.getKeystoneMeters.and.returnValue(keystonePromise);
             restServiceMock.getUdrMeters.and.returnValue(udrPromise);
             restServiceMock.updateUdrMeters.and.returnValue(udrPromise);
+            restServiceMock.addExternalMeterSource.and.returnValue(udrPromise);
             meterselectionDataServiceMock.getFormattedUdrData.and.returnValue(fakeFormattedUdrData);
             meterselectionDataServiceMock.getFormattedOpenstackData.and.returnValue(fakeFormattedOpenstackData);
             dateUtilMock.getTimestamp.and.returnValue(fakeTimestamp);
@@ -148,6 +160,7 @@ describe('AdminMeterController', function() {
         });
 
         it('should execute loadUdrMeterSuccess on udrDeferred.resolve', function() {
+            spyOn(controller, 'addExternalMetersToMap');
             spyOn(controller, 'preselectMeters');
 
             controller.loadMeterData();
@@ -156,8 +169,9 @@ describe('AdminMeterController', function() {
             $scope.$digest();
 
             expect(meterselectionDataServiceMock.setRawUdrData).toHaveBeenCalled();
-            expect(controller.preselectMeters)
-                .toHaveBeenCalledWith(fakeUdrRequestBody);
+            expect(meterselectionDataServiceMock.getFormattedOpenstackData).toHaveBeenCalled();
+            expect(controller.addExternalMetersToMap).toHaveBeenCalledWith();
+            expect(controller.preselectMeters).toHaveBeenCalledWith();
         });
 
         it('should execute loadMeterError on keystoneDeferred.reject', function() {
@@ -246,6 +260,63 @@ describe('AdminMeterController', function() {
             controller.preselectMeters();
             expect(meterselectionDataServiceMock.getFormattedUdrData).toHaveBeenCalled();
             expect(controller.meterMap).toEqual(fakeUniqueMetersAfterPreselection);
+        });
+    });
+
+    describe('addExternalMetersToMap', function() {
+        it('should get meters from meterselectionDataService', function() {
+            controller.addExternalMetersToMap();
+            expect(meterselectionDataServiceMock.getFormattedUdrData).toHaveBeenCalled();
+        });
+
+        it('should add all external meters', function() {
+            controller.meterMap = {};
+            controller.addExternalMetersToMap();
+            expect(controller.meterMap).toEqual(fakeMeterMapAfterExternalMeters);
+        });
+    });
+
+    describe('addExternalMeter', function() {
+        it('should add a new meter', function() {
+            controller.meterMap = {};
+            controller.addExternalMeter("test-name", "test-source");
+            expect(controller.meterMap).toEqual({
+                "test-name": {
+                    name: "test-name",
+                    enabled: true,
+                    type: "external",
+                    source: "test-source"
+                }
+            });
+        });
+
+        it('should overwrite existing meter', function() {
+            controller.meterMap = fakeMeterMapAfterExternalMeters;
+            controller.addExternalMeter(fakeExternalMeter.name, fakeExternalMeter.source);
+            expect(controller.meterMap).toEqual({
+                "external.test": {
+                    name: fakeExternalMeter.name,
+                    enabled: !(fakeExternalMeter.enabled),
+                    type: fakeExternalMeter.type,
+                    source: fakeExternalMeter.source
+                }
+            });
+        });
+
+        it('should correctly call restService.addExternalMeterSource', function() {
+            controller.addExternalMeter(fakeExternalMeter.name, fakeExternalMeter.source);
+            expect(restServiceMock.addExternalMeterSource)
+                .toHaveBeenCalledWith(fakeExternalMeter.source);
+        });
+    });
+
+    describe('isExternalMeter', function() {
+        it('should return true if meter is external', function() {
+            expect(controller.isExternalMeter({type: "external"})).toBeTruthy();
+        });
+
+        it('should return false if meter is internal', function() {
+            expect(controller.isExternalMeter({type: "openstack"})).toBeFalsy();
         });
     });
 });

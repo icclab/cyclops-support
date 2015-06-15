@@ -1,3 +1,13 @@
+Version 0.1.0
+Date 15/Jun/2015
+Notes
+1. [User] Charts for external meters
+2. [User] View billing information and bill PDFs
+3. [Admin] Create bills for users
+4. [Admin] Add external meters
+
+*************************************************************
+
 Version 0.0.3
 Date 15/Apr/2015
 Notes

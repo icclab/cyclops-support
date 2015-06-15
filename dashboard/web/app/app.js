@@ -22,6 +22,7 @@
     angular.module('dashboard', [
       'ngAnimate',
       'ui.router',
+      'ui.bootstrap',
       'toasty',
       'angular-loading-bar',
       'dashboard.services',
@@ -37,8 +38,12 @@
       'dashboard.admin.meters',
       'dashboard.admin.users',
       'dashboard.admin.rate',
+      'dashboard.admin.billing',
       'dashboard.charts',
-      'dashboard.filter'
+      'dashboard.filter',
+      'dashboard.notifications',
+      'dashboard.directives',
+      'dashboard.modals'
     ]).config([
         '$urlRouterProvider',
         '$logProvider',
@@ -298,6 +303,7 @@
             });
         }
     ]);
+
     /*
         Admin Rate Configuration Module Setup
     */
@@ -326,9 +332,36 @@
         }
     ]);
 
+    /*
+        Admin Billing Configuration Module Setup
+    */
+    angular.module('dashboard.admin.billing', [
+        'ui.router'
+    ]).config([
+        '$stateProvider',
+        function($stateProvider) {
+            $stateProvider.state('admin-billing', {
+                url: "/admin/billing",
+                authenticate: true,
+                adminOnly: true,
+                views: {
+                    "navigation": {
+                        templateUrl: 'navigation/navigation.html',
+                        controller: 'NavigationController',
+                        controllerAs: 'navigationCtrl'
+                    },
+                    "content": {
+                        templateUrl: 'admin/billing/billing.html',
+                        controller: 'AdminBillingController',
+                        controllerAs: 'adminBillingCtrl'
+                    }
+                }
+            });
+        }
+    ]);
 
     /*
-        Admin User Management Module Setup
+        Cloudservices Module Setup
     */
     angular.module('dashboard.cloudservices', [
         'ui.router'
@@ -373,10 +406,25 @@
     /*
         Charts Module Setup
     */
-    angular.module('dashboard.charts', ['chart.js']);
+    angular.module('dashboard.charts', ['nvd3']);
 
     /*
         Filter Module Setup
     */
     angular.module('dashboard.filter', []);
+
+    /*
+        Notifications Module Setup
+    */
+    angular.module('dashboard.notifications', []);
+
+    /*
+        Directives Module Setup
+    */
+    angular.module('dashboard.directives', []);
+
+    /*
+        Modals Module Setup
+    */
+    angular.module('dashboard.modals', []);
 })();
