@@ -21,11 +21,15 @@ Currently, the following features are implemented:
 * [User] Dynamically created charts for rate data
 * [User] Dynamically created charts for charge data
 * [User] Alert Messages
+* [User] Charts for external meters
+* [User] View billing information and bill PDFs
 * [Admin] Listing users and admins
 * [Admin] Displaying list of all available meters
 * [Admin] Configuring UDR Microservice to use different set of meters
 * [Admin] User Management
-* [Admin] Configure Rate Microservice 
+* [Admin] Configure Rate Microservice
+* [Admin] Create bills for users
+* [Admin] Add external meters
 
 ### Components & Libraries
   * <a href="https://angularjs.org">AngularJS</a>
