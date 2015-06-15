@@ -51,7 +51,7 @@ cwd=$(pwd)
 cd /usr/share/tomcat7/bin/
 
 cat >> setenv.sh <<EOL
-export CATALINA_OPTS="-Xms1024m -Xmx1024m -XX:PermSize=128m -XX:MaxPermSize=128m -server"
+export CATALINA_OPTS="-Xms1024m -Xmx1024m -XX:PermSize=256m -XX:MaxPermSize=256m -server"
 EOL
 
 chmod +x setenv.sh
