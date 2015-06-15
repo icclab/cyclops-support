@@ -75,8 +75,6 @@
          * @param {Object} data Raw response data
          */
         this.setRawData = function(data) {
-            formattedData = {};
-
             if(data && data.usage && data.usage.OpenStack) {
                 dataArray = data.usage.OpenStack;
 
@@ -161,6 +159,10 @@
 
         this.getFormattedData = function() {
             return formattedData;
+        };
+
+        this.clearData = function() {
+            formattedData = {};
         };
     }
 

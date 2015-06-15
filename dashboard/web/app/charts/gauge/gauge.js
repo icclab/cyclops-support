@@ -48,7 +48,7 @@
         this.chartOptions = {};
 
         this.updateGraph = function() {
-            var result = chartDataService.getGaugeMeterData(
+            var result = chartDataService.getSampledGaugeMeterData(
                 me.chartDataType,
                 me.chartName
             );
@@ -61,7 +61,7 @@
                         top: 20,
                         right: 20,
                         bottom: 40,
-                        left: 65
+                        left: 80
                     },
                     x: function(d){ return d.x; },
                     y: function(d){ return d.y; },
@@ -82,7 +82,7 @@
                                 return d3.format('f')(d)
                             }
                             else if(d < 1) {
-                                return d3.format('.06f')(d);
+                                return d3.format('.10f')(d);
                             }
                             else {
                                 return d3.format('.02f')(d);

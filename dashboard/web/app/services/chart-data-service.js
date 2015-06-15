@@ -26,9 +26,11 @@
         Controllers, Factories, Services, Directives
     */
     ChartDataService.$inject = [
-        'usageDataService', 'rateDataService', 'chargeDataService', 'externalUsageDataService'
+        'usageDataService', 'rateDataService', 'chargeDataService',
+        'externalUsageDataService', 'externalChargeDataService'
     ];
-    function ChartDataService(usageDataService, rateDataService, chargeDataService, externalUsageDataService) {
+    function ChartDataService(usageDataService, rateDataService, chargeDataService,
+            externalUsageDataService, externalChargeDataService) {
         var me = this;
 
         this.getServiceDelegate = function(type) {
@@ -41,8 +43,11 @@
             else if(type == "charge") {
                 return chargeDataService;
             }
-            else if(type == "external") {
+            else if(type == "usage_external") {
                 return externalUsageDataService;
+            }
+            else if(type == "charge_external") {
+                return externalChargeDataService;
             }
         };
 

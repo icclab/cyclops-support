@@ -117,4 +117,12 @@ describe('RateDataService', function() {
             expect(res).toEqual(["time", "value"]);
         });
     });
+
+    describe('clearData', function() {
+        it('should clear data', function() {
+            service.setRawData(fakeChartData);
+            service.clearData();
+            expect(service.getFormattedData()).toEqual({});
+        });
+    });
 });

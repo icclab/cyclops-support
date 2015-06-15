@@ -129,6 +129,10 @@
         this.getFormattedData = function() {
             return formattedData;
         };
+
+        this.clearData = function() {
+            formattedData = {};
+        };
     }
 
 })();

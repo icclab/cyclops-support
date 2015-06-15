@@ -51,7 +51,7 @@ describe('ExternalUsageDataService', function() {
         name: "test.external.meter1",
         unit: "",
         chartType: "gauge",
-        serviceType: "external"
+        serviceType: "usage_external"
     }];
 
 
