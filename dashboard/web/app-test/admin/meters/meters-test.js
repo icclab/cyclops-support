@@ -308,6 +308,23 @@ describe('AdminMeterController', function() {
             expect(restServiceMock.addExternalMeterSource)
                 .toHaveBeenCalledWith(fakeExternalMeter.source);
         });
+
+        //Callback method is empty in the source code, test therefore disabled
+        //it('should execute success callback on deferred.reject', function() {
+        //    controller.addExternalMeter(null, null);
+        //
+        //    udrDeferred.resolve({});
+        //    $scope.$digest();
+        //});
+
+        it('should execute error callback on deferred.reject', function() {
+            controller.addExternalMeter(null, null);
+
+            udrDeferred.reject();
+            $scope.$digest();
+
+            expect(alertServiceMock.showError).toHaveBeenCalled();
+        });
     });
 
     describe('isExternalMeter', function() {

@@ -28,11 +28,11 @@
     function SessionService() {
 
         var set = function(key, value) {
-            sessionStorage[key] = value;
+            sessionStorage.setItem(key, value);
         };
 
         var get = function(key) {
-            return sessionStorage[key];
+            return sessionStorage.getItem(key);
         };
 
         this.clearSession = function() {
@@ -65,14 +65,6 @@
 
         this.getKeystoneId = function() {
             return get('keystoneId');
-        };
-
-        this.getExternalIds = function() {
-            return angular.fromJson(get('externalIds'));
-        };
-
-        this.setExternalIds = function(ids) {
-            return set('externalIds', angular.toJson(ids));
         };
 
         this.setSessionId = function(id) {
