@@ -10,3 +10,6 @@
 .idea
 *.sublime-*
 out/
+
+# Dashboard test coverage information
+dashboard/web/app-test/coverage/
