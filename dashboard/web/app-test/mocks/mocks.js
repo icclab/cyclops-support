@@ -132,16 +132,17 @@ var responseParserMock = jasmine.createSpyObj(
 
 var modalMock = jasmine.createSpyObj(
     '$modal',
-    [
-        'open', 'close'
-    ]
+    ['open', 'close']
 );
 
 var stateMock = jasmine.createSpyObj(
     '$state',
-    [
-        'go'
-    ]
+    ['go']
+);
+
+var scopeMock = jasmine.createSpyObj(
+    'scope',
+    ['$broadcast']
 );
 
 //Mocking the URL class used for PDFs
@@ -172,4 +173,5 @@ function resetAllMocks() {
     resetMock(responseParserMock);
     resetMock(modalMock);
     resetMock(stateMock);
+    resetMock(scopeMock);
 }

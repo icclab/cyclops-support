@@ -17,7 +17,6 @@
 
 describe('ExternalChargeDataService', function() {
     var service;
-    var scopeMock;
 
     /*
         Fake Data
@@ -64,11 +63,6 @@ describe('ExternalChargeDataService', function() {
             Load module
          */
         module('dashboard.services');
-
-        scopeMock = jasmine.createSpyObj(
-            'scope',
-            ['$broadcast']
-        );
 
         /*
             Inject dependencies and configure mocks
