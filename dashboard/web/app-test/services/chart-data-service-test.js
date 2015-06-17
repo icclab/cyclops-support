@@ -24,6 +24,8 @@ describe('ChartDataService', function() {
     var usage = "usage";
     var charge = "charge";
     var rate = "rate";
+    var usageExternal = "usage_external";
+    var chargeExternal = "charge_external";
     var fakeDateTime = "2015-01-01 13:33";
     var fakeCumulativeName = "cumulativeChart";
     var fakeGaugeName = "gaugeChart";
@@ -96,6 +98,8 @@ describe('ChartDataService', function() {
             $provide.value('usageDataService', usageDataServiceMock);
             $provide.value('rateDataService', rateDataServiceMock);
             $provide.value('chargeDataService', chargeDataServiceMock);
+            $provide.value('externalUsageDataService', externalUsageDataServiceMock);
+            $provide.value('externalChargeDataService', externalChargeDataServiceMock);
         });
 
         /*
@@ -187,6 +191,16 @@ describe('ChartDataService', function() {
         it('returns rateDataService if selected', function() {
             var res = service.getServiceDelegate(rate);
             expect(res).toEqual(rateDataServiceMock);
+        });
+
+        it('returns externalUsageDataService if selected', function() {
+            var res = service.getServiceDelegate(usageExternal);
+            expect(res).toEqual(externalUsageDataServiceMock);
+        });
+
+        it('returns externalChargeDataService if selected', function() {
+            var res = service.getServiceDelegate(chargeExternal);
+            expect(res).toEqual(externalChargeDataServiceMock);
         });
     });
 });
