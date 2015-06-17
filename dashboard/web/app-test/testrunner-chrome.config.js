@@ -29,9 +29,7 @@ module.exports = function(config) {
       '../app/libs/jquery.min.js',
       '../app/libs/bootstrap.min.js',
       '../app/libs/metisMenu.min.js',
-      '../app/libs/sb-admin-2.js',
-      '../app/libs/Chart.js',
-      '../app/libs/angular-chart.js'
+      '../app/libs/sb-admin-2.js'
     ],
 
 
