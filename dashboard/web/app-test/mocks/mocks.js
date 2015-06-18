@@ -174,4 +174,5 @@ function resetAllMocks() {
     resetMock(modalMock);
     resetMock(stateMock);
     resetMock(scopeMock);
+    resetMock(URL);
 }
