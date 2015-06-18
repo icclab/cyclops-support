@@ -30,6 +30,8 @@ For more in-depth documentation, see:
 * [Configuring OpenAM](https://github.com/icclab/cyclops-support/wiki/OpenAM-Configuration)
 * [Communication Flow](https://github.com/icclab/cyclops-support/wiki/Communication-Flow)
 * [Javadoc](https://icclab.github.io/cyclops/javadoc/dashboard/)
+* [Development Environment](https://github.com/icclab/cyclops-support/wiki/Setting-Up-Development-Environment)
+* [Directory Structure](https://github.com/icclab/cyclops-support/wiki/Directory-Structure)
 
 ### Features
 Currently, the following features are implemented:
