@@ -35,6 +35,13 @@ import java.io.IOException;
  * This class handles all the requests necessary to associate a Keystone ID with an OpenAM profile
  */
 public class KeystoneAssociation extends ServerResource{
+    /**
+     * This method returns the Keystone ID associated to an OpenStack account.
+     * Username and password of the OpenStack account are provided via POST arguments.
+     *
+     * @param  entity Request entity
+     * @return        The user's Keystone ID
+     */
     @Post("json")
     public Representation getKeystoneUserId(Representation entity) {
         try {
@@ -50,6 +57,13 @@ public class KeystoneAssociation extends ServerResource{
         }
     }
 
+    /**
+     * This method stores a Keystone ID in a Field named "keystoneid" in OpenAM.
+     * OpenAM needs to be properly configured for this to work.
+     *
+     * @param  entity Request Entity
+     * @return        The untouched response from OpenAM
+     */
     @Put("json")
     public Representation storeKeystoneUserId(Representation entity) {
         try {
