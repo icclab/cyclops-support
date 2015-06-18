@@ -22,6 +22,9 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.HashMap;
 
+/**
+ * This class is a high-level abstraction of a bill
+ */
 public class Bill {
     private HashMap<String, String> info;
     private HashMap<String, Long> usagePerMeter;

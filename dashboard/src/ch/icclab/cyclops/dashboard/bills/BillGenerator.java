@@ -39,6 +39,9 @@ import java.text.NumberFormat;
 import java.util.Arrays;
 import java.util.HashMap;
 
+/**
+ * The BillGenerator handles the creation of bill PDFs
+ */
 public class BillGenerator {
     private static final int ITEM_NAME_OFFSET_X = 50;
     private static final int ITEM_NAME_OFFSET_Y = 40;
@@ -57,6 +60,13 @@ public class BillGenerator {
 
     private static final int TABLE_WIDTH = 550;
 
+    /**
+     * Initiates the creation of a bill PDF
+     * @param  path                   The destination path of the PDF
+     * @param  bill                   Bill object holding the bill data
+     * @param  logo                   The logo to display in the bottom right corner
+     * @throws PdfGenerationException
+     */
     public void createPDF(String path, Bill bill, File logo) throws PdfGenerationException {
         PDDocument document = new PDDocument();
         PDPage page = new PDPage();
@@ -226,6 +236,14 @@ public class BillGenerator {
         }
     }
 
+    /**
+     * Draw the table header for the itemized billing table
+     * @param  contentStream The stream holding the page
+     * @param  x             X position where the header starts
+     * @param  y             Y position where the header starts
+     * @return               Height of the header
+     * @throws IOException
+     */
     private static int drawItemizedDetailTableHeader(PDPageContentStream contentStream, int x, int y) throws IOException {
         final int HEADER_HEIGHT = 20;
         final int FONT_SIZE = 12;
@@ -259,6 +277,18 @@ public class BillGenerator {
         return HEADER_HEIGHT;
     }
 
+    /**
+     * Draws the detailed bill items
+     * @param  contentStream The stream holding the page
+     * @param  x             X position where the table starts
+     * @param  y             Y position where the table starts
+     * @param  usage         HashMap of usage details
+     * @param  rate          HashMap of rate details
+     * @param  unit          HashMap of unit details
+     * @param  itemCost      HashMap of cost details
+     * @return               Height of the table
+     * @throws IOException
+     */
     private static int drawItemizedDetailTable(PDPageContentStream contentStream, int x, int y, HashMap<String, Long> usage, HashMap<String, Double> rate, HashMap<String, String> unit, HashMap<String, Double> itemCost) throws IOException {
         final int FONT_SIZE = 12;
         final int DELIMITER_PADDING = 8;
@@ -324,6 +354,15 @@ public class BillGenerator {
         return tableHeight;
     }
 
+    /**
+     * Draws the billing summary
+     * @param  contentStream Stream holding the page
+     * @param  x             X position where the listing starts
+     * @param  y             Y position where the listing starts
+     * @param  itemCost      HashMap holding the cost details
+     * @param  discount      HashMap holding the discount details
+     * @throws IOException
+     */
     private static void drawItemizedDetailSummary(PDPageContentStream contentStream, int x, int y, HashMap<String, Double> itemCost, HashMap<String, Double> discount) throws IOException {
         double totalCost = 0;
 

@@ -23,7 +23,20 @@ import ch.icclab.cyclops.dashboard.util.LoadConfiguration;
 import org.restlet.representation.Representation;
 import org.restlet.resource.Get;
 
+/**
+ * This class handles / forwards the call concerning billing information to
+ * the billing microservice
+ */
 public class Billing extends OAuthServerResource {
+    /**
+     * This method gets the billing details from the billing microservice.
+     *
+     * The method receives the the user's ID and two timestamps (from / to) from the dashboard frontend.
+     * It then sends this information to the Billing Endpoint, requesting the billing data during the given time frame. The
+     * Billing endpoint is configured in /WEB-INF/configuration.txt as BILLING_INVOICE_URL
+     *
+     * @return  A representation of the untouched response
+     */
     @Get
     public Representation getBills() {
         String query = getRequest().getResourceRef().getQuery();
