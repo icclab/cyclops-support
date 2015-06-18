@@ -34,9 +34,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * This class handles all the requests necessary to associate a Keystone ID with an OpenAM profile
+ * This class handles the association of external user IDs with external meters
  */
 public class ExternalUserAccounts extends ServerResource {
+    /**
+     * This method returns all external IDs of a given user_id
+     *
+     * @param  entity Request entity
+     * @return        All external IDs
+     */
     @Get
     public Representation getExternalUserIds(Representation entity) {
         try {
@@ -62,6 +68,13 @@ public class ExternalUserAccounts extends ServerResource {
         }
     }
 
+    /**
+     * This method updates external user IDs for a given user. If a new ID is given,
+     * it will be added. If an existing ID is provided, it will be updated.
+     *
+     * @param  entity Request entity
+     * @return        HTTP 200 or 500
+     */
     @Post("json")
     public Representation updateExternalUserIds(Representation entity) {
         try {
