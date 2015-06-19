@@ -32,9 +32,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * This class handles all the requests necessary to associate a Keystone ID with an OpenAM profile
+ * This class handles the creation of new external meters
  */
 public class ExternalMeterSources extends ServerResource {
+    /**
+     * This method adds a new external meter source to the database
+     *
+     * @param  entity Request Entity
+     * @return        HTTP 200 or 500
+     */
     @Post("json")
     public Representation addExternalMeterSource(Representation entity) {
         try {

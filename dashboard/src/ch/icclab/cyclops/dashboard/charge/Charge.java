@@ -23,7 +23,19 @@ import ch.icclab.cyclops.dashboard.util.LoadConfiguration;
 import org.restlet.representation.Representation;
 import org.restlet.resource.Get;
 
+/**
+ * This class handles all requests concerning the Charge microservice
+ */
 public class Charge extends OAuthServerResource {
+    /**
+     * This method gets the charge data from the RC microservice.
+     *
+     * The method receives the the user's keystone ID and two timestamps (from / to) from the dashboard frontend.
+     * It then sends this information to the RC Endpoint, requesting the usage data during the given time frame. The
+     * RC Charge endpoint is configured in /WEB-INF/configuration.txt as RC_CHARGE_URL
+     *
+     * @return [description]
+     */
     @Get
     public Representation getCharge() {
         String query = getRequest().getResourceRef().getQuery();

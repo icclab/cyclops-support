@@ -12,28 +12,44 @@ The dashboard interacts with the different micro service of <a href="http://iccl
 #### * CYCLOPS Rating Charging & Billing Framework
 <img align="middle" src="http://blog.zhaw.ch/icclab/files/2013/05/overall_architecture.png" alt="CYCLOPS Architecture" height="500" width="600"></img>
 
+### Installation
+1. Check out this repository
+1. Switch to the installation directory: `cd path/to/repository/dashboard/installation`
+1. Make sure the hosts-file contains a route to localhost, otherwise OpenAM setup will fail
+  1. execute `cat /etc/hosts | grep $HOSTNAME`
+  1. it should output a line similar to `127.0.0.1 localhost myhostname`
+  1. If it doesn't, run this as root: `echo "127.0.0.1 myhostname" >> /etc/hosts` 
+1. Make the installation script executable: `sudo chmod +x install.sh`
+1. Run the installation script as root: `sudo ./install.sh`
+1. Follow the script instructions
+1. Wait for the setup to complete
+1. Follow the [configuration guide](https://github.com/icclab/cyclops-support/wiki/OpenAM-Configuration) to finish setting up OpenAM
+
 For more in-depth documentation, see:
-* [Installing OpenAM](https://github.com/icclab/cyclops-support/wiki/OpenAM-Installation)
+* [Installing OpenAM](https://github.com/icclab/cyclops-support/wiki/Dashboard-Installation)
 * [Configuring OpenAM](https://github.com/icclab/cyclops-support/wiki/OpenAM-Configuration)
 * [Communication Flow](https://github.com/icclab/cyclops-support/wiki/Communication-Flow)
 * [Javadoc](https://icclab.github.io/cyclops/javadoc/dashboard/)
+* [Development Environment](https://github.com/icclab/cyclops-support/wiki/Setting-Up-Development-Environment)
+* [Directory Structure](https://github.com/icclab/cyclops-support/wiki/Directory-Structure)
 
+### Features
 Currently, the following features are implemented:
-* [User] Authentication / Authorisation via OpenAM
-* [User] Linking an account to OpenStack
-* [User] Dynamically created charts for usage data
-* [User] Dynamically created charts for rate data
-* [User] Dynamically created charts for charge data
-* [User] Alert Messages
-* [User] Charts for external meters
-* [User] View billing information and bill PDFs
-* [Admin] Listing users and admins
-* [Admin] Displaying list of all available meters
-* [Admin] Configuring UDR Microservice to use different set of meters
-* [Admin] User Management
-* [Admin] Configure Rate Microservice
-* [Admin] Create bills for users
-* [Admin] Add external meters
+  * [User] Authentication / Authorisation via OpenAM
+  * [User] Linking an account to OpenStack
+  * [User] Dynamically created charts for usage data
+  * [User] Dynamically created charts for rate data
+  * [User] Dynamically created charts for charge data
+  * [User] Alert Messages
+  * [User] Charts for external meters
+  * [User] View billing information and bill PDFs
+  * [Admin] Listing users and admins
+  * [Admin] Displaying list of all available meters
+  * [Admin] Configuring UDR Microservice to use different set of meters
+  * [Admin] User Management
+  * [Admin] Configure Rate Microservice
+  * [Admin] Create bills for users
+  * [Admin] Add external meters
 
 ### Components & Libraries
   * <a href="https://angularjs.org">AngularJS</a>

@@ -156,12 +156,19 @@ describe('BillController', function() {
         });
 
         it('should execute error callback on deferred.reject', function() {
-            controller.getBills(fakeKeystoneId);
+            controller.showDetails(fakeKeystoneId);
 
             deferred.reject();
             $scope.$digest();
 
             expect(alertServiceMock.showError).toHaveBeenCalled();
+        });
+    });
+
+    describe('openModal', function() {
+        it('should call $modal.open', function() {
+            controller.openModal();
+            expect(modalMock.open).toHaveBeenCalled();
         });
     });
 });

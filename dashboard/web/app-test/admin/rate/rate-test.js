@@ -214,7 +214,7 @@ describe('AdminRateController', function() {
 
         it('should execute success callback on policyDeferred.resolve', function() {
             controller.activatePolicyStatic();
-            policyDeferred.resolve(fakeResponseDynamic);
+            policyDeferred.resolve(fakeResponseStatic);
             $scope.$digest();
 
             expect(alertServiceMock.showSuccess).toHaveBeenCalled();
@@ -228,6 +228,42 @@ describe('AdminRateController', function() {
 
             expect(alertServiceMock.showError).toHaveBeenCalled();
             expect(controller.setGuiActivePolicyStatic).not.toHaveBeenCalled();
+        });
+    });
+
+    describe('activatePolicyDynamic', function() {
+        beforeEach(function() {
+            spyOn(controller, 'buildDynamicRateConfig').and.returnValue(fakeDynamicRateConfig);
+            spyOn(controller, 'setGuiActivePolicyDynamic');
+        });
+
+        it('should call buildDynamicRateConfig', function() {
+            controller.activatePolicyDynamic();
+            expect(controller.buildDynamicRateConfig).toHaveBeenCalled();
+        });
+
+        it('should correctly call restService.setActiveRatePolicy', function() {
+            var res = controller.activatePolicyDynamic();
+            expect(restServiceMock.setActiveRatePolicy)
+                .toHaveBeenCalledWith(fakeDynamicRateConfig);
+        });
+
+        it('should execute success callback on policyDeferred.resolve', function() {
+            controller.activatePolicyDynamic();
+            policyDeferred.resolve(fakeResponseDynamic);
+            $scope.$digest();
+
+            expect(alertServiceMock.showSuccess).toHaveBeenCalled();
+            expect(controller.setGuiActivePolicyDynamic).toHaveBeenCalled();
+        });
+
+        it('should execute error callback on policyDeferred.reject', function() {
+            controller.activatePolicyDynamic();
+            policyDeferred.reject();
+            $scope.$digest();
+
+            expect(alertServiceMock.showError).toHaveBeenCalled();
+            expect(controller.setGuiActivePolicyDynamic).not.toHaveBeenCalled();
         });
     });
 

@@ -31,7 +31,16 @@ import org.restlet.resource.ServerResource;
 
 import java.util.List;
 
+/**
+ * Handles the server call that requests information about all the bills for
+ * a specific user.
+ */
 public class BillInformation extends ServerResource {
+    /**
+     * This method returns all the existing bills of a given user. Details include
+     * the bill's due date and whether a bill has been paid or approved.
+     * @return [description]
+     */
     @Get
     public Representation getBills() {
         Form query = getRequest().getResourceRef().getQueryAsForm();

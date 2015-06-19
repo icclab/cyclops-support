@@ -46,6 +46,10 @@ import org.restlet.routing.Router;
 
 import java.io.IOException;
 
+/**
+ * This class wires together the URL paths and classes that handle each request.
+ * It also makes sure the database exists and the configuration is loaded.
+ */
 public class DashboardApplication extends Application {
     @Override
     public Restlet createInboundRoot() {
