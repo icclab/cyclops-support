@@ -1,3 +1,8 @@
+Version 0.1.1
+Date 19/Jun/2015
+Notes
+1. Documentation
+
 Version 0.1.0
 Date 15/Jun/2015
 Notes
