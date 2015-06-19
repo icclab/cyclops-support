@@ -17,7 +17,6 @@
 
 describe('ExternalChargeDataService', function() {
     var service;
-    var scopeMock;
 
     /*
         Fake Data
@@ -65,11 +64,6 @@ describe('ExternalChargeDataService', function() {
          */
         module('dashboard.services');
 
-        scopeMock = jasmine.createSpyObj(
-            'scope',
-            ['$broadcast']
-        );
-
         /*
             Inject dependencies and configure mocks
          */
@@ -111,6 +105,14 @@ describe('ExternalChargeDataService', function() {
         it('should correctly format columns', function() {
             var res = service.getFormattedColumns();
             expect(res).toEqual(["time", "value"]);
+        });
+    });
+
+    describe('clearData', function() {
+        it('should clear data', function() {
+            service.setRawData(fakeChartData);
+            service.clearData();
+            expect(service.getFormattedData()).toEqual({});
         });
     });
 });

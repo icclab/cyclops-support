@@ -71,7 +71,7 @@ describe('ChargeController', function() {
             spyOn($scope, '$broadcast');
 
             controller = $controller('ChargeController', {
-                '$scope': $scope,
+                '$scope': scopeMock,
                 'restService': restServiceMock,
                 'sessionService': sessionServiceMock,
                 'chargeDataService': chargeDataServiceMock,
@@ -194,7 +194,7 @@ describe('ChargeController', function() {
         });
 
         it('should excute error callback on deferred.reject', function() {
-            controller.requestCharge(fakeUser, fakeFrom, fakeTo);
+            controller.requestExternalCharge(fakeUser, fakeFrom, fakeTo);
 
             deferred.reject();
             $scope.$digest();
@@ -226,6 +226,15 @@ describe('ChargeController', function() {
             $scope.$digest();
 
             expect(alertServiceMock.showError).toHaveBeenCalled();
+        });
+    });
+
+    describe('clearChartDataForUpdate', function() {
+        it('should clear all chart data', function() {
+            controller.clearChartDataForUpdate();
+            expect(scopeMock.$broadcast).toHaveBeenCalledWith("CLEAR_CHARTS");
+            expect(chargeDataServiceMock.clearData).toHaveBeenCalled();
+            expect(externalChargeDataServiceMock.clearData).toHaveBeenCalled();
         });
     });
 });

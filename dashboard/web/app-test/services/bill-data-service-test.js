@@ -16,8 +16,6 @@
  */
 
 describe('BillDataService', function() {
-    var service;
-
     /*
         Fake Data
      */
@@ -54,11 +52,6 @@ describe('BillDataService', function() {
             Load module
          */
         module('dashboard.services');
-
-        scopeMock = jasmine.createSpyObj(
-            'scope',
-            ['$broadcast']
-        );
 
         /*
             Inject dependencies and configure mocks

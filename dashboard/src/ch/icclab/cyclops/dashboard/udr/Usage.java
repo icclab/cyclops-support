@@ -34,7 +34,7 @@ import org.restlet.resource.ResourceException;
 public class Usage extends OAuthServerResource {
 
     /**
-     * This method updates gets the usage data from the UDR microservice
+     * This method gets the usage data from the UDR microservice
      * <p>
      * The method receives the the user's keystone ID and two timestamps (from / to) from the dashboard frontend.
      * It then sends this information to the UDR Endpoint, requesting the usage data during the given time frame. The

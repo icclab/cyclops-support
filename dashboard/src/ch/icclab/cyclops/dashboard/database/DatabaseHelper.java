@@ -9,6 +9,10 @@ import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * This class handles all SQL interaction with the database, like table creation,
+ * data selection and insertion.
+ */
 public class DatabaseHelper {
     private final static String CREATE_TABLE_BILLS = "CREATE TABLE IF NOT EXISTS bills" +
             "(ID INTEGER PRIMARY KEY," +

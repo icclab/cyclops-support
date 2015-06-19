@@ -35,7 +35,20 @@ import java.io.File;
 import java.util.Iterator;
 import java.util.UUID;
 
+/**
+ * This class handles all the REST calls concerning bill PDFs. These include
+ * returning a PDF of an existing bill and creating new bills.
+ */
 public class BillPDF extends ServerResource {
+    /**
+     * This method returns a Bill PDF if there is any.
+     *
+     * The method receives the the user's ID and two timestamps (from / to) from the dashboard frontend.
+     * The method then checks if there is a bill for the given user and the chosen time window. If there is,
+     * it will return the PDF.
+     *
+     * @return  A file representation of the PDF
+     */
     @Get
     public Representation getBillPDF() {
         try {
@@ -63,6 +76,13 @@ public class BillPDF extends ServerResource {
         }
     }
 
+    /**
+     * This method creates a PDF file if it does not yet exist. All the needed
+     * data is provided through POST parameters
+     *
+     * @param  entity Request entity
+     * @return A file representation of the PDF
+     */
     @Post("json")
     public Representation createPDF(Representation entity) {
         try {

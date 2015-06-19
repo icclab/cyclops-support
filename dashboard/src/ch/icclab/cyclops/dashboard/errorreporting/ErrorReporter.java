@@ -9,6 +9,19 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
 
+/**
+ * This class reports exceptions to a RabbitMQ instance. The RabbitMQ endpoint
+ * and credentials are configured in /WEB-INF/configuration.txt with the following fields:
+ *
+ * ERROR_REPORTER_HOST
+ * ERROR_REPORTER_PORT
+ * ERROR_REPORTER_VIRTUAL_HOST
+ * ERROR_REPORTER_USERNAME
+ * ERROR_REPORTER_PASSWORD
+ * ERROR_REPORTER_ENABLED
+ *
+ * Errors will only be reported if ERROR_REPORTER_ENABLED is set to "true"
+ */
 public class ErrorReporter {
     private static final String EXCHANGE_NAME = "cyclops";
 

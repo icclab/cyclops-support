@@ -116,8 +116,10 @@ describe('AdminBillingController', function() {
             restServiceMock.getUserInfo.and.returnValue(userInfoPromise);
             restServiceMock.getBillingInformation.and.returnValue(billDetailsPromise);
             restServiceMock.createBillPDF.and.returnValue(billPromise);
-            restServiceMock.getExternalUserIds.and.returnValue(externalBillDetailsPromise);
+            restServiceMock.getExternalUserIds.and.returnValue(externalIdsPromise);
+            restServiceMock.getBills.and.returnValue(billPromise);
             sessionServiceMock.getSessionId.and.returnValue(fakeSessionId);
+            sessionServiceMock.getKeystoneId.and.returnValue(fakeUser);
             responseParserMock.getUserListFromResponse.and.returnValue(fakeUsers);
             dateUtilMock.formatDateFromTimestamp.and.returnValue(fakeDate);
             dateUtilMock.addDaysToDateString.and.returnValue(fakeDate);
@@ -218,7 +220,7 @@ describe('AdminBillingController', function() {
             controller.generateBill(fakeUser);
 
             userInfoDeferred.resolve(fakePromiseResult);
-            $scope.$apply();
+            $scope.$digest();
 
             expect(controller.loadExternalUserIds).toHaveBeenCalledWith(fakePromiseResult);
         });
@@ -228,7 +230,7 @@ describe('AdminBillingController', function() {
 
             userInfoDeferred.resolve(fakePromiseResult);
             externalIdsDeferred.resolve(fakePromiseResult);
-            $scope.$apply();
+            $scope.$digest();
 
             expect(controller.getExternalBillItems).toHaveBeenCalledWith(fakePromiseResult);
         });
@@ -239,7 +241,7 @@ describe('AdminBillingController', function() {
             userInfoDeferred.resolve(fakePromiseResult);
             externalIdsDeferred.resolve(fakePromiseResult);
             externalBillDetailsDeferred.resolve(fakePromiseResult);
-            $scope.$apply();
+            $scope.$digest();
 
             expect(controller.getInternalBillItems).toHaveBeenCalledWith(fakePromiseResult);
         });
@@ -251,7 +253,7 @@ describe('AdminBillingController', function() {
             externalIdsDeferred.resolve(fakePromiseResult);
             externalBillDetailsDeferred.resolve(fakePromiseResult);
             billDetailsDeferred.resolve(fakePromiseResult);
-            $scope.$apply();
+            $scope.$digest();
 
             expect(controller.generateBillPDF).toHaveBeenCalledWith(fakePromiseResult);
         });
@@ -264,7 +266,7 @@ describe('AdminBillingController', function() {
             externalBillDetailsDeferred.resolve(fakePromiseResult);
             billDetailsDeferred.resolve(fakePromiseResult);
             billDeferred.resolve(fakePromiseResult);
-            $scope.$apply();
+            $scope.$digest();
 
             expect(alertServiceMock.showSuccess).toHaveBeenCalled();
         });
@@ -277,7 +279,7 @@ describe('AdminBillingController', function() {
             externalBillDetailsDeferred.resolve(fakePromiseResult);
             billDetailsDeferred.resolve(fakePromiseResult);
             billDeferred.resolve(fakePromiseResult);
-            $scope.$apply();
+            $scope.$digest();
 
             expect(controller.showPdfModal).toHaveBeenCalled();
         });
@@ -302,7 +304,7 @@ describe('AdminBillingController', function() {
             var promise = controller.getKeystoneIdForUser(fakeUser, fakeSessionId);
 
             userInfoDeferred.resolve(fakeUserInfoResponse);
-            $scope.$apply();
+            $scope.$digest();
 
             expect(promise.$$state.status).toBe(1);
         });
@@ -311,7 +313,7 @@ describe('AdminBillingController', function() {
             var promise = controller.getKeystoneIdForUser(fakeUser, fakeSessionId);
 
             userInfoDeferred.resolve(fakeUserInfoResponseNoId);
-            $scope.$apply();
+            $scope.$digest();
 
             expect(promise.$$state.status).toBe(2);
         });
@@ -320,7 +322,7 @@ describe('AdminBillingController', function() {
             var promise = controller.getKeystoneIdForUser(fakeUser, fakeSessionId);
 
             userInfoDeferred.reject();
-            $scope.$apply();
+            $scope.$digest();
 
             expect(promise.$$state.status).toBe(2);
         });
@@ -337,7 +339,7 @@ describe('AdminBillingController', function() {
             var promise = controller.getInternalBillItems(fakePromiseResult);
 
             billDetailsDeferred.resolve(fakeUserInfoResponse);
-            $scope.$apply();
+            $scope.$digest();
 
             expect(promise.$$state.status).toBe(1);
         });
@@ -346,7 +348,7 @@ describe('AdminBillingController', function() {
             var promise = controller.getInternalBillItems(fakePromiseResult);
 
             billDetailsDeferred.reject();
-            $scope.$apply();
+            $scope.$digest();
 
             expect(promise.$$state.status).toBe(2);
         });
@@ -366,7 +368,7 @@ describe('AdminBillingController', function() {
             var promise = controller.getExternalBillItems(fakePromiseResult);
 
             billDetailsDeferred.resolve(fakeUserInfoResponse);
-            $scope.$apply();
+            $scope.$digest();
 
             expect(promise.$$state.status).toBe(1);
         });
@@ -375,7 +377,7 @@ describe('AdminBillingController', function() {
             var promise = controller.getExternalBillItems(fakePromiseResult);
 
             billDetailsDeferred.resolve(fakeUserInfoResponse);
-            $scope.$apply();
+            $scope.$digest();
 
             expect(billDataServiceMock.setRawData.calls.count()).toBe(fakeExternalUserIds.length);
         });
@@ -384,7 +386,7 @@ describe('AdminBillingController', function() {
             var promise = controller.getExternalBillItems(fakePromiseResult);
 
             billDetailsDeferred.reject();
-            $scope.$apply();
+            $scope.$digest();
 
             expect(promise.$$state.status).toBe(2);
         });
@@ -408,7 +410,7 @@ describe('AdminBillingController', function() {
             var promise = controller.generateBillPDF(fakePromiseResult);
 
             billDeferred.resolve(fakeUserInfoResponse);
-            $scope.$apply();
+            $scope.$digest();
 
             expect(promise.$$state.status).toBe(1);
         });
@@ -417,7 +419,7 @@ describe('AdminBillingController', function() {
             var promise = controller.generateBillPDF(fakePromiseResult);
 
             billDeferred.reject();
-            $scope.$apply();
+            $scope.$digest();
 
             expect(promise.$$state.status).toBe(2);
         });
@@ -477,6 +479,61 @@ describe('AdminBillingController', function() {
             $scope.$digest();
 
             expect(alertServiceMock.showError).toHaveBeenCalled();
+        });
+    });
+
+    describe('loadExternalUserIds', function() {
+        it('sohuld get userId from session', function() {
+            controller.loadExternalUserIds(null);
+            expect(sessionServiceMock.getKeystoneId).toHaveBeenCalled();
+        });
+
+        it('should correctly call restService.getExternalUserIds', function() {
+            controller.loadExternalUserIds(null);
+            expect(restServiceMock.getExternalUserIds).toHaveBeenCalledWith(fakeUser);
+        });
+
+        it('should resolve deferred if REST call is successful', function() {
+            var promise = controller.loadExternalUserIds({});
+
+            externalIdsDeferred.resolve({ data: {} });
+            $scope.$digest();
+
+            expect(promise.$$state.status).toBe(1);
+        });
+
+        it('should reject deferred if REST call fails', function() {
+            var promise = controller.loadExternalUserIds({});
+
+            externalIdsDeferred.reject();
+            $scope.$digest();
+
+            expect(promise.$$state.status).toBe(2);
+        });
+    });
+
+    describe('getExistingBills', function() {
+        it('should correctly call restService.getExternalUserIds', function() {
+            controller.getExistingBills(fakeUser);
+            expect(restServiceMock.getBills).toHaveBeenCalledWith(fakeUser);
+        });
+
+        it('should resolve deferred if REST call is successful', function() {
+            var promise = controller.getExistingBills(fakeUser);
+
+            billDeferred.resolve({ data: {} });
+            $scope.$digest();
+
+            expect(promise.$$state.status).toBe(1);
+        });
+
+        it('should reject deferred if REST call fails', function() {
+            var promise = controller.getExistingBills(fakeUser);
+
+            billDeferred.reject();
+            $scope.$digest();
+
+            expect(promise.$$state.status).toBe(2);
         });
     });
 });
