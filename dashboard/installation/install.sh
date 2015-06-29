@@ -148,6 +148,14 @@ mkdir -p admin-tools
 cd admin-tools
 unzip ../SSOAdminTools-12.0.0.zip
 
+cat >> installwrapper.sh <<EOL
+export JAVA_HOME=${JAVA_PATH}
+./setup
+EOL
+
+chmod +x installwrapper.sh
+./installwrapper.sh
+
 #echo "---------------------------------------------------------------------------"
 #echo "| Installing OpenAM Admin Tools"
 #echo "---------------------------------------------------------------------------"
