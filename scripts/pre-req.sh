@@ -33,6 +33,15 @@ sudo /etc/init.d/rabbitmq-server restart
 sudo rabbitmqctl add_vhost /sensu
 sudo rabbitmqctl add_user sensu secret
 sudo rabbitmqctl set_permissions -p /sensu sensu ".*" ".*" ".*"
+sudo rabbitmq-plugins enable rabbitmq_management
+sudo /etc/init.d/rabbitmq-server restart
+wget http://localhost:15672/cli/rabbitmqadmin
+chmod +x rabbitmqadmin
+sudo mv rabbitmqadmin /usr/bin/
+##########################################
+# please change the rabbitmq administrator account password
+##########################################
+sudo rabbitmqctl change_password guest somepassword
 
 sudo apt-get -y install redis-server
 sudo update-rc.d redis-server defaults
